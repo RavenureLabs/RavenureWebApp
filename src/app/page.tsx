@@ -1,7 +1,22 @@
-import Image from "next/image";
+'use client';
 import ProductComponent from "../components/product/product.component";
+import { use, useEffect } from "react";
+import './i18n';
+import { useTranslation } from "react-i18next";
 
 export default function Home() {
+  const { t, i18n} = useTranslation();
+  useEffect(() => {
+    const arrow = document.getElementById("arrow");
+    if (arrow) {
+      arrow.addEventListener("click", () => {
+        const productsSection = document.getElementById("products");
+        if (productsSection) {
+          productsSection.scrollIntoView({ behavior: "smooth" });
+        }
+      });
+    }
+  }, []);
   return (
     <div>
         <section className="bg-[#0f0f10] text-white py-32 relative overflow-hidden">
@@ -59,7 +74,8 @@ export default function Home() {
             </div>
 
             <div className="mt-20 flex justify-center">
-              <a href="#products" onClick={(e) => {"document.querySelector('#products').scrollIntoView({ behavior: 'smooth' }); return false;"}}
+              <a href="#products" id="arrow"
+  
                 className="text-white text-4xl animate-bounce hover:opacity-70 transition">
                 ↓
               </a>
@@ -68,7 +84,7 @@ export default function Home() {
         </section>
         <section id="products" className="py-24">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center text-gray-800">Öne Çıkan Ürünler</h2>
+          <h2 className="text-4xl font-bold text-center text-white">Öne Çıkan Ürünler</h2>
           <span className="block text-center text-sm font-semibold bg-gradient-to-l from-[#25d170] to-[#139f8b] bg-clip-text text-transparent mb-16 mt-4">
             asdasdasdddaddadadadadadadadadadadsadadadad
           </span>
@@ -79,7 +95,7 @@ export default function Home() {
               description="Performans odaklı, sürdürülebilir ve topluluk dostu mod sistemleri."
               price={49.99}
               discountPrice={39.99}
-              imageUrl="/grass.jpg"
+              imageUrl="/Product Thumbnail RBlackshop.png"
               author="Ravenure Labs"
               reviews={{ rating: 4.8, count: 120 }}
               category="Eklentiler"

@@ -1,0 +1,9 @@
+{
+    "navbar": {
+        "home": "Anasayfa",
+        "store": "Mağaza",
+        "referances": "Referanslar",
+        "discord": "Discord",
+        "login": "Giriş Yap"
+    }
+}

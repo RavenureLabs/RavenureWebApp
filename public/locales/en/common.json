@@ -1,0 +1,9 @@
+{
+    "navbar": {
+        "home": "Home",
+        "store": "Store",
+        "referances": "References",
+        "discord": "Discord",
+        "login": "Login"
+    }
+}

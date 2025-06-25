@@ -1,8 +1,9 @@
-
+'use client';
 import Image from 'next/image';
 import React, { useEffect } from 'react';
-'use client';
+import { useTranslation } from 'next-i18next';
 export default function NavbarComponent() {
+    const { t } = useTranslation();
     useEffect(() => {
         const toggleBtn = document.getElementById("menuToggle");
         const mobileMenu = document.getElementById("mobileMenu");
@@ -57,10 +58,10 @@ export default function NavbarComponent() {
       </div>
 
       <nav className="hidden md:flex space-x-6 font-semibold text-gray-700 z-10 flex-1 justify-center">
-        <a href="/" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">Ana Sayfa</a>
-        <a href="/store" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">Mağaza</a>
-        <a href="/referances" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">Referanslar</a>
-        <a href="/discord-link" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">Discord</a>
+        <a href="/" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{t('navbar.home')}</a>
+        <a href="/store" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{t('navbar.store')}</a>
+        <a href="/referances" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{t('navbar.referances')}</a>
+        <a href="/discord-link" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{t('navbar.discord')}</a>
       </nav>
 
       <div className="hidden md:block z-10 flex-1 text-right">
