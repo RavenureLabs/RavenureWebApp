@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-export type User = {
+export type UserType = {
     name: string;
     email: string;
     password: string;
@@ -27,5 +27,5 @@ const userSchema = new mongoose.Schema({
     isVerified: { type: Boolean, default: false },
     lastLogin: { type: Date, default: null }
 });
-const User = mongoose.model<User & mongoose.Document>('User', userSchema);
+const User = mongoose.models.User || mongoose.model<UserType & mongoose.Document>('User', userSchema);
 export default User;

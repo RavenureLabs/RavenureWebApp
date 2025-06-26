@@ -1,4 +1,4 @@
-import { createUser, getAllUsers, getUserById, getUserByName, login, updateUser } from "@/src/controllers/user.controller";
+import { createUser, getAllUsers, getUserById, getUserByName, login, register, updateUser } from "@/src/controllers/user.controller";
 
 import { requireAuth } from "@/src/lib/middleware/auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -66,7 +66,9 @@ export async function POST(request: NextRequest) {
             }
             return getAllUsers();
         case 'login':
-            return login(data);    
+            return login(data);
+        case 'register':
+            return register(data); 
         default:
             return NextResponse.json({ message: "Invalid action" }, { status: 400 });
     }

@@ -1,7 +1,7 @@
-import { Product } from "@/src/models/product.model";
+import { ProductType } from "@/src/models/product.model";
 import Image from "next/image";
 
-export default function ProductComponent(product: Product) {
+export default function ProductComponent(product: ProductType) {
     return(
       <div className="bg-white rounded-xl border border-gray-200 transition-all overflow-hidden flex flex-col items-center max-w-[400px] mx-auto w-full">
         <div className="relative w-full overflow-hidden rounded-t-xl">
@@ -23,7 +23,7 @@ export default function ProductComponent(product: Product) {
           </h3>
           <span className="inline-flex items-center gap-1 bg-gray-100 text-xs px-2 py-1 rounded mb-2">
             <span className="bg-gradient-to-l from-[#25d170] to-[#139f8b] bg-clip-text text-transparent font-semibold">{product.author}</span>
-            <span className="text-gray-600">• {product.category}</span>
+            <span className="text-gray-600">• {product.category.name}</span>
           </span>
           <p className="text-sm text-gray-600 line-clamp-2 mb-3">
             {product.description || "Bu ürün için açıklama bulunmamaktadır."}

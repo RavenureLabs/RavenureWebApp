@@ -1,7 +1,7 @@
 // user controller.ts
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "../lib/database";
-import User from "../models/user.model";
+import User, { UserType } from "../models/user.model";
 
 export async function createUser(data: any) {
     await connectToDatabase();
@@ -42,6 +42,10 @@ export async function updateUser(id: string, data: any) {
         if (!updatedUser) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
+        const updateUser = await updatedUser.save();
+        if (!updateUser) {
+            return NextResponse.json({ message: "Error updating user" }, { status: 500 });
+        }
         return NextResponse.json({ message: "User updated successfully", user: convertToDto(updateUser) }, { status: 200 });
     }catch (error) {
         console.error("Error updating user:", error);
@@ -77,6 +81,17 @@ export async function getUserByName(name: string) {
     }
 }
 
+export async function getAllUsers() {
+    await connectToDatabase();
+    try {
+        const users = await User.find({});
+        return NextResponse.json({ users: users.map(convertToDto) }, { status: 200 });
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        return NextResponse.json({ message: "Error fetching users", error }, { status: 500 });
+    }
+}
+
 export async function login(data: { name: string, password: string }) {
     await connectToDatabase();
     try {
@@ -86,6 +101,9 @@ export async function login(data: { name: string, password: string }) {
         }
         if (user.password !== data.password) {
             return NextResponse.json({ message: "Invalid password" }, { status: 401 });
+        }
+        if (!user.isActive) {
+            return NextResponse.json({ message: "User is not active" }, { status: 403 });
         }
         user.lastLogin = new Date().toISOString(); // Update last login time
         user.isActive = true; // Set user as active on login
@@ -98,22 +116,44 @@ export async function login(data: { name: string, password: string }) {
     }
 }
 
-export async function getAllUsers() {
+export async function register(data: { name: string, email: string, password: string
+    , role?: string, profilePictureUrl?: string, accountType?: string, isActive?: boolean, isVerified?: boolean
+ }) {
     await connectToDatabase();
     try {
-        const users = await User.find({});
-        return NextResponse.json({ users: users.map(convertToDto) }, { status: 200 });
+        const existingUser = await User.findOne({ email: data.email });
+        if (existingUser) {
+            return NextResponse.json({ message: "User already exists" }, { status: 409 });
+        }
+        const newUser = new User({
+            name: data.name,
+            email: data.email,
+            password: data.password,
+            role: data.role || 'user',
+            profilePictureUrl: data.profilePictureUrl || null,
+            accountType: data.accountType || 'email',
+            isActive: data.isActive || true,
+            isVerified: data.isVerified || false,
+        });
+        const savedUser = await newUser.save();
+        return NextResponse.json({ message: "User registered successfully", user: convertToDto(savedUser) }, { status: 201 });
     } catch (error) {
-        console.error("Error fetching users:", error);
-        return NextResponse.json({ message: "Error fetching users", error }, { status: 500 });
+        console.error("Error registering user:", error);
+        return NextResponse.json({ message: "Error registering user", error }, { status: 500 });
     }
 }
 
 
 
-const convertToDto = (user: any) => {
-    user.password = undefined; // Remove password from the response
-    user.__v = undefined; // Remove version key from the response
-    user._id = undefined; // Remove MongoDB ID from the response
-    return user;
+const convertToDto = (user: UserType) => {
+    return {
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profilePictureUrl: user.profilePictureUrl,
+        accountType: user.accountType,
+        isActive: user.isActive,
+        isVerified: user.isVerified,
+        lastLogin: user.lastLogin,
+    };
 }
