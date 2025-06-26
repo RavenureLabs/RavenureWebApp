@@ -16,7 +16,7 @@ i18next
       },
     },
     lng: "tr",
-    fallbackLng: "en",
+    fallbackLng: "tr",
     interpolation: {
       escapeValue: false, 
     },
