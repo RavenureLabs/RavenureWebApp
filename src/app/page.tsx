@@ -1,7 +1,6 @@
 'use client';
 import ProductComponent from "../components/product/product.component";
 import { use, useEffect } from "react";
-import './i18n';
 import { useTranslation } from "react-i18next";
 
 export default function Home() {

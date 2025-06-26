@@ -1,3 +1,4 @@
+'use client'; // start this component on the client side
 import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
 import translationEN from "@/public/locales/en/common.json";
