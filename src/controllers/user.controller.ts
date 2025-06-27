@@ -92,10 +92,10 @@ export async function getAllUsers() {
     }
 }
 
-export async function login(data: { name: string, password: string }) {
+export async function login(data: { email: string, password: string }) {
     await connectToDatabase();
     try {
-        const user = await User.findOne({ name: data.name });
+        const user = await User.findOne({ email: data.email });
         if (!user) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }

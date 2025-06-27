@@ -65,7 +65,7 @@ export default function NavbarComponent() {
       </nav>
 
       <div className="hidden md:block z-10 flex-1 text-right">
-        <a href="#" className="bg-[#25d170] text-white font-bold px-5 py-2 rounded-xl hover:bg-[#139f8b] transition-all duration-300">
+        <a href="/login" className="bg-[#25d170] text-white font-bold px-5 py-2 rounded-xl hover:bg-[#139f8b] transition-all duration-300">
           Login
         </a>
       </div>

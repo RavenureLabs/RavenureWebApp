@@ -88,23 +88,6 @@ export default function Home() {
             asdasdasdddaddadadadadadadadadadadsadadadad
           </span>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
-            <ProductComponent
-              id="1"
-              name="Gelişmiş Eklenti Paketi"
-              description="Performans odaklı, sürdürülebilir ve topluluk dostu mod sistemleri."
-              price={49.99}
-              discountPrice={39.99}
-              imageUrl="/Product Thumbnail RBlackshop.png"
-              author="Ravenure Labs"
-              reviews={{ rating: 4.8, count: 120 }}
-              category="Eklentiler"
-              salesCount={300}
-              createdAt="2023-01-01"
-              updatedAt="2023-10-01"
-              stock={50}
-              isFeatured={true}
-              isActive={true}
-            />
           </div>
         </div>
       </section>
