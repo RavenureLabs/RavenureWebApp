@@ -1,10 +1,10 @@
 'use client';
 import ProductComponent from "../components/product/product.component";
 import { use, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useLanguage } from "../hooks/uselanguage.hooks";
 
 export default function Home() {
-  const { t, i18n} = useTranslation();
+  const { language, setLanguage } = useLanguage();
   useEffect(() => {
     const arrow = document.getElementById("arrow");
     if (arrow) {

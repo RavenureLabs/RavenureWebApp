@@ -1,9 +1,10 @@
 'use client';
+import { useLanguage } from '@/src/hooks/uselanguage.hooks';
 import Image from 'next/image';
-import React, { useEffect } from 'react';
-import { useTranslation } from 'next-i18next';
+import { useEffect } from 'react';
+
 export default function NavbarComponent() {
-    const { t } = useTranslation();
+    const { text } = useLanguage();
     useEffect(() => {
         const toggleBtn = document.getElementById("menuToggle");
         const mobileMenu = document.getElementById("mobileMenu");
@@ -58,15 +59,15 @@ export default function NavbarComponent() {
       </div>
 
       <nav className="hidden md:flex space-x-6 font-semibold text-gray-700 z-10 flex-1 justify-center">
-        <a href="/" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{t('navbar.home')}</a>
-        <a href="/store" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{t('navbar.store')}</a>
-        <a href="/referances" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{t('navbar.referances')}</a>
-        <a href="/discord-link" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{t('navbar.discord')}</a>
+        <a href="/" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{text('navbar.home')}</a>
+        <a href="/store" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{text('navbar.store')}</a>
+        <a href="/referances" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{text('navbar.referances')}</a>
+        <a href="/discord-link" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{text('navbar.discord')}</a>
       </nav>
 
       <div className="hidden md:block z-10 flex-1 text-right">
         <a href="/login" className="bg-[#25d170] text-white font-bold px-5 py-2 rounded-xl hover:bg-[#139f8b] transition-all duration-300">
-          Login
+          {text('navbar.login')}
         </a>
       </div>
 
@@ -88,11 +89,11 @@ export default function NavbarComponent() {
       </div>
     </div>
     <div id="mobileMenu" className="md:hidden fixed top-0 left-0 w-3/4 h-full bg-white z-20 p-8 flex flex-col items-center justify-center space-y-6 font-semibold text-gray-800 text-lg transform -translate-x-full transition-transform duration-500 pointer-events-none">
-      <a href="/" className="transition-all duration-300 hover:text-[#139f8b] hover:scale-105">Ana Sayfa</a>
-      <a href="/store" className="transition-all duration-300 hover:text-[#139f8b] hover:scale-105">Mağaza</a>
-      <a href="/referances" className="transition-all duration-300 hover:text-[#139f8b] hover:scale-105">Referanslar</a>
-      <a href="/discord-link" className="transition-all duration-300 hover:text-[#139f8b] hover:scale-105">Discord</a>
-      <a href="#" className="bg-[#25d170] text-white font-bold px-6 py-2 rounded-xl hover:bg-[#139f8b] transition-all duration-300">Login</a>
+      <a href="/" className="transition-all duration-300 hover:text-[#139f8b] hover:scale-105">{text('navbar.home')}</a>
+      <a href="/store" className="transition-all duration-300 hover:text-[#139f8b] hover:scale-105">{text('navbar.store')}</a>
+      <a href="/referances" className="transition-all duration-300 hover:text-[#139f8b] hover:scale-105">{text('navbar.referances')}</a>
+      <a href="/discord-link" className="transition-all duration-300 hover:text-[#139f8b] hover:scale-105">{text('navbar.discord')}</a>
+      <a href="#" className="bg-[#25d170] text-white font-bold px-6 py-2 rounded-xl hover:bg-[#139f8b] transition-all duration-300">{text('navbar.login')}</a>
     </div>
     <div id="overlay" className="md:hidden fixed inset-0 bg-black bg-opacity-30 z-10 hidden"></div>
   </header>
