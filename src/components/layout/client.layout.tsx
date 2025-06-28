@@ -8,7 +8,6 @@ const HIDDEN_NAVBAR_ROUTES = ['/login'];
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  console.log(pathname)
   const hideNavbar = HIDDEN_NAVBAR_ROUTES.includes(pathname);
     return (
     <SessionProvider>

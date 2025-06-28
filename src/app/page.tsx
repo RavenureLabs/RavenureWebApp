@@ -2,9 +2,11 @@
 import ProductComponent from "../components/product/product.component";
 import { use, useEffect } from "react";
 import { useLanguage } from "../hooks/uselanguage.hooks";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
   const { language, setLanguage } = useLanguage();
+  const { data: session } = useSession();
   useEffect(() => {
     const arrow = document.getElementById("arrow");
     if (arrow) {
@@ -22,7 +24,7 @@ export default function Home() {
           <div className="container mx-auto px-6 relative z-10">
             <div className="grid md:grid-cols-2 gap-16 items-center">
               <div>
-                <div className="text-sm uppercase tracking-widest text-[#25d170] font-medium mb-4">Ravenure Labs</div>
+                <div className="text-sm uppercase tracking-widest text-[#25d170] font-medium mb-4">Ravenure Labs |{session?.user?.name}</div>
                 <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
                   Projelerinize Akıl Katan<br />
                   Dijital Güçler
