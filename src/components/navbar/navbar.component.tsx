@@ -62,7 +62,7 @@ export default function NavbarComponent() {
         <a href="/" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{text('navbar.home')}</a>
         <a href="/store" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{text('navbar.store')}</a>
         <a href="/referances" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{text('navbar.referances')}</a>
-        <a href="/discord-link" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{text('navbar.discord')}</a>
+        <a href="https://discord.gg/P4Vr87hAb5" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{text('navbar.discord')}</a>
       </nav>
 
       <div className="hidden md:block z-10 flex-1 text-right">
@@ -92,8 +92,8 @@ export default function NavbarComponent() {
       <a href="/" className="transition-all duration-300 hover:text-[#139f8b] hover:scale-105">{text('navbar.home')}</a>
       <a href="/store" className="transition-all duration-300 hover:text-[#139f8b] hover:scale-105">{text('navbar.store')}</a>
       <a href="/referances" className="transition-all duration-300 hover:text-[#139f8b] hover:scale-105">{text('navbar.referances')}</a>
-      <a href="/discord-link" className="transition-all duration-300 hover:text-[#139f8b] hover:scale-105">{text('navbar.discord')}</a>
-      <a href="#" className="bg-[#25d170] text-white font-bold px-6 py-2 rounded-xl hover:bg-[#139f8b] transition-all duration-300">{text('navbar.login')}</a>
+      <a href="https://discord.gg/P4Vr87hAb5" className="transition-all duration-300 hover:text-[#139f8b] hover:scale-105">{text('navbar.discord')}</a>
+      <a href="/login" className="bg-[#25d170] text-white font-bold px-6 py-2 rounded-xl hover:bg-[#139f8b] transition-all duration-300">{text('navbar.login')}</a>
     </div>
     <div id="overlay" className="md:hidden fixed inset-0 bg-black bg-opacity-30 z-10 hidden"></div>
   </header>

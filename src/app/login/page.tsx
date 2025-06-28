@@ -5,7 +5,6 @@ import './style.css';
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 export default function LoginPage() {
-    const auth = useSession();
     useEffect(() => {
             interface PasswordAccessElements {
                 input: HTMLInputElement | null;
