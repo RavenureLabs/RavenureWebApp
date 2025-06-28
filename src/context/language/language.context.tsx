@@ -19,8 +19,9 @@ function getTranslations(lang: string): Translations {
     case "tr":
       return tr;
     case "en":
-    default:
       return en;
+    default:
+      return tr;
   }
 }
 

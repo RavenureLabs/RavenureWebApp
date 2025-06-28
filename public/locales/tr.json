@@ -5,5 +5,12 @@
         "discord": "Discord",
         "store": "Mağaza",
         "login": "Giriş yap"
+    },
+    "product": {
+        "no_description": "Bu ürün için herhangi bir açıklama bulunmuyor!",
+        "review_count": "Oylama",
+        "sales_count": "Satış",
+        "buy": "Satın al",
+        "preview": "İncele"
     }
 }
