@@ -1,6 +1,5 @@
 'use client';
-import ProductComponent from "../components/product/product.component";
-import { use, useEffect } from "react";
+import { useEffect } from "react";
 import { useLanguage } from "../hooks/uselanguage.hooks";
 import { useSession } from "next-auth/react";
 

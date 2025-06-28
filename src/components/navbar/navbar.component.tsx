@@ -1,10 +1,12 @@
 'use client';
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useEffect } from 'react';
 
 export default function NavbarComponent() {
     const { text } = useLanguage();
+    const { data: session } = useSession();
     useEffect(() => {
         const toggleBtn = document.getElementById("menuToggle");
         const mobileMenu = document.getElementById("mobileMenu");
@@ -65,11 +67,21 @@ export default function NavbarComponent() {
         <a href="https://discord.gg/P4Vr87hAb5" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{text('navbar.discord')}</a>
       </nav>
 
-      <div className="hidden md:block z-10 flex-1 text-right">
-        <a href="/login" className="bg-[#25d170] text-white font-bold px-5 py-2 rounded-xl hover:bg-[#139f8b] transition-all duration-300">
-          {text('navbar.login')}
-        </a>
-      </div>
+      {
+        session?.user ?(
+          <div className="flex items-center space-x-4">
+            <a href="/dashboard" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">Dashboard</a>
+            <a href="/dashboard/profile" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">Profile</a>
+            <a href="/dashboard/settings" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">Settings</a>
+          </div>
+        ) : (
+          <div className="hidden md:block z-10 flex-1 text-right">
+            <a href="/login" className="bg-[#25d170] text-white font-bold px-5 py-2 rounded-xl hover:bg-[#139f8b] transition-all duration-300">
+              {text('navbar.login')}
+            </a>
+          </div>
+        )
+      }
 
       <div className="md:hidden z-30">
         <button id="menuToggle" className="relative group">
