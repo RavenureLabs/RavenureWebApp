@@ -64,9 +64,11 @@ export default function Header() {
  
       {/* Mobil Menü - Tam Ekran Slide */}
 <div
-  className={`fixed top-0 right-0 w-screen h-screen bg-[#0f0f10] z-50 transform transition-transform duration-300 ${
-    menuOpen ? 'translate-x-0' : 'translate-x-[100%]'
+  id="mobile-menu"
+  className={`absolute top-0 right-0 w-80 h-screen bg-[#0f0f10] z-50 transform transition-transform duration-300 ${
+    menuOpen ? 'translate-x-0' : 'translate-x-full'
   }`}
+  style={{ pointerEvents: menuOpen ? 'auto' : 'none' }}
 >
 
   <div className="flex items-center justify-between px-6 pt-6">
@@ -77,7 +79,9 @@ export default function Header() {
         className="h-8 w-auto object-contain"
       />
     </a>
-    <button onClick={() => setMenuOpen(false)} aria-label="Close Menu">
+    <button onClick={() => {
+      setMenuOpen(false);
+    }} aria-label="Close Menu">
       <XMarkIcon className="h-6 w-6 text-white" />
     </button>
   </div>
