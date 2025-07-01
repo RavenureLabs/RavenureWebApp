@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 export type UserType = {
     name: string;
     email: string;
@@ -6,12 +6,12 @@ export type UserType = {
     role: 'admin' | 'user';
     createdAt: string;
     updatedAt?: string;
+    products: ObjectId[];
     profilePictureUrl?: string;
     accountType: 'discord' | 'google' | 'email';
     isActive?: boolean;
     isVerified?: boolean;
     lastLogin?: string;
-
 }
 
 const userSchema = new mongoose.Schema({
@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
     role: { type: String, enum: ['admin', 'user'], default: 'user' },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
+    products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     profilePictureUrl: { type: String, default: null },
     accountType: { type: String, enum: ['discord', 'google', 'email'], required: true },
     isActive: { type: Boolean, default: true },

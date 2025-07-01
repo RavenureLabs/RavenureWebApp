@@ -1,10 +1,10 @@
+import {Poppins } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "../components/layout/client.layout"; 
-import { Poppins } from 'next/font/google'
 
 const poppins = Poppins({
   subsets: ['latin'],
-  weight: ['400', '600', '700'], // istediğin ağırlıklar
+  weight: ['400', '600', '700'], 
   display: 'swap',
 });
 
@@ -22,7 +22,7 @@ export default function RootLayout({
         />
         <link rel="icon" href="logo.png" type="image/png" />
       </head>
-      <body className={`${poppins.className}`}>
+      <body className={`${poppins.className} antialiased`}>
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>

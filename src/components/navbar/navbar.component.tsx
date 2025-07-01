@@ -1,7 +1,41 @@
 'use client';
 import { useState } from 'react';
 import { UserIcon, ShoppingCartIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+        
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
+import { useSession } from 'next-auth/react';
+import Image from 'next/image';
+import { useEffect } from 'react';
+
+export default function NavbarComponent() {
+    const { text } = useLanguage();
+    const { data: session } = useSession();
+    useEffect(() => {
+        const toggleBtn = document.getElementById("menuToggle");
+        const mobileMenu = document.getElementById("mobileMenu");
+        const overlay = document.getElementById("overlay");
+
+        function openMenu() {
+        mobileMenu?.classList.remove("-translate-x-full");
+        mobileMenu?.classList.add("translate-x-0");
+        mobileMenu?.classList.remove("pointer-events-none");
+        overlay?.classList.remove("hidden");
+        toggleBtn?.classList.add("open");
+
+        // Disable body scroll when menu is open
+        document.body.style.overflow = "hidden";
+        }
+
+        function closeMenu() {
+        mobileMenu?.classList.add("-translate-x-full");
+        mobileMenu?.classList.remove("translate-x-0");
+        mobileMenu?.classList.add("pointer-events-none");
+        overlay?.classList.add("hidden");
+        toggleBtn?.classList.remove("open");
+
+        // Enable body scroll when menu is closed
+        document.body.style.overflow = "auto";
+        }
 
 export default function Header() {
   const { text } = useLanguage();
@@ -143,7 +177,4 @@ export default function Header() {
     </div>
   </nav>
 </div>
-
-    </header>
-  );
 }
