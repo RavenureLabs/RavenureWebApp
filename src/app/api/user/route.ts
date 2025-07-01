@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
             if (authGetByName instanceof NextResponse) {
                 return authGetByName;
             }
+            
 
             const userGetByName = authGetByName.user;
             if (userGetByName.role !== 'admin' && userGetByName.name !== data.name) {
