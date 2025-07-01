@@ -19,23 +19,23 @@ export default function Header() {
 
           {/* Desktop Menü */}
           <nav className="hidden md:flex gap-4 text-sm font-semibold">
-            <a href="#" className="relative px-4 py-2 rounded-full transition-all duration-300 overflow-hidden group">
+            <a href="#" className="relative px-4 py-4 rounded-full transition-all duration-300 overflow-hidden group">
               <span className="relative z-10">{text("navbar.home")}</span>
               <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full" />
             </a>
-            <a href="#" className="relative px-4 py-2 rounded-full transition-all duration-300 overflow-hidden group">
+            <a href="#" className="relative px-4 py-4 rounded-full transition-all duration-300 overflow-hidden group">
               <span className="relative z-10">{text("navbar.store")}</span>
               <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full" />
             </a>
-            <a href="#" className="relative px-4 py-2 rounded-full transition-all duration-300 overflow-hidden group">
+            <a href="#" className="relative px-4 py-4 rounded-full transition-all duration-300 overflow-hidden group">
               <span className="relative z-10">{text("navbar.referances")}</span>
               <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full" />
             </a>
-            <a href="#" className="relative px-4 py-2 rounded-full transition-all duration-300 overflow-hidden group">
+            <a href="#" className="relative px-4 py-4 rounded-full transition-all duration-300 overflow-hidden group">
               <span className="relative z-10">{text("navbar.discord")}</span>
               <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full" />
             </a>
-            <a href="#" className="relative px-4 py-2 rounded-full transition-all duration-300 overflow-hidden group">
+            <a href="#" className="relative px-4 py-4 rounded-full transition-all duration-300 overflow-hidden group">
               <span className="relative z-10">{text("navbar.sss")}</span>
               <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full" />
             </a>
