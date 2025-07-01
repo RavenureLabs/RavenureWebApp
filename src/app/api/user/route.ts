@@ -51,10 +51,12 @@ export async function POST(request: NextRequest) {
                 return authGetByName;
             }
             
+
             const userGetByName = authGetByName.user;
             if (userGetByName.role !== 'admin' && userGetByName.name !== data.name) {
                 return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
             }
+            
             return getUserByName(data.name);
         case 'getAllUsers':
             const authGetAll = await requireAuth(request, ['admin']);
