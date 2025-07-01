@@ -1,10 +1,10 @@
 {
     "navbar": {
-        "home": "AnaSayfa",
+        "home": "Ana Sayfa",
         "referances": "Referanslar",
         "discord": "Discord",
         "store": "Mağaza",
-        "login": "Giriş yap"
+        "sss": "SSS"
     },
     "product": {
         "no_description": "Bu ürün için herhangi bir açıklama bulunmuyor!",

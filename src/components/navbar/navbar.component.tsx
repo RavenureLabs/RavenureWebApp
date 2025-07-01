@@ -1,4 +1,7 @@
 'use client';
+import { useState } from 'react';
+import { UserIcon, ShoppingCartIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+        
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
@@ -34,80 +37,144 @@ export default function NavbarComponent() {
         document.body.style.overflow = "auto";
         }
 
-        toggleBtn?.addEventListener("click", () => {
-        const isOpen = mobileMenu?.classList.contains("translate-x-0");
-        isOpen ? closeMenu() : openMenu();
-        });
+export default function Header() {
+  const { text } = useLanguage();
+  const [menuOpen, setMenuOpen] = useState(false);
 
-        overlay?.addEventListener("click", () => closeMenu());
+  return (
+    <header className="sticky top-0 z-50 bg-[#0f0f10] text-white border-b border-gray-700 border-opacity-40 backdrop-blur">
+      <div className="max-w-screen-2xl mx-auto px-6 py-4 flex items-center justify-between">
+        {/* Logo + Menü */}
+        <div className="flex items-center gap-8">
+          <a href="/" className="transition-transform duration-200 hover:scale-110">
+            <img src="/Ravenure-Logo.png" alt="Ravenure Logo" className="h-8 w-auto object-contain" />
+          </a>
 
-        document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") closeMenu();
-        });
-    }, []);
-    return(
-  <header className="bg-[#0f0f10]">
-    <div className="container mx-auto flex items-center justify-between py-10 px-4 relative">
-      <div className="flex items-center justify-start flex-1">
-        <a href="/" className="flex flex-col items-center">
-          <Image
-            src="/Ravenure Logo 1080x Transparent TEXT.png"
-            alt="Ravenure Logo"
-            width={100}
-            height={100}
-            className="h-16 w-auto"
-            />
-        </a>
-      </div>
+          {/* Desktop Menü */}
+          <nav className="hidden md:flex gap-4 text-sm font-semibold">
+            <a href="#" className="relative px-4 py-2 rounded-full transition-all duration-300 overflow-hidden group">
+              <span className="relative z-10">{text("navbar.home")}</span>
+              <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full" />
+            </a>
+            <a href="#" className="relative px-4 py-2 rounded-full transition-all duration-300 overflow-hidden group">
+              <span className="relative z-10">{text("navbar.store")}</span>
+              <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full" />
+            </a>
+            <a href="#" className="relative px-4 py-2 rounded-full transition-all duration-300 overflow-hidden group">
+              <span className="relative z-10">{text("navbar.referances")}</span>
+              <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full" />
+            </a>
+            <a href="#" className="relative px-4 py-2 rounded-full transition-all duration-300 overflow-hidden group">
+              <span className="relative z-10">{text("navbar.discord")}</span>
+              <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full" />
+            </a>
+            <a href="#" className="relative px-4 py-2 rounded-full transition-all duration-300 overflow-hidden group">
+              <span className="relative z-10">{text("navbar.sss")}</span>
+              <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full" />
+            </a>
+          </nav>
+        </div>
 
-      <nav className="hidden md:flex space-x-6 font-semibold text-gray-700 z-10 flex-1 justify-center">
-        <a href="/" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{text('navbar.home')}</a>
-        <a href="/store" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{text('navbar.store')}</a>
-        <a href="/referances" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{text('navbar.referances')}</a>
-        <a href="https://discord.gg/P4Vr87hAb5" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">{text('navbar.discord')}</a>
-      </nav>
-
-      {
-        session?.user ?(
-          <div className="flex items-center space-x-4">
-            <a href="/dashboard" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">Dashboard</a>
-            <a href="/dashboard/profile" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">Profile</a>
-            <a href="/dashboard/settings" className="text-white transition-all duration-300 hover:scale-110 hover:text-[#25d170]">Settings</a>
-          </div>
-        ) : (
-          <div className="hidden md:block z-10 flex-1 text-right">
-            <a href="/login" className="bg-[#25d170] text-white font-bold px-5 py-2 rounded-xl hover:bg-[#139f8b] transition-all duration-300">
-              {text('navbar.login')}
+        {/* Iconlar + Hamburger */}
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex items-center gap-2">
+            <a href="/cart" className="relative p-2 rounded-full transition-all duration-300 overflow-hidden group">
+              <span className="relative z-10"><ShoppingCartIcon className="w-5 h-5" /></span>
+              <span className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
+            </a>
+            <a href="/account" className="relative p-2 rounded-full transition-all duration-300 overflow-hidden group">
+              <span className="relative z-10"><UserIcon className="w-5 h-5" /></span>
+              <span className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
             </a>
           </div>
-        )
-      }
 
-      <div className="md:hidden z-30">
-        <button id="menuToggle" className="relative group">
-          <div className="relative flex overflow-hidden items-center justify-center rounded-full w-[50px] h-[50px] transition-all duration-200 shadow-md bg-gradient-to-r from-[#25d170] to-[#139f8b]">
-            <div className="flex flex-col justify-between w-[20px] h-[20px] transform transition-all duration-300 origin-center overflow-hidden">
-              <div className="bg-white h-[2px] w-7 transform transition-all duration-300 origin-left group-[.open]:translate-x-10"></div>
-              <div className="bg-white h-[2px] w-7 rounded transform transition-all duration-300 delay-75 group-[.open]:translate-x-10"></div>
-              <div className="bg-white h-[2px] w-7 transform transition-all duration-300 origin-left delay-150 group-[.open]:translate-x-10"></div>
-
-              <div className="absolute items-center justify-between transform transition-all duration-500 top-2.5 -translate-x-10 group-[.open]:translate-x-0 flex w-0 group-[.open]:w-12">
-                <div className="absolute bg-white h-[2px] w-5 transform transition-all duration-500 rotate-0 delay-300 group-[.open]:rotate-45"></div>
-                <div className="absolute bg-white h-[2px] w-5 transform transition-all duration-500 -rotate-0 delay-300 group-[.open]:-rotate-45"></div>
-              </div>
-            </div>
-          </div>
-        </button>
+          {/* Hamburger */}
+          <button onClick={() => setMenuOpen(true)} className="md:hidden text-white" aria-label="Open Menu">
+            <Bars3Icon className="h-6 w-6" />
+          </button>
+        </div>
       </div>
+ 
+      {/* Mobil Menü - Tam Ekran Slide */}
+<div
+  className={`fixed top-0 right-0 w-screen h-screen bg-[#0f0f10] z-50 transform transition-transform duration-300 ${
+    menuOpen ? 'translate-x-0' : 'translate-x-[100%]'
+  }`}
+>
+
+  <div className="flex items-center justify-between px-6 pt-6">
+    <a href="/" className="block">
+      <img
+        src="/Ravenure-Logo.png"
+        alt="Ravenure Logo"
+        className="h-8 w-auto object-contain"
+      />
+    </a>
+    <button onClick={() => setMenuOpen(false)} aria-label="Close Menu">
+      <XMarkIcon className="h-6 w-6 text-white" />
+    </button>
+  </div>
+ 
+  <div className="mt-6 mb-8 w-full h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+ 
+  <nav className="flex flex-col items-center justify-center gap-6 text-lg font-semibold h-[calc(100%-100px)]">
+    <a
+      href="#"
+      className="relative px-6 py-3 rounded-full transition-all duration-300 overflow-hidden group"
+    >
+      <span className="relative z-10">{text("navbar.home")}</span>
+      <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full" />
+    </a>
+    <a
+      href="#"
+      className="relative px-6 py-3 rounded-full transition-all duration-300 overflow-hidden group"
+    >
+      <span className="relative z-10">{text("navbar.store")}</span>
+      <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full" />
+    </a>
+    <a
+      href="#"
+      className="relative px-6 py-3 rounded-full transition-all duration-300 overflow-hidden group"
+    >
+      <span className="relative z-10">{text("navbar.referances")}</span>
+      <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full" />
+    </a>
+    <a
+      href="#"
+      className="relative px-6 py-3 rounded-full transition-all duration-300 overflow-hidden group"
+    >
+      <span className="relative z-10">{text("navbar.discord")}</span>
+      <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full" />
+    </a>
+    <a
+      href="#"
+      className="relative px-6 py-3 rounded-full transition-all duration-300 overflow-hidden group"
+    >
+      <span className="relative z-10">{text("navbar.sss")}</span>
+      <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full" />
+    </a>
+
+    {/* Iconlar alt kısımda */}
+    <div className="flex gap-4 mt-8">
+      <a
+        href="/cart"
+        className="relative p-3 rounded-full transition-all duration-300 overflow-hidden group"
+      >
+        <span className="relative z-10">
+          <ShoppingCartIcon className="w-6 h-6" />
+        </span>
+        <span className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
+      </a>
+      <a
+        href="/account"
+        className="relative p-3 rounded-full transition-all duration-300 overflow-hidden group"
+      >
+        <span className="relative z-10">
+          <UserIcon className="w-6 h-6" />
+        </span>
+        <span className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
+      </a>
     </div>
-    <div id="mobileMenu" className="md:hidden fixed top-0 left-0 w-3/4 h-full bg-white z-20 p-8 flex flex-col items-center justify-center space-y-6 font-semibold text-gray-800 text-lg transform -translate-x-full transition-transform duration-500 pointer-events-none">
-      <a href="/" className="transition-all duration-300 hover:text-[#139f8b] hover:scale-105">{text('navbar.home')}</a>
-      <a href="/store" className="transition-all duration-300 hover:text-[#139f8b] hover:scale-105">{text('navbar.store')}</a>
-      <a href="/referances" className="transition-all duration-300 hover:text-[#139f8b] hover:scale-105">{text('navbar.referances')}</a>
-      <a href="https://discord.gg/P4Vr87hAb5" className="transition-all duration-300 hover:text-[#139f8b] hover:scale-105">{text('navbar.discord')}</a>
-      <a href="/login" className="bg-[#25d170] text-white font-bold px-6 py-2 rounded-xl hover:bg-[#139f8b] transition-all duration-300">{text('navbar.login')}</a>
-    </div>
-    <div id="overlay" className="md:hidden fixed inset-0 bg-black bg-opacity-30 z-10 hidden"></div>
-  </header>
-    );
+  </nav>
+</div>
 }
