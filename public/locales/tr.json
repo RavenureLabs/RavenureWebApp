@@ -6,6 +6,16 @@
         "store": "Mağaza",
         "sss": "SSS"
     },
+    "store": {
+        "hero-title": "Mağaza",
+        "categories": "Kategoriler",
+        "looking for something?": "Belirli bir şey mi arıyorsunuz?",
+        "looking for something?-2": "Filtrelerimizle ihtiyacınız olanı bulun.",
+        "categories-1": "Tümü",
+        "categories-2": "Eklentiler",
+        "categories-3": "Eklenti Paketleri",
+        "categories-4": "Discord Botları"
+    },
     "product": {
         "no_description": "Bu ürün için herhangi bir açıklama bulunmuyor!",
         "review_count": "Oylama",
