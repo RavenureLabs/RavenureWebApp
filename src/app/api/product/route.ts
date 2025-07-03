@@ -5,14 +5,6 @@ export async function POST(request: NextRequest) {
     const { action, data } = await request.json();
     switch(action){
         case 'getProducts':
-            const authGetProducts = await requireAuth(request, ["admin"]);
-            if (authGetProducts instanceof NextResponse) {
-                return authGetProducts;
-            }
-            const userGetProducts = authGetProducts.user;
-            if (userGetProducts.role !== 'admin') {
-                return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
-            }
             return getProducts(data);
         case 'getProductById':
             return getProductById(data);

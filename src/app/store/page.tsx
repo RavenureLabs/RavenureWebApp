@@ -16,6 +16,8 @@ export default function ShopPage() {
     const fetchCategories = async () => {
       const categories = await categoryService.getCategories();
       setCategories(categories);
+      const products = await productService.getProducts();
+      setProducts(products);
     };
     fetchCategories();
   }, []);
@@ -61,18 +63,11 @@ export default function ShopPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <ProductComponent
-          id='1'
-          name='RBlackShop'
-          imageUrl='https://developers.elementor.com/docs/hooks/placeholder-image/'
-          price={100}
-          discountPrice={80}
-          author='Weesli'
-          reviews={{rating: 5, count: 10}}
-          category='Eklentiler'
-          salesCount={100}
-          createdAt='2023-01-01'
-          />
+          {products.map((product, index) => (
+            <ProductComponent 
+            product={product}
+            />
+          ))}
         </div>
       </section>
 
