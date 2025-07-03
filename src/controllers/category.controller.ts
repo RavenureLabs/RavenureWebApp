@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "../lib/database";
 import Category from "../models/category.model";
+
 export async function getCategories(data: any) {
     await connectToDatabase();
     try{
         const categories = await Category.find();
+        console.log(categories)
         return NextResponse.json(categories.map(category => {
             return convertToDto(category);
         }), { status: 200 });
@@ -14,6 +16,7 @@ export async function getCategories(data: any) {
         return NextResponse.json({ message: "Error fetching categories", error }, { status: 500 });
     }
 }
+
 export async function getCategoryById(data: any) {
     await connectToDatabase();
     try{

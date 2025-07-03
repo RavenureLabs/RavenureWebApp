@@ -12,7 +12,7 @@ export type ProductType = {
         rating: number;
         count: number;
     }
-    category: CategoryType;
+    category: string;
     salesCount: number;
     createdAt: string;
     updatedAt?: string;

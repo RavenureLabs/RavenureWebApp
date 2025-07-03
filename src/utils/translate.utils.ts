@@ -22,7 +22,7 @@ export async function appendProductTranslatetion(product: ProductType, targetLan
 }
 
 async function translateProduct(product: ProductType, targetLanguage: any) {
-    const category = await translator.translateText(product.category.name, null, targetLanguage);
+    const category = await translator.translateText(product.name, null, targetLanguage);
     const description = await translator.translateText(product.description as string, null, targetLanguage);
     return {
         category: category,
