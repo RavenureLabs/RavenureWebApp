@@ -1,5 +1,6 @@
 import axios from "axios";
 import { CategoryType } from "../models/category.model";
+import { ProductType } from "../models/product.model";
 export const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL
 });
@@ -10,7 +11,7 @@ export class ProductService {
             action: 'getProducts',
             data: {}
         });
-        return response.data.data;
+        return response.data as ProductType[];
     }
     async getProduct(id: string){
         const response = await api.post('/api/product', {
@@ -19,7 +20,7 @@ export class ProductService {
                 id
             }
         });
-        return response.data.data;
+        return response.data as ProductType;
     }
     async getProductsByCategory(category: string){
         const response = await api.post('/api/product', {
@@ -28,7 +29,7 @@ export class ProductService {
                 category
             }
         });
-        return response.data.data;
+        return response.data as ProductType[];
     }
 }
 

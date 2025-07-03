@@ -2,7 +2,7 @@ import { useLanguage } from "@/src/hooks/uselanguage.hooks";
 import { ProductType } from "@/src/models/product.model";
 import Image from "next/image";
 
-export default function ProductComponent(product: ProductType) {
+export default function ProductComponent({product}: {product: ProductType}) {
   const {text} = useLanguage(); 
   return(
       <div className="bg-white rounded-xl border border-gray-200 transition-all overflow-hidden flex flex-col items-center max-w-[400px] mx-auto w-full">
