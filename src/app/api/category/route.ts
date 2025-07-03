@@ -7,14 +7,14 @@ export async function POST(request: NextRequest) {
         case 'getCategories':
             return getCategories(data);
         case 'createCategory':
-            const authCreateCategory = await requireAuth(request, ["admin"]);
+            /*const authCreateCategory = await requireAuth(request, ["admin"]);
             if (authCreateCategory instanceof NextResponse) {
                 return authCreateCategory;
             }
             const userCreateCategory = authCreateCategory.user;
             if (userCreateCategory.role !== 'admin') {
                 return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
-            }
+            }*/
             return createCategory(data);
         case 'updateCategory':
             const authUpdateCategory = await requireAuth(request, ["admin"]);
