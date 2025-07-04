@@ -7,6 +7,7 @@ import { CategoryType } from '@/src/models/category.model';
 import { ProductType } from '@/src/models/product.model';
 import { categoryService, productService } from '@/src/lib/services';
 import { useEffect, useState } from 'react';
+import CommentComponent from '@/src/components/comment/comment.component';
 
 export default function ShopPage() {
   const { text } = useLanguage();
@@ -74,10 +75,10 @@ export default function ShopPage() {
       {/* Müşteri Yorumu */}
       <section className="w-full max-w-screen-md text-center py-16 px-4">
         <h3 className="text-2xl font-bold mb-4">Müşterilerimiz Ne Diyor?</h3>
-        <p className="text-gray-400 italic max-w-xl mx-auto mb-4">
-          “Ravenure botları sayesinde sunucumuzu bambaşka bir seviyeye taşıdık. Destek ekibi harika ve ürünler çok kaliteli!”
-        </p>
-        <span className="text-[#25d170] font-semibold">— Discord Sunucu Sahibi</span>
+        <CommentComponent 
+        author='Weesli'
+        text='Ravenure botları sayesinde sunucumuzu bambaşka bir seviyeye taşıdık. Destek ekibi harika ve ürünler çok kaliteli!'
+        />
       </section>
     </div>
   );
