@@ -5,20 +5,25 @@ import ProductComponent from '@/src/components/product/product.component';
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
 import { CategoryType } from '@/src/models/category.model';
 import { ProductType } from '@/src/models/product.model';
-import { categoryService, productService } from '@/src/lib/services';
+import { categoryService, commentService, productService } from '@/src/lib/services';
 import { useEffect, useState } from 'react';
 import CommentComponent from '@/src/components/comment/comment.component';
+import { CommentType } from '@/src/models/comment.model';
 
 export default function ShopPage() {
   const { text } = useLanguage();
   const [products, setProducts] = useState<ProductType[]>([]);
   const [categories, setCategories] = useState<CategoryType[]>([]);
+  const [comments, setComments] = useState<CommentType[]>([]);
   useEffect(() => {
     const fetchCategories = async () => {
       const categories = await categoryService.getCategories();
       setCategories(categories);
       const products = await productService.getProducts();
       setProducts(products);
+      // get the comments from db service
+      const comments = await commentService.getComments();
+      setComments(comments);
     };
     fetchCategories();
   }, []);
@@ -75,11 +80,17 @@ export default function ShopPage() {
       {/* Müşteri Yorumu */}
       <section className="w-full max-w-screen-md text-center py-16 px-4">
         <h3 className="text-2xl font-bold mb-4">Müşterilerimiz Ne Diyor?</h3>
-        <CommentComponent 
-        author='Weesli'
-        text='Ravenure botları sayesinde sunucumuzu bambaşka bir seviyeye taşıdık. Destek ekibi harika ve ürünler çok kaliteli!'
-        />
-      </section>
+        {
+          comments.map((comment, index) => (
+            <CommentComponent
+              key={index}
+              author={comment.author}
+              text={comment.text}
+              createdAt={comment.createdAt}
+            />
+          ))
+        } 
+        </section>
     </div>
   );
 }
