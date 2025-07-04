@@ -1,8 +1,8 @@
 "use client";
 
-import { CommentComponentType } from "./comment.types";
+import { CommentType } from "@/src/models/comment.model";
 
-export default function CommentComponent({ author, text }: CommentComponentType) {
+export default function CommentComponent({ author, text }: CommentType) {
     return(
         <>
             <p className="text-gray-400 italic max-w-xl mx-auto mb-4">

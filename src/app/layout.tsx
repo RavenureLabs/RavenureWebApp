@@ -23,7 +23,9 @@ export default function RootLayout({
         <link rel="icon" href="logo.png" type="image/png" />
       </head>
       <body className={`${poppins.className} antialiased`}>
-        <ClientLayout>{children}</ClientLayout>
+        <ClientLayout>
+          {children}
+        </ClientLayout>
       </body>
     </html>
   );
