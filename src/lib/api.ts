@@ -24,7 +24,7 @@ export class ProductService {
     }
     async getProductsByCategory(category: string){
         const response = await api.post('/api/product', {
-            action: 'getProductsByCategory',
+            action: 'getProducstByCategory',
             data: {
                 category
             }

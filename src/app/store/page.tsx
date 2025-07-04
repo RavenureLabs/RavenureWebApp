@@ -56,7 +56,7 @@ export default function ShopPage() {
               <CategoryComponent
                 key={index}
                 name={category.name}
-                href={`/store/category/${category.name}`}
+                href={`/store/category/${category.name.replaceAll(" ", "-")}`}
               />
             ))
           }
