@@ -31,7 +31,10 @@ export async function getProductById(data: any) {
 export async function getProductsByCategory(data: any) {
     await connectToDatabase();
     try{
-        const products = await Product.find({ category: data.category });
+        const products = await Product.find().populate({
+                                    path: 'category',
+                                    match: { name: data.category }
+                                    });
         return NextResponse.json(products.map(product => {
             return convertToDto(product);
         }), { status: 200 });
