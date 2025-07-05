@@ -34,21 +34,21 @@ export default function ProductComponent({product}: {product: ProductType}) {
             <div className="flex items-center gap-1 text-blue-500">
               <svg className="w-4 h-4 fill-current text-teal-400" viewBox="0 0 24 24"><path d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73-1.64 7.03z"/></svg>
               <span className="text-gray-700">{product.reviews.rating}</span>
-              <span className="text-gray-400">({product.reviews.count} {text('review_count')})</span>
+              <span className="text-gray-400">({product.reviews.count} {text('product.review_count')})</span>
             </div>
             <div className="flex items-center gap-1">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-teal-400" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5m.75-9 3-3 2.148 2.148A12.061 12.061 0 0 1 16.5 7.605" />
               </svg>
-              <span>{product.salesCount} {text('sales_count')}</span>
+              <span>{product.salesCount} {text('product.sales_count')}</span>
             </div>
           </div>
           <div className="flex gap-2">
             <a href="/store/product1" className="w-1/2 text-center px-3 py-2 bg-[#25d170] text-white text-sm font-medium rounded-xl hover:bg-[#139f8b] transition">
-              {text('buy')}
+              {text('product.buy')}
             </a>
             <a href="/product-detail/1" className="w-1/2 text-center px-3 py-2 border border-[#25d170] text-[#25d170] text-sm font-medium rounded-xl hover:bg-[#25d170]/10 transition">
-              {text('preview')}
+              {text('product.preview')}
             </a>
           </div>
         </div>
