@@ -1,4 +1,4 @@
-import LoginPageComponent from "@/src/pages/login";
+import LoginPageComponent from "@/src/components/pages/login";
 export const metadata = {
     title: "Ravenure - Giriş",
     description: "Ravenure Giriş",
