@@ -56,7 +56,7 @@ static async getClient(): Promise<Client> {
     });
 
     if (!DiscordBot.eventsInitialized) {
-      client.on(Events.MessageCreate, async (message) => {
+      /*client.on(Events.MessageCreate, async (message) => {
         try {
           if (message.channelId === process.env.DISCORD_COMMENT_CHANNEL_ID) {
             const author = message.author.username;
@@ -71,7 +71,7 @@ static async getClient(): Promise<Client> {
         } catch (error) {
           console.error('Comment save error:', error);
         }
-      });
+      });*/
       DiscordBot.eventsInitialized = true;
     }
 

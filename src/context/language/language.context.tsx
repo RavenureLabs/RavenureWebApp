@@ -31,10 +31,10 @@ export const LanguageContext = createContext<LanguageContextType>({
   translations: getTranslations(defaultLanguage),
 });
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguage] = useState(defaultLanguage);
+export function LanguageProvider({ children, lang }: { children: React.ReactNode, lang: string }) {
+  const [language, setLanguage] = useState(lang);
   const [translations, setTranslations] = useState<Translations>(
-    getTranslations(defaultLanguage)
+    getTranslations(lang)
   );
 
   useEffect(() => {
