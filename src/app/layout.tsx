@@ -1,6 +1,7 @@
 import {Poppins } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "../components/layout/client.layout"; 
+import { headers } from "next/headers";
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -8,11 +9,14 @@ const poppins = Poppins({
   display: 'swap',
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const lang = headersList.get('x-language') || 'en';
+  console.log(lang);
   return (
     <html lang="tr">
       <head>
@@ -23,7 +27,7 @@ export default function RootLayout({
         <link rel="icon" href="logo.png" type="image/png" />
       </head>
       <body className={`${poppins.className} antialiased`}>
-        <ClientLayout>
+        <ClientLayout lang={lang}>
           {children}
         </ClientLayout>
       </body>
