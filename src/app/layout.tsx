@@ -16,7 +16,6 @@ export default async function RootLayout({
 }>) {
   const headersList = await headers();
   const lang = headersList.get('x-language') || 'en';
-  console.log(lang);
   return (
     <html lang="tr">
       <head>
