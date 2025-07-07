@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import HomePageComponent from "../pagescomponent/home";
 
 export const metadata: Metadata = {
   title: "Ravenure | Home Page",
