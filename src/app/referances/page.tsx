@@ -1,4 +1,4 @@
-import ReferencesPageComponent from "@/src/pages/referances";
+import ReferencesPageComponent from "@/src/pagescomponent/referances";
 
 export const metadata = {
     title: "Ravenure - Referanslar",
