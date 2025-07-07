@@ -1,4 +1,3 @@
-import ShopPageComponent from "@/src/components/pages/store.page";
 
 export const metadata = {
     title: "Ravenure - Mağaza",
