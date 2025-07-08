@@ -2,6 +2,7 @@ import axios from "axios";
 import { CategoryType } from "../models/category.model";
 import { ProductType } from "../models/product.model";
 import { CommentType } from "../models/comment.model";
+import { ReferanceType } from "../models/referance.model";
 export const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL
 });
@@ -48,5 +49,14 @@ export class CommentService {
     async getComments(){
         const reponse = await api.get('/api/comment');
         return reponse.data as CommentType[];
+    }
+}
+export class ReferanceService {
+    async getReferances(){
+        const response = await api.post('/api/referance', {
+            action: 'getReferances',
+            data: {}
+        });
+        return response.data as ReferanceType[];
     }
 }

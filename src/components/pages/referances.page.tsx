@@ -1,8 +1,21 @@
 'use client';
 
-import { ArrowRight } from 'lucide-react';
+import { referanceService } from '@/src/lib/services';
+import { ReferanceType } from '@/src/models/referance.model';
+import { useEffect, useState } from 'react';
+import ReferanceComponent from '../referance/referance.component';
 
 export default function ReferencesPageComponent() {
+  const [referances, setReferances] = useState<ReferanceType[]>([]);
+
+  useEffect(() => {
+    const fetchReferances = async () => {
+      const referances = await referanceService.getReferances();
+      setReferances(referances);
+    };
+    fetchReferances();
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#0f0f10] px-6 pt-28 pb-20">
       
@@ -15,7 +28,6 @@ export default function ReferencesPageComponent() {
           LeaderOS altyapısını kullanan seçkin oyun sunucularından bazıları.
         </p>
       </div>
-
       {/* Kartlar */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
 
@@ -201,8 +213,6 @@ export default function ReferencesPageComponent() {
             <ArrowRight size={18} />
           </a>
         </div>
-        
-
       </div>
     </div>
   );
