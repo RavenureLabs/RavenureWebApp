@@ -53,7 +53,7 @@ export class CommentService {
 }
 export class ReferanceService {
     async getReferances(){
-        const response = await api.post('/api/referance', {
+        const response = await api.post('/api/referances', {
             action: 'getReferances',
             data: {}
         });
