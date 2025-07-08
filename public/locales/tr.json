@@ -23,5 +23,9 @@
         "sales_count": "Satış",
         "buy": "Satın al",
         "preview": "İncele"
+    },
+    "referances":{
+        "title": "Bize Güvenen Oyun Sunucuları",
+        "sub-title": "LeaderOS altyapısını kullanan seçkin oyun sunucularından bazıları."
     }
 }

@@ -1,10 +1,21 @@
 import { ReferanceType } from "@/src/models/referance.model";
+import { ArrowRight } from "lucide-react";
 
 export default function ReferanceComponent({referance}: {referance: ReferanceType}) {
     return (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 flex flex-col items-center text-center hover:scale-[1.02] transition">
-          <img src={referance.imageUrl} alt="Mythonia" className="w-16 h-16 object-contain mb-4" />
-          <h3 className="text-xl font-semibold text-white">{referance.name}</h3>
+        <div className="bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col items-center relative">
+          <img src={referance.imageUrl} alt="Ravenure" className="h-20 w-auto object-contain mb-6" />
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-white">{referance.name}</h3>
+            <p className="text-sm text-gray-400">{referance.url}</p>
+          </div>
+          <a
+            href={referance.url}
+            target="_blank"
+            className="absolute bottom-4 right-8 w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white transition-transform duration-300 hover:bg-white/10 hover:translate-x-3"
+          >
+            <ArrowRight size={18} />
+          </a>
         </div>
     )
 }
