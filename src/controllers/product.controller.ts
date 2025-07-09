@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "../lib/database";
 import Product from "../models/product.model";
 
-export async function getProducts(data: any) {
+export async function getProducts() {
     await connectToDatabase();
     try{
         const products = await Product.find();

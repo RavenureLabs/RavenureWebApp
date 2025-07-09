@@ -1,17 +1,49 @@
-import { createUser, getAllUsers, getUserById, getUserByName, login, register, updateUser } from "@/src/controllers/user.controller";
+import { createUser, deleteUser, getAllUsers, getUserById, getUserByName, login, register, updateUser } from "@/src/controllers/user.controller";
 
 import { requireAuth } from "@/src/lib/middleware/auth";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: Request) {
-    const body = await request.json();
-    const { action, data } = body;
-    switch (action) {
 
-    }
+export async function GET(request: NextRequest) {
+    return getAllUsers();
 }
-
+export async function PUT(request: NextRequest) {
+    const { data } = await request.json();
+    const auth = await requireAuth(request, ['user', 'admin']);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+    const user = auth.user;
+    if (user.role !== 'admin') {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
+    return updateUser(data);
+}
+export async function DELETE(request: NextRequest) {
+    const { data } = await request.json();
+    const auth = await requireAuth(request, ['user', 'admin']);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+    const user = auth.user;
+    if (user.role !== 'admin') {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
+    return deleteUser(data);
+}
 export async function POST(request: NextRequest) {
+    const { data } = await request.json();
+    const auth = await requireAuth(request, ['user', 'admin']);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+    const user = auth.user;
+    if (user.role !== 'admin') {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
+    return createUser(data);
+}
+/*export async function POST(request: NextRequest) {
     const body = await request.json();
     const { action, data } = body;
     switch (action) {
@@ -75,4 +107,4 @@ export async function POST(request: NextRequest) {
         default:
             return NextResponse.json({ message: "Invalid action" }, { status: 400 });
     }
-}
+}*/

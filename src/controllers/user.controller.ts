@@ -26,9 +26,10 @@ export async function createUser(data: any) {
         return NextResponse.json({ message: "Error creating user", error }, { status: 500 });
     }
 }
-export async function updateUser(id: string, data: any) {
+export async function updateUser(data: any) {
     await connectToDatabase();
     try {
+        const { id } = data.id;
         const updatedUser = await User.findByIdAndUpdate(id, {
             name: data.name,
             email: data.email,
@@ -89,6 +90,20 @@ export async function getAllUsers() {
     } catch (error) {
         console.error("Error fetching users:", error);
         return NextResponse.json({ message: "Error fetching users", error }, { status: 500 });
+    }
+}
+
+export async function deleteUser(id: string) {
+    await connectToDatabase();
+    try {
+        const user = await User.findByIdAndDelete(id);
+        if (!user) {
+            return NextResponse.json({ message: "User not found" }, { status: 404 });
+        }
+        return NextResponse.json({ message: "User deleted successfully" }, { status: 200 });
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        return NextResponse.json({ message: "Error deleting user", error }, { status: 500 });
     }
 }
 

@@ -1,7 +1,52 @@
 import { getProducts, createProduct, updateProduct, deleteProduct, getProductsByCategory, getProductById } from "@/src/controllers/product.controller";
 import { requireAuth } from "@/src/lib/middleware/auth";
 import { NextRequest, NextResponse } from "next/server";
-export async function POST(request: NextRequest) {
+
+export async function GET(request: NextRequest){
+    return getProducts();
+}
+export async function PUT(request: NextRequest){
+    const{ data } = await request.json();
+    const auth = await requireAuth(request, ["admin"]);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+    const user = auth.user;
+    if (user.role !== 'admin') {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
+    return updateProduct(data);
+}
+export async function DELETE(request: NextRequest){
+    const { data } = await request.json();
+    const auth = await requireAuth(request, ["admin"]);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+    const user = auth.user;
+    if (user.role !== 'admin') {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
+    return deleteProduct(data);
+}
+export async function POST(request: NextRequest){
+    const { data } = await request.json();
+    const auth = await requireAuth(request, ["admin"]);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+    const user = auth.user;
+    if (user.role !== 'admin') {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
+    return createProduct(data);
+}
+
+/**
+ * @deprecated
+ * This method is deprecated and will be removed in the future.
+ */
+/*export async function POST(request: NextRequest) {
     const { action, data } = await request.json();
     switch(action){
         case 'getProducts':
@@ -44,4 +89,4 @@ export async function POST(request: NextRequest) {
         default:
             return new Response('Invalid action', { status: 400 });
     }
-}
+}*/

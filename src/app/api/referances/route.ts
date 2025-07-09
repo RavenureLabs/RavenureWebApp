@@ -1,9 +1,53 @@
-import { getReferances, createReferance, updateReferance, deleteReferance, getReferanceById } from "@/src/controllers/referances.controller";
+import { getReferances, createReferance, updateReferance, deleteReferance } from "@/src/controllers/referances.controller";
 import { requireAuth } from "@/src/lib/middleware/auth";
 import { NextRequest, NextResponse } from "next/server";
-export async function POST(request: NextRequest) {
+
+export async function GET(request: NextRequest){
+    return getReferances();
+}
+export async function PUT(request: NextRequest){
+    const{ data } = await request.json();
+    const auth = await requireAuth(request, ["admin"]);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+    const user = auth.user;
+    if (user.role !== 'admin') {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
+    return updateReferance(data);
+}
+export async function DELETE(request: NextRequest){
+    const { data } = await request.json();
+    const auth = await requireAuth(request, ["admin"]);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+    const user = auth.user;
+    if (user.role !== 'admin') {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
+    return deleteReferance(data);
+}
+export async function POST(request: NextRequest){
+    const { data } = await request.json();
+    const auth = await requireAuth(request, ["admin"]);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+    const user = auth.user;
+    if (user.role !== 'admin') {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
+    return createReferance(data);
+}
+/**
+ * @deprecated
+ * This method is deprecated and will be removed in the future.
+ */
+/*export async function POST(request: NextRequest) { 
     const { action, data } = await request.json();
-    switch(action){
+    switch(action){ 
         case 'getReferances':
             return getReferances(data);
         case 'getReferanceById':
@@ -41,4 +85,4 @@ export async function POST(request: NextRequest) {
              default:
                 return NextResponse.json({ message: "Invalid action" }, { status: 400 });
         }    
-    }
+    }*/

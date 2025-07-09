@@ -9,38 +9,22 @@ export const api = axios.create({
 
 export class ProductService {
     async getProducts(){
-        const response = await api.post('/api/product', {
-            action: 'getProducts',
-            data: {}
-        });
+        const response = await api.get('/api/product');
         return response.data as ProductType[];
     }
     async getProduct(id: string){
-        const response = await api.post('/api/product', {
-            action: 'getProduct',
-            data: {
-                id
-            }
-        });
+        const response = await api.get(`/api/product/${id}`);
         return response.data as ProductType;
     }
     async getProductsByCategory(category: string){
-        const response = await api.post('/api/product', {
-            action: 'getProducstByCategory',
-            data: {
-                category
-            }
-        });
+        const response = await api.get(`/api/product/category/${category}`);
         return response.data as ProductType[];
     }
 }
 
 export class CategoryService {
     async getCategories(){
-        const response = await api.post('/api/category', {
-            action: 'getCategories',
-            data: {}
-        });
+        const response = await api.get('/api/category');
         return response.data as CategoryType[];
     }
 }
@@ -53,10 +37,7 @@ export class CommentService {
 }
 export class ReferanceService {
     async getReferances(){
-        const response = await api.post('/api/referances', {
-            action: 'getReferances',
-            data: {}
-        });
+        const response = await api.get('/api/referances');
         return response.data as ReferanceType[];
     }
 }
