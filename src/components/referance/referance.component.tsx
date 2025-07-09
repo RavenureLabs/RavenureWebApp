@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 export default function ReferanceComponent({referance}: {referance: ReferanceType}) {
     return (
         <div className="bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col items-center relative">
-          <img src={referance.imageUrl} alt="Ravenure" className="h-20 w-auto object-contain mb-6" />
+          <img src={referance.imageUrl} alt="Ravenure" className="h-20 w-auto object-contain mb-6 transform hover:scale-110 transition-transform duration-300" />
           <div className="text-center">
             <h3 className="text-lg font-semibold text-white">{referance.name}</h3>
             <p className="text-sm text-gray-400">{referance.url}</p>

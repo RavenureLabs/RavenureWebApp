@@ -1,6 +1,7 @@
 'use client';
 import { UserIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
+import { config } from '@/src/config/config';
 
 export default function Header() {
   const { text } = useLanguage();
@@ -30,7 +31,7 @@ export default function Header() {
               <span className="relative z-10">{text("navbar.referances")}</span>
               <span className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-[20px]" />
             </a>
-            <a href="/discord" className="relative px-4 py-4 transition-all duration-300 overflow-hidden group">
+            <a href={config.discordServerUrl} className="relative px-4 py-4 transition-all duration-300 overflow-hidden group">
               <span className="relative z-10">{text("navbar.discord")}</span>
               <span className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-[20px]" />
             </a>

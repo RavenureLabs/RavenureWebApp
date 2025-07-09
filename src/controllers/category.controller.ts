@@ -6,7 +6,6 @@ export async function getCategories(data: any) {
     await connectToDatabase();
     try{
         const categories = await Category.find();
-        console.log(categories)
         return NextResponse.json(categories.map(category => {
             return convertToDto(category);
         }), { status: 200 });
