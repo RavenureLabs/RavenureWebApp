@@ -1,7 +1,7 @@
 import {NextResponse} from "next/server";
 import {connectToDatabase} from "../lib/database";
-import Referance from "@/src/models/referance.model";
-export async function getReferances(data: any) {
+import Referance, {ReferanceType} from "@/src/models/referance.model";
+export async function getReferances() {
     await connectToDatabase();
     try{
         const referances = await Referance.find();
@@ -14,10 +14,10 @@ export async function getReferances(data: any) {
         return NextResponse.json({ message: "Error fetching referances", error }, { status: 500 });
     }
 }
-export async function getReferanceById(data: any) {
+export async function getReferanceById(id: any) {
     await connectToDatabase();
     try{
-        const referance = await Referance.findById(data.id);
+        const referance = await Referance.findById(id);
         return NextResponse.json(convertToDto(referance), { status: 200 });
     }
     catch (error) {

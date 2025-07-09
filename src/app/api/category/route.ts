@@ -1,7 +1,53 @@
 import { getCategories, createCategory, updateCategory, deleteCategory, getCategoryById } from "@/src/controllers/category.controller";
 import { requireAuth } from "@/src/lib/middleware/auth";
 import { NextRequest, NextResponse } from "next/server";
-export async function POST(request: NextRequest) {
+
+export async function GET(request: NextRequest){
+    return getCategories();
+}
+
+export async function PUT(request: NextRequest){
+    const{ data } = await request.json();
+    const auth = await requireAuth(request, ["admin"]);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+    const user = auth.user;
+    if (user.role !== 'admin') {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
+    return updateCategory(data);
+}
+export async function DELETE(request: NextRequest){
+    const { data } = await request.json();
+    const auth = await requireAuth(request, ["admin"]);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+    const user = auth.user;
+    if (user.role !== 'admin') {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
+    return deleteCategory(data);
+}
+export async function POST(request: NextRequest){
+    const { data } = await request.json();
+    const auth = await requireAuth(request, ["admin"]);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+    const user = auth.user;
+    if (user.role !== 'admin') {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
+    return createCategory(data);
+}
+
+/**
+ * @deprecated
+ * This method is deprecated and will be removed in the future.
+ */
+/*export async function POST(request: NextRequest) {
     const { action, data } = await request.json();
     switch(action){
         case 'getCategories':
@@ -39,4 +85,4 @@ export async function POST(request: NextRequest) {
         default:
             return NextResponse.json({ message: "Invalid action" }, { status: 400 });
     }
-}
+}*/

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "../lib/database";
 import Category from "../models/category.model";
 
-export async function getCategories(data: any) {
+export async function getCategories() {
     await connectToDatabase();
     try{
         const categories = await Category.find();
