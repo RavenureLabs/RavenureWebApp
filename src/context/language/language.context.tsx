@@ -1,8 +1,8 @@
 
 "use client";
 import { createContext, useState, useEffect } from "react";
-import en from "@/public/locales/en.json";
-import tr from "@/public/locales/tr.json";
+import en from "@/src/config/locales/en.json";
+import tr from "@/src/config/locales/tr.json";
 
 type Translations = typeof en;
 
