@@ -1,6 +1,8 @@
 'use client';
 
 import { FaDiscord } from 'react-icons/fa';
+import { FiLogIn } from 'react-icons/fi';
+import { FiArrowRight } from 'react-icons/fi';
 
 export default function LoginPageComponent() {
   return (
@@ -67,9 +69,22 @@ export default function LoginPageComponent() {
 
 
  
-        <button className="w-full flex items-center justify-center gap-2 bg-white text-black font-semibold py-2 rounded-md hover:bg-gray-200 transition">
-          <span>Giriş Yap</span>
-        </button> 
+
+<button className="w-full group relative flex items-center justify-center gap-2 bg-white text-black font-semibold py-2 rounded-xl hover:scale-105 transition overflow-hidden cursor-pointer">
+ 
+  <span className="flex items-center transition-all duration-200 ease-in-out group-hover:opacity-0 group-hover:scale-75 group-hover:-translate-x-4">
+    <FiLogIn size={18} />
+  </span>
+ 
+  <span className="flex items-center transition-all duration-200 ease-in-out group-hover:-translate-x-3">
+    Giriş Yap
+  </span>
+ 
+  <span className="flex items-center transition-all duration-200 ease-in-out opacity-0 scale-75 translate-x-2 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0">
+    <FiArrowRight size={18} />
+  </span>
+</button>
+
 
         <p className="text-center text-sm text-gray-400">
           Hesabınız yok mu?{' '}
