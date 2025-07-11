@@ -22,6 +22,18 @@ export default function LoginPageComponent() {
               Ana Sayfa'ya dön
             </a>
           </div>
+          {/* Discord ile Giriş */}
+          <a
+            href="/api/auth/discord"
+            className="w-full flex items-center justify-center gap-2 bg-[#5865F2] hover:bg-[#4752c4] transition-all duration-200 text-white font-medium py-3 rounded-xl group"
+          >
+            <span className="transform group-hover:-translate-x-1 transition duration-200">
+              <FaDiscord size={20} />
+            </span>
+            <span className="transform group-hover:translate-x-1 transition duration-200">
+              Discord ile giriş yap
+            </span>
+          </a>
 
           {/* Ayraç */}
           <div className="flex items-center gap-4 text-gray-500">
