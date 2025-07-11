@@ -27,5 +27,15 @@
     "referances":{
         "title": "Bize Güvenen Oyun Sunucuları",
         "sub-title": "Bizim kalitemize ve güvencemize güvenenler!"
+    },
+    "login": {
+        "back-home": "Ana Sayfa'ya dön",
+        "login-with-discord": "Discord ile giriş yap",
+        "or": "VEYA",
+        "mail-and-password": "E-Posta ve Şifre",
+        "forgot-password": "Şifremi Unuttum",
+        "login": "Giriş yap",
+        "dont-have-account": "Hesabın yok mu? ",
+        "create-account":"Hesap oluştur"
     }
 }

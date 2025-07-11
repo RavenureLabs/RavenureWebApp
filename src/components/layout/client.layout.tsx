@@ -7,16 +7,18 @@ import FooterComponent from "../footer/footer.component";
 
 
 const HIDDEN_NAVBAR_ROUTES = ['/login'];
+const HIDDEN_FOOTER_ROUTES = ['/login'];
 
 export default function ClientLayout({ children, lang }: { children: React.ReactNode, lang: string }) {
   const pathname = usePathname();
   const hideNavbar = HIDDEN_NAVBAR_ROUTES.includes(pathname);
+  const hideFooter = HIDDEN_FOOTER_ROUTES.includes(pathname);
   return (
     <SessionProvider>
         <LanguageProvider lang={lang}>
           {!hideNavbar && <NavbarComponent />}
           {children}
-          <FooterComponent />
+          {!hideFooter && <FooterComponent />}
         </LanguageProvider>
     </SessionProvider>
   );
