@@ -68,7 +68,7 @@ export default function LoginPageComponent() {
 
 
 
- 
+
 
 <button className="w-full group relative flex items-center justify-center gap-2 bg-white text-black font-semibold py-2 rounded-xl hover:scale-105 transition overflow-hidden cursor-pointer">
  
