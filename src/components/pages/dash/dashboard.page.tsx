@@ -8,7 +8,9 @@ export default function DashBoardPageComponent(){
     return (
         <div>
             <h1>
-                Dashboard, Welcome {session?.user?.name || session?.user?.email || "Guest"}
+                Dashboard, Welcome {session?.user?.name || session?.user?.email || "Guest"} 
+                <br />
+                <button onClick={() => signOut()}>Sign Out</button>
             </h1>
         </div>
     );

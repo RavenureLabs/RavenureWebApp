@@ -68,6 +68,20 @@ export async function getUserById(id: string) {
     }
 }
 
+export async function getUserByDiscordId(id: string) {
+    await connectToDatabase();
+    try {
+        const user = await User.findOne({ discordId: id });
+        if (!user) {
+            return NextResponse.json({ message: "User not found" }, { status: 404 });
+        }
+        return NextResponse.json({ user: convertToDto(user) }, { status: 200 });
+    } catch (error) {
+        console.error("Error fetching user by Discord ID:", error);
+        return NextResponse.json({ message: "Error fetching user by Discord ID", error }, { status: 500 });
+    }
+}
+
 export async function getUserByName(name: string) {
     await connectToDatabase();
     try {
@@ -132,17 +146,18 @@ export async function login(data: { email: string, password: string }) {
     }
 }
 
-export async function register(data: {
-  name: string,
-  email: string,
-  password?: string,          // OAuth için password zorunlu değil
-  discordId?: string,         // Discord OAuth için
-  role?: string,
-  profilePictureUrl?: string,
-  accountType?: string,
-  isActive?: boolean,
-  isVerified?: boolean,
-}) {
+export async function isRegistered(email: string) : Promise<boolean> {
+    await connectToDatabase();
+    try {
+        const user = await User.findOne({ email });
+        return user ? true : false;
+    } catch (error) {
+        console.error("Error checking if user is registered:", error);
+        return false;
+    }
+}
+
+export async function register(data: UserType) {
   await connectToDatabase();
 
   try {
@@ -185,6 +200,7 @@ const convertToDto = (user: UserType) => {
         role: user.role,
         profilePictureUrl: user.profilePictureUrl,
         accountType: user.accountType,
+        discordId: user.discordId,
         isActive: user.isActive,
         isVerified: user.isVerified,
         lastLogin: user.lastLogin,

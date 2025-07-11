@@ -3,7 +3,8 @@ import { CategoryType } from "../models/category.model";
 import { ProductType } from "../models/product.model";
 import { CommentType } from "../models/comment.model";
 import { ReferanceType } from "../models/referance.model";
-import { login, register } from "../controllers/user.controller";
+import { isRegistered, login, register } from "../controllers/user.controller";
+import { UserType } from "../models/user.model";
 export const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL
 });
@@ -43,14 +44,15 @@ export class ReferanceService {
     }
 }
 export class UserService {
-    async register(data: any){
-        await register(
-            data
-        )
+    async register(data: UserType){
+        await register(data)
     }
     async login(data: any){
         await login(
             data
         )
+    }
+    async isRegistered(email: any) : Promise<boolean> {
+        return isRegistered(email);
     }
 }

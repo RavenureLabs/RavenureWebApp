@@ -2,7 +2,7 @@ import mongoose, { ObjectId } from "mongoose";
 export type UserType = {
     name: string;
     email: string;
-    password: string;
+    password?: string;
     role: 'admin' | 'user';
     createdAt: string;
     updatedAt?: string;
@@ -18,14 +18,14 @@ export type UserType = {
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, required: false },
     role: { type: String, enum: ['admin', 'user'], default: 'user' },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
     products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     profilePictureUrl: { type: String, default: null },
     accountType: { type: String, enum: ['discord', 'email'], required: true },
-    discordId: { type: String, default: null },
+    discordId: { type: String, required: false, default: null },
     isActive: { type: Boolean, default: true },
     isVerified: { type: Boolean, default: false },
     lastLogin: { type: Date, default: null }
