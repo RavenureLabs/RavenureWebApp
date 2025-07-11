@@ -8,7 +8,8 @@ export type UserType = {
     updatedAt?: string;
     products: ObjectId[];
     profilePictureUrl?: string;
-    accountType: 'discord' | 'google' | 'email';
+    accountType: 'discord' | 'email';
+    discordId?: string;
     isActive?: boolean;
     isVerified?: boolean;
     lastLogin?: string;
@@ -23,7 +24,8 @@ const userSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now },
     products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     profilePictureUrl: { type: String, default: null },
-    accountType: { type: String, enum: ['discord', 'google', 'email'], required: true },
+    accountType: { type: String, enum: ['discord', 'email'], required: true },
+    discordId: { type: String, default: null },
     isActive: { type: Boolean, default: true },
     isVerified: { type: Boolean, default: false },
     lastLogin: { type: Date, default: null }

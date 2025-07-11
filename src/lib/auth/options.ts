@@ -2,6 +2,7 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import DiscordProvider from "next-auth/providers/discord";
+import { api } from "../api";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -56,9 +57,12 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
     callbacks: {
-        async jwt({ token, user }) {
+        async jwt({ token, user, account, profile  }) {
             if (user) {
-                token.user = user; 
+              if (account?.provider === "discord") {
+                
+              }
+                              token.user = user; 
             }
             return token;
             },

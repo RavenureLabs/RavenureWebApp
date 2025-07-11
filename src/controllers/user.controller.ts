@@ -132,33 +132,50 @@ export async function login(data: { email: string, password: string }) {
     }
 }
 
-export async function register(data: { name: string, email: string, password: string
-    , role?: string, profilePictureUrl?: string, accountType?: string, isActive?: boolean, isVerified?: boolean
- }) {
-    await connectToDatabase();
-    try {
-        const existingUser = await User.findOne({ email: data.email });
-        if (existingUser) {
-            return NextResponse.json({ message: "User already exists" }, { status: 409 });
-        }
-        const newUser = new User({
-            name: data.name,
-            email: data.email,
-            password: data.password,
-            role: data.role || 'user',
-            profilePictureUrl: data.profilePictureUrl || null,
-            accountType: data.accountType || 'email',
-            isActive: data.isActive || true,
-            isVerified: data.isVerified || false,
-        });
-        const savedUser = await newUser.save();
-        return NextResponse.json({ message: "User registered successfully", user: convertToDto(savedUser) }, { status: 201 });
-    } catch (error) {
-        console.error("Error registering user:", error);
-        return NextResponse.json({ message: "Error registering user", error }, { status: 500 });
-    }
-}
+export async function register(data: {
+  name: string,
+  email: string,
+  password?: string,          // OAuth için password zorunlu değil
+  discordId?: string,         // Discord OAuth için
+  role?: string,
+  profilePictureUrl?: string,
+  accountType?: string,
+  isActive?: boolean,
+  isVerified?: boolean,
+}) {
+  await connectToDatabase();
 
+  try {
+    const existingUser = await User.findOne({ email: data.email });
+
+    if (existingUser) {
+      return NextResponse.json({ message: "User already exists" }, { status: 409 });
+    }
+
+    const newUser = new User({
+      name: data.name,
+      email: data.email,
+      password: data.password || null,     // OAuth kullanıcıda null olabilir
+      discordId: data.discordId || null,   // Discord ID'si varsa ekle
+      role: data.role || 'user',
+      profilePictureUrl: data.profilePictureUrl || null,
+      accountType: data.accountType || 'email',  // "email" veya "discord"
+      isActive: data.isActive ?? true,
+      isVerified: data.isVerified ?? false,
+    });
+
+    const savedUser = await newUser.save();
+
+    return NextResponse.json({
+      message: "User registered successfully",
+      user: convertToDto(savedUser)
+    }, { status: 201 });
+
+  } catch (error) {
+    console.error("Error registering user:", error);
+    return NextResponse.json({ message: "Error registering user", error }, { status: 500 });
+  }
+}
 
 
 const convertToDto = (user: UserType) => {
