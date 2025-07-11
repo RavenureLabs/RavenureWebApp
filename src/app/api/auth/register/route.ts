@@ -1,4 +1,4 @@
-import { register } from "module";
+import { register } from "@/src/controllers/user.controller";
 import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {

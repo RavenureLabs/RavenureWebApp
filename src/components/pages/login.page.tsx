@@ -1,9 +1,41 @@
 'use client';
 
+import { useLanguage } from '@/src/hooks/uselanguage.hooks';
+import { Link } from 'lucide-react';
+import { signIn, useSession } from 'next-auth/react';
+import { useEffect } from 'react';
 import { FaDiscord } from 'react-icons/fa';
 import { FiLogIn, FiArrowRight, FiArrowLeft } from 'react-icons/fi';
 
 export default function LoginPageComponent() {
+  const { text } = useLanguage();
+  const { data: session } = useSession();
+  useEffect(() => {
+    // check if user is logged in and redirect to dashboard
+
+    if (session?.user) {
+      window.location.href = '/dash';
+      return;
+    }
+    
+  },[]);
+    const handleLoginCredentials = async () => {
+      let email = document.getElementById('email') as HTMLInputElement;
+      let password = document.getElementById('password') as HTMLInputElement;
+      const res = await signIn("credentials", {
+        email: email.value,
+        password: password.value,
+        redirect: false,
+      });
+      
+      if(res?.ok) {
+        window.location.href = '/dash';
+      }
+    }
+    const handleLoginWithDiscord = async () =>{
+      signIn("discord", {callbackUrl: "/dash"});
+    }
+
   return (
     <div className="min-h-screen flex bg-[#0f0f10] text-white relative overflow-hidden">
       {/* Sol Kısım - Form */}
@@ -19,34 +51,35 @@ export default function LoginPageComponent() {
               <span className="transform transition-all duration-200 group-hover:-translate-x-2">
                 <FiArrowLeft size={16} />
               </span>
-              Ana Sayfa'ya dön
+              {text('login.back-home')}
             </a>
           </div>
           {/* Discord ile Giriş */}
           <a
-            href="/api/auth/discord"
+            onClick={handleLoginWithDiscord}
             className="w-full flex items-center justify-center gap-2 bg-[#5865F2] hover:bg-[#4752c4] transition-all duration-200 text-white font-medium py-3 rounded-xl group"
           >
             <span className="transform group-hover:-translate-x-1 transition duration-200">
               <FaDiscord size={20} />
             </span>
             <span className="transform group-hover:translate-x-1 transition duration-200">
-              Discord ile giriş yap
+             {text('login.login-with-discord')}
             </span>
           </a>
 
           {/* Ayraç */}
           <div className="flex items-center gap-4 text-gray-500">
             <div className="flex-grow h-px bg-gradient-to-r from-transparent to-gray-600" />
-            <span className="text-sm font-bold">VEYA</span>
+            <span className="text-sm font-bold">{text('login.or')}</span>
             <div className="flex-grow h-px bg-gradient-to-r from-gray-600 to-transparent" />
           </div>
 
           {/* E-Posta ve Şifre */}
           <div className="space-y-4">
-            <label className="block text-base text-gray-400">E-Posta ve Şifre</label>
+            <label className="block text-base text-gray-400">{text("login.mail-and-password")}</label>
             <div className="relative">
               <input
+                id="email"
                 type="email"
                 name="email"
                 placeholder="you@ravenure.com"
@@ -61,6 +94,7 @@ export default function LoginPageComponent() {
 
             <div className="relative">
               <input
+                id="password"
                 type="password"
                 name="password"
                 placeholder="••••••••"
@@ -75,18 +109,18 @@ export default function LoginPageComponent() {
 
             <div className="flex justify-end">
               <a href="/forgot-password" className="text-sm text-blue-400 hover:underline">
-                Şifremi Unuttum?
+                {text('login.forgot-password')}
               </a>
             </div>
           </div>
 
           {/* Giriş Butonu */}
-          <button className="w-full group relative flex items-center justify-center gap-2 bg-white text-black font-semibold py-4 rounded-xl hover:scale-105 transition overflow-hidden cursor-pointer">
+          <button onClick={handleLoginCredentials} className="w-full group relative flex items-center justify-center gap-2 bg-white text-black font-semibold py-4 rounded-xl hover:scale-105 transition overflow-hidden cursor-pointer">
             <span className="flex items-center transition-all duration-200 ease-in-out group-hover:opacity-0 group-hover:scale-75 group-hover:-translate-x-4">
               <FiLogIn size={20} />
             </span>
             <span className="flex items-center transition-all duration-200 ease-in-out group-hover:-translate-x-5">
-              Giriş Yap
+              {text('login.login')}
             </span>
             <span className="flex items-center transition-all duration-200 ease-in-out opacity-0 scale-75 translate-x-3 group-hover:opacity-100 group-hover:scale-100 group-hover:-translate-x-3">
               <FiArrowRight size={20} />
@@ -95,9 +129,9 @@ export default function LoginPageComponent() {
 
           {/* Kayıt Linki */}
           <p className="text-sm text-center text-gray-400">
-            Hesabınız yok mu?{' '}
+            {text('login.dont-have-account')}
             <a href="/register" className="text-blue-400 text-center hover:underline">
-              Hesap Oluştur
+              {text('login.create-account')}
             </a>
           </p>
         </div>

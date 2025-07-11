@@ -110,6 +110,7 @@ export async function deleteUser(id: string) {
 export async function login(data: { email: string, password: string }) {
     await connectToDatabase();
     try {
+        console.log("Login request received:", data);
         const user = await User.findOne({ email: data.email });
         if (!user) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });

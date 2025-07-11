@@ -1,3 +1,5 @@
+import DashBoardClientLayout from "@/src/components/layout/dashboard.layout"
+
 export default function DashboardLayout({
   children,
 }: {
@@ -6,7 +8,9 @@ export default function DashboardLayout({
   return (
     <html lang="tr">
       <body>
-        <main>{children}</main>
+          <DashBoardClientLayout>
+            {children}
+          </DashBoardClientLayout>
       </body>
     </html>
   )
