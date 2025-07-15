@@ -95,6 +95,19 @@ export async function getUserByName(name: string) {
         return NextResponse.json({ message: "Error fetching user by name", error }, { status: 500 });
     }
 }
+export async function getUserByEmail(email: string) {
+    await connectToDatabase();
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return NextResponse.json({ message: "User not found" }, { status: 404 });
+        }
+        return NextResponse.json({ user: convertToDto(user) }, { status: 200 });
+    } catch (error) {
+        console.error("Error fetching user by email:", error);
+        return NextResponse.json({ message: "Error fetching user by email", error }, { status: 500 });
+    }
+}
 
 export async function getAllUsers() {
     await connectToDatabase();

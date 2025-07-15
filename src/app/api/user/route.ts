@@ -5,6 +5,14 @@ import { NextRequest, NextResponse } from "next/server";
 
 
 export async function GET(request: NextRequest) {
+    const auth = await requireAuth(request, ['admin']);
+    if (auth instanceof NextResponse) {
+        return auth;
+    }
+    const user = auth.user;
+    if (user.role !== 'admin') {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    }
     return getAllUsers();
 }
 export async function PUT(request: NextRequest) {
@@ -21,7 +29,7 @@ export async function PUT(request: NextRequest) {
 }
 export async function DELETE(request: NextRequest) {
     const { data } = await request.json();
-    const auth = await requireAuth(request, ['user', 'admin']);
+    const auth = await requireAuth(request, ['admin']);
     if (auth instanceof NextResponse) {
         return auth;
     }
@@ -33,7 +41,7 @@ export async function DELETE(request: NextRequest) {
 }
 export async function POST(request: NextRequest) {
     const { data } = await request.json();
-    const auth = await requireAuth(request, ['user', 'admin']);
+    const auth = await requireAuth(request, ['admin']);
     if (auth instanceof NextResponse) {
         return auth;
     }

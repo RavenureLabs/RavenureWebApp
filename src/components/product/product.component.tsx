@@ -1,4 +1,6 @@
+'use client';
 import { useLanguage } from "@/src/hooks/uselanguage.hooks";
+import { embedService } from "@/src/lib/services";
 import { ProductType } from "@/src/models/product.model";
 import Image from "next/image";
 
@@ -44,7 +46,13 @@ export default function ProductComponent({product}: {product: ProductType}) {
             </div>
           </div>
           <div className="flex gap-2">
-            <a href="/store/product1" className="w-1/2 text-center px-3 py-2 bg-[#25d170] text-white text-sm font-medium rounded-xl hover:bg-[#139f8b] transition">
+            <a  onClick={async () => {
+              console.log("Ürün satın alındı.");
+              const res = await embedService.sendSellEmbed("RBlackShop", "Weesli"); 
+              if(res.success) {
+                alert("Ürün satın alındı.");
+              };
+            }} className="w-1/2 text-center px-3 py-2 bg-[#25d170] text-white text-sm font-medium rounded-xl hover:bg-[#139f8b] transition">
               {text('product.buy')}
             </a>
             <a href="/product-detail/1" className="w-1/2 text-center px-3 py-2 border border-[#25d170] text-[#25d170] text-sm font-medium rounded-xl hover:bg-[#25d170]/10 transition">

@@ -1,9 +1,12 @@
 // lib/mongoose.ts
 import mongoose from 'mongoose';
-
 const MONGODB_URI = process.env.MONGODB_URI as string;
 
-if (!MONGODB_URI) {
+if (typeof window !== 'undefined') {
+  throw new Error('This should only be used on the server side');
+}
+
+if(!MONGODB_URI) {
   throw new Error('MONGODB_URI is not defined');
 }
 
