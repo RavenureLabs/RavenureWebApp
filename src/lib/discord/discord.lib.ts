@@ -1,6 +1,4 @@
-import commentModel from '@/src/models/comment.model';
 import { Client, Events, GatewayIntentBits } from 'discord.js';
-import { connectToDatabase } from '../database';
 
 
 class DiscordBot {

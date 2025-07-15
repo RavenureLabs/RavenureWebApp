@@ -1,7 +1,8 @@
 // lib/auth/options.ts
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, Profile } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import DiscordProvider from "next-auth/providers/discord";
+import { userService } from "../services";
 import { api } from "../api";
 
 export const authOptions: NextAuthOptions = {
@@ -29,6 +30,12 @@ export const authOptions: NextAuthOptions = {
         })
         const user = await res.json();
         if (res.ok && user) {
+          if(user.user.discordId !== null){
+            return {
+              code: -1,
+              error: "This account is linked to discord.",
+            }
+          }
           return user.user;
         } else {
           return {
@@ -40,14 +47,28 @@ export const authOptions: NextAuthOptions = {
     DiscordProvider({
       clientId: process.env.DISCORD_CLIENT_ID as string,
       clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
-      profile(profile) {
+      async profile(profile) {
+        const res = await fetch(`${process.env.NEXTAUTH_URL}/api/user/discord/${profile.id}`, {
+          method: "GET",
+          headers: {
+            "Content-type": "application/json",
+            "x-auth-id": profile.id
+          }
+        })
+        const user = await res.json();
         return {
-          id: profile.id,
-          name: profile.username,
-          email: profile.email,
-          image: profile.avatar,
+          id: user.user.discordId,   
+          name: user.user.name,            
+          email: user.user.email,     
+          image: user.user.profilePictureUrl,  
+          role: user.user.role,              
+          accountType: user.user.accountType, 
+          isActive: user.user.isActive,
+          isVerified: user.user.isVerified,
+          lastLogin: user.user.lastLogin,
         };
-      },
+
+      }
     })
   ],
   pages: {
@@ -60,9 +81,26 @@ export const authOptions: NextAuthOptions = {
         async jwt({ token, user, account, profile  }) {
             if (user) {
               if (account?.provider === "discord") {
-                
+                let isRegistered = await userService.isRegistered(profile?.email);
+                if (!isRegistered) {
+                  await userService.register({
+                    // @ts-ignore
+                    name: profile?.username as string,
+                    email: profile?.email as string,
+                    password: undefined,
+                    accountType: "discord",
+                    // @ts-ignore
+                    discordId: profile?.id as string,
+                    // @ts-ignore
+                    profilePictureUrl: `https://cdn.discordapp.com/avatars/${profile.id}/${profile?.avatar}.png`,
+                    role: "admin",
+                    createdAt: new Date().toISOString(),
+                    products: [],
+                    isVerified: true,
+                  });
+                }
               }
-                              token.user = user; 
+              token.user = user; 
             }
             return token;
             },

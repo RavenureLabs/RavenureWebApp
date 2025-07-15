@@ -1,0 +1,28 @@
+{
+  "title": "Bir ürün satın alındı!",
+  "description": "Site üzerinden bir ürün satın alındı!",
+  "url": "https://example.com",
+  "color": 5814783,
+  "timestamp": "2025-07-14T17:00:00.000Z",
+  "footer": {
+    "text": "RavenureLabs • Ürün satın alım!",
+    "icon_url": "https://i.imgur.com/AfFp7pu.png"
+  },
+  "author": {
+    "name": "Geliştirici Ekibi",
+    "url": "https://example.com",
+    "icon_url": "https://i.imgur.com/AfFp7pu.png"
+  },
+  "fields": [
+    {
+      "name": "Satın alınan ürün",
+      "value": "{product_name}",
+      "inline": false
+    },
+    {
+      "name": "Satın alan kullanıcı",
+      "value": "{user_name}",
+      "inline": false
+    }
+  ]
+}
