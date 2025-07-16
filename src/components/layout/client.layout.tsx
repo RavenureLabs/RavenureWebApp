@@ -15,13 +15,12 @@ export default function ClientLayout({ children, lang }: { children: React.React
   const hideNavbar = HIDDEN_NAVBAR_ROUTES.some(uri => {
     if(uri.includes("/*")){
       const basePath = pathname.split("/")[1];
-      const uriPath = uri.split("/")[1];
-      if(basePath === uriPath){
+      if(basePath === uri.split("/")[1]){
         return true;
-      }else{
-        if(pathname === uri){
-          return true;
-        }
+      }
+    }else{
+      if(pathname === uri){
+        return true;
       }
     }
     return false;
