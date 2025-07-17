@@ -6,7 +6,7 @@ export const metadata = {
     description: "Ravenure Mağaza",
 }
 
-export default function StorePage() {
+export default async function StorePage() {
     return (
         <ShopPageComponent />
     )

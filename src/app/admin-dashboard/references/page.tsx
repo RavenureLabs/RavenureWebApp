@@ -1,7 +1,5 @@
+import AdminReferancesPageComponent from "@/src/components/pages/admin-dash/referances.page";
+
 export default function AdminReferancesPage() {
-    return (
-        <div>
-            <h1>References</h1>
-        </div>
-    );
+    return (<AdminReferancesPageComponent />);
 }

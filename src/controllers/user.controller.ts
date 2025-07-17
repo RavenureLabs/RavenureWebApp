@@ -120,10 +120,11 @@ export async function getAllUsers() {
     }
 }
 
-export async function deleteUser(id: string) {
+export async function deleteUser(email: string) {
+    console.log("Deleting user with email:", email);
     await connectToDatabase();
     try {
-        const user = await User.findByIdAndDelete(id);
+        const user = await User.findOneAndDelete({ email });
         if (!user) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
@@ -188,6 +189,7 @@ export async function register(data: UserType) {
       role: data.role || 'user',
       profilePictureUrl: data.profilePictureUrl || null,
       accountType: data.accountType || 'email',  // "email" veya "discord"
+      phoneNumber: data.phoneNumber || "",
       isActive: data.isActive ?? true,
       isVerified: data.isVerified ?? false,
     });

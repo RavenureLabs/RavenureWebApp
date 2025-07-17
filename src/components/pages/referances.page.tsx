@@ -2,7 +2,7 @@
 
 import { referanceService } from '@/src/lib/services';
 import { ReferanceType } from '@/src/models/referance.model';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import ReferanceComponent from '../referance/referance.component';
 import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
@@ -32,15 +32,15 @@ export default function ReferencesPageComponent() {
         </p>
       </div>
       {/* Kartlar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {
-          referances.map((referance) => (
-            <ReferanceComponent
-              referance={referance}
-            />
-          ))
-        }
-      </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {
+            referances.map((referance) => (
+              <ReferanceComponent
+                referance={referance}
+              />
+            ))
+          }
+        </div>
     </div>
   );
 }

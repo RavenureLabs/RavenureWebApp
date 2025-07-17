@@ -54,14 +54,41 @@ export const authOptions: NextAuthOptions = {
             "Content-type": "application/json",
             "x-auth-id": profile.id
           }
-        })
+        });
         const user = await res.json();
+        if(res.status==404){
+          const newUser = await userService.register({
+            name: profile.username as string,
+            email: profile.email as string,
+            password: undefined,
+            accountType: "discord",
+            discordId: profile.id as string,
+            profilePictureUrl: `https://cdn.discordapp.com/avatars/${profile.id}/${profile?.avatar}.png`,
+            role: "admin",
+            createdAt: new Date().toISOString(),
+            products: [],
+            isVerified: true,
+          })
+          return {
+            id: newUser.user.discordId,   
+            name: newUser.user.name,            
+            email: newUser.user.email,     
+            image: newUser.user.profilePictureUrl,  
+            role: newUser.user.role,
+            phoneNumber: newUser.user.phoneNumber,
+            accountType: newUser.user.accountType, 
+            isActive: newUser.user.isActive,
+            isVerified: newUser.user.isVerified,
+            lastLogin: newUser.user.lastLogin,
+          };
+        }
         return {
           id: user.user.discordId,   
           name: user.user.name,            
           email: user.user.email,     
           image: user.user.profilePictureUrl,  
-          role: user.user.role,              
+          role: user.user.role,
+          phoneNumber: user.user.phoneNumber,
           accountType: user.user.accountType, 
           isActive: user.user.isActive,
           isVerified: user.user.isVerified,
@@ -91,6 +118,7 @@ export const authOptions: NextAuthOptions = {
                     accountType: "discord",
                     // @ts-ignore
                     discordId: profile?.id as string,
+                    phoneNumber: "",
                     // @ts-ignore
                     profilePictureUrl: `https://cdn.discordapp.com/avatars/${profile.id}/${profile?.avatar}.png`,
                     role: "admin",

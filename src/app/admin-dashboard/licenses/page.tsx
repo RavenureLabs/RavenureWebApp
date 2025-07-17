@@ -1,7 +1,5 @@
+import AdminLicensesPageComponent from "@/src/components/pages/admin-dash/licenses.page";
+
 export default function AdminLicensesPage() {
-    return (
-        <div>
-            <h1>Licenses</h1>
-        </div>
-    );
+    return (<AdminLicensesPageComponent />);
 }

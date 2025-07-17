@@ -1,7 +1,7 @@
+import AdminCategoryPageComponent from "@/src/components/pages/admin-dash/category.page";
+
 export default function AdminCategoryPage() {
     return (
-        <div>
-            <h1>Categories</h1>
-        </div>
+        <AdminCategoryPageComponent />
     );
 }

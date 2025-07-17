@@ -1,7 +1,5 @@
+import AdminSettingsPageComponent from "@/src/components/pages/admin-dash/settings.page";
+
 export default function AdminSettings() {
-    return (
-        <div>
-            <h1>Settings</h1>
-        </div>
-    );
+    return (<AdminSettingsPageComponent />);
 }

@@ -6,7 +6,7 @@ import { useLanguage } from '@/src/hooks/uselanguage.hooks';
 import { CategoryType } from '@/src/models/category.model';
 import { ProductType } from '@/src/models/product.model';
 import { categoryService, commentService, productService } from '@/src/lib/services';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import CommentComponent from '@/src/components/comment/comment.component';
 import { CommentType } from '@/src/models/comment.model';
 
@@ -105,14 +105,14 @@ export default function ShopPageComponent() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {(activeCategory === "Tüm Ürünler" ? products : filteredProducts).map((product, index) => (
-            <ProductComponent 
-              key={index}
-              product={product}
-            />
-          ))}
-        </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {(activeCategory === "Tüm Ürünler" ? products : filteredProducts).map((product, index) => (
+              <ProductComponent 
+                key={index}
+                product={product}
+              />
+            ))}
+          </div>
       </section>
 
       {/* Müşteri Yorumu */}
