@@ -33,9 +33,23 @@
         "login-with-discord": "Discord ile giriş yap",
         "or": "VEYA",
         "mail-and-password": "E-Posta ve Şifre",
-        "forgot-password": "Şifremi Unuttum",
+        "forgot-password": "Şifremi Unuttum?",
         "login": "Giriş yap",
         "dont-have-account": "Hesabın yok mu? ",
         "create-account":"Hesap oluştur"
-    }
+    },
+    "register": {
+        "title": "Hesap Oluştur",
+        "description": "Kayıt olmak için gerekli alanları doldurun.",
+        "email": "E-Posta",
+        "password": "Şifre",
+        "confirm-password": "Tekrar Şifre",
+        "phone": "Telefon Numarası",
+        "have-account": "Zaten bir hesabınız var mı?",
+        "create-account": "Hesap oluştur",
+        "login": "Giriş Yap",
+        "login-with-discord": "Discord ile kayıt ol",
+        "back-home": "Ana Sayfa'ya dön"
+}
+
 }
