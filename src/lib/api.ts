@@ -93,27 +93,7 @@ export class UserService {
 
 export class EmbedService {
     async sendSellEmbed(productName: string, userName: string) {
-        const res = await fetch('https://discord.com/api/webhooks/1217565341522333837/BpF9IUTWI_Ir6em8IKwuvT7MqMtEblYVg1UmhcAztXe-GC3rwpz4zpzuPcJCsY31teEc',{
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username: 'Discord Bot',
-                embeds: [getJson('sell_embed', [{ key: 'product_name', value: productName }, { key: 'user_name', value: userName }])]
-            })
-        });
-        if (res.status === 204) {
-            console.log("Embed başarıyla gönderildi.");
-            return { success: true };
-        } else {
-            try {
-                const data = await res.json();
-                return data;
-            } catch (err) {
-                console.error("JSON parse hatası:", err);
-                return { success: false, error: "Webhook cevap döndürmedi" };
-            }
-        }
+        const res = await api.post("/api/discord/embed/sell-embed", { productName, userName });
+        return res.data;
     }
 }

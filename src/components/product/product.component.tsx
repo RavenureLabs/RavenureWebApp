@@ -47,11 +47,7 @@ export default function ProductComponent({product}: {product: ProductType}) {
           </div>
           <div className="flex gap-2">
             <a  onClick={async () => {
-              console.log("Ürün satın alındı.");
-              const res = await embedService.sendSellEmbed("RBlackShop", "Weesli"); 
-              if(res.success) {
-                alert("Ürün satın alındı.");
-              };
+              await embedService.sendSellEmbed("RBlackShop", "Weesli"); 
             }} className="w-1/2 text-center px-3 py-2 bg-[#25d170] text-white text-sm font-medium rounded-xl hover:bg-[#139f8b] transition">
               {text('product.buy')}
             </a>
