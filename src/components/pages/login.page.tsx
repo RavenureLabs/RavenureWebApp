@@ -36,23 +36,35 @@ export default function LoginPageComponent() {
   };
 
   return (
-    <div className="h-screen flex bg-[#0f0f10] text-white relative overflow-hidden">
-      
+    <div className="h-screen flex bg-gradient-to-br from-[#0f0f10] via-[#1a1a1c] to-[#0f0f10] text-white relative overflow-hidden">
+      {/* Arka plan efekti */}
+      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#0e786a]/10 via-[#0f0f10]/20 to-[#0e786a]/10 animate-pulse z-0 pointer-events-none" />
 
       {/* Sol Kısım - Form */}
-      <div className="w-full md:w-1/2 flex justify-center items-center px-4 z-10">
-        <div className="w-full max-w-md space-y-8">
-          {/* Logo ve Geri Butonu */}
-          <div className="flex justify-between items-center">
-            <img src="/Ravenure-Logo.png" alt="Ravenure Logo" className="w-14 h-auto" />
-            <a
-              href="/"
-              className="flex items-center gap-2 text-sm text-gray-400 hover:text-white border-gray-600 px-4 py-2 rounded-xl transition group"
-            >
-              <FiArrowLeft size={16} />
-              {text('login.back-home')}
-            </a>
+      <div className="w-full flex justify-center items-center px-4 z-10">
+        <div className="w-full max-w-xl space-y-8 bg-[#1a1a1c]/60 rounded-2xl p-10 backdrop-blur-xl shadow-xl">
+          {/* Geri Butonu Sağ Üst Köşede */}
+          <a
+            href="/" 
+            className="absolute top-4 right-4 flex items-center gap-2 text-sm text-gray-400 hover:text-white border-gray-600 px-4 py-3 rounded-xl transition group"
+          >
+            <FiArrowLeft size={16} className="transition-all duration-200 ease-in-out group-hover:translate-x-[-10px]" />
+            {text('login.back-home')}
+          </a>
+
+          {/* Logo ve Yazı */}
+          <div className="text-center text-2xl font-semibold text-gray-300 flex flex-col items-center justify-center space-y-4">
+            {/* Burada Logo Ekliyoruz */}
+            <img 
+              src="/Ravenure-Logo.png" 
+              alt="Logo" 
+              className="w-16 h-16 mb-2" // Logo boyutları
+            />
+            <p>Ravenure Labs'a Hoşgeldiniz</p>
+            <p className="text-sm text-gray-400 text-center">Devam etmek için giriş yapmalısınız.</p>
           </div>
+
+          
 
           {/* Discord ile Giriş */}
           <a
@@ -85,7 +97,7 @@ export default function LoginPageComponent() {
                 name="email"
                 placeholder="you@ravenure.com"
                 required
-                className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 pl-12 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-[#5865F2] transition"
+                className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 pl-12 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition"
               />
               <svg
                 className="absolute top-1/2 left-4 w-5 h-5 text-gray-500 transform -translate-y-1/2"
@@ -105,7 +117,7 @@ export default function LoginPageComponent() {
                 name="password"
                 placeholder="••••••••"
                 required
-                className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 pl-12 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-[#5865F2] transition"
+                className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 pl-12 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition"
               />
               <svg
                 className="absolute top-1/2 left-4 w-5 h-5 text-gray-500 transform -translate-y-1/2"
@@ -137,7 +149,7 @@ export default function LoginPageComponent() {
               {text('login.login')}
             </span>
             <span className="flex items-center transition-all duration-200 ease-in-out opacity-0 scale-75 translate-x-3 group-hover:opacity-100 group-hover:scale-100 group-hover:-translate-x-3">
-              <FiArrowRight size={20} />
+              <FiArrowRight size={20} className="group-hover:translate-x-[-10px]" />
             </span>
           </button>
 
