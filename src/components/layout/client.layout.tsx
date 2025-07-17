@@ -7,8 +7,8 @@ import FooterComponent from "../footer/footer.component";
 import path from "path";
 
 
-const HIDDEN_NAVBAR_ROUTES = ['/login', "/admin-dashboard/*"];
-const HIDDEN_FOOTER_ROUTES = ['/login', "/admin-dashboard/*"];
+const HIDDEN_NAVBAR_ROUTES = ['/login', "/admin-dashboard/*", "/register"];
+const HIDDEN_FOOTER_ROUTES = ['/login', "/admin-dashboard/*", "/register"];
 
 export default function ClientLayout({ children, lang }: { children: React.ReactNode, lang: string }) {
   const pathname = usePathname();
