@@ -1,12 +1,10 @@
 import { getUserByDiscordId } from "@/src/controllers/user.controller";
+import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-    const { id } = await params;
-    if(request.headers.get("x-auth-id") === id){
-      
-    return getUserByDiscordId(id);
-    }
+  const { id } = await params;
+  return getUserByDiscordId(id);
 }

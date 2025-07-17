@@ -3,11 +3,10 @@ import { CategoryType } from "../models/category.model";
 import { ProductType } from "../models/product.model";
 import { CommentType } from "../models/comment.model";
 import { ReferanceType } from "../models/referance.model";
-import { isRegistered, login, register } from "../controllers/user.controller";
 import { UserType } from "../models/user.model";
 import { getJson } from "../utils/discord/jsonViewer.util";
 export const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL
+    baseURL: process.env.NEXTAUTH_URL
 });
 
 export class ProductService {
@@ -45,8 +44,38 @@ export class ReferanceService {
     }
 }
 export class UserService {
+
+    async getUser(email: string){
+        const response = await api.get(`/api/user/${email}`);
+        return response.data as UserType;
+    }
+
+    async getUserByDiscordId(discordId: string){
+        const response = await api.get(`/api/user/discord/${discordId}`);
+        return response.data as UserType;
+    }
+
+    async getUsers(){
+        const response = await api.get('/api/user');
+        return response.data.users as UserType[];
+    }
+
+    async deleteUser(id: any){
+        const res = await api.delete("/api/user", {
+            data: {
+                id: id
+            }
+        });
+        if(res.status === 200) return true;
+        return false;
+    }
+
     async register(data: UserType){
-        const response = await api.post('/api/auth/register', data);
+        const response = await api.post('/api/auth/register', {
+            data: {
+                ...data
+            }
+        });
         return response.data;
     }
     async login(data: any){

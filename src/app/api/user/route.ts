@@ -28,7 +28,7 @@ export async function PUT(request: NextRequest) {
     return updateUser(data);
 }
 export async function DELETE(request: NextRequest) {
-    const { data } = await request.json();
+    const { id } = await request.json();
     const auth = await requireAuth(request, ['admin']);
     if (auth instanceof NextResponse) {
         return auth;
@@ -37,7 +37,7 @@ export async function DELETE(request: NextRequest) {
     if (user.role !== 'admin') {
         return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
     }
-    return deleteUser(data);
+    return deleteUser(id);
 }
 export async function POST(request: NextRequest) {
     const { data } = await request.json();

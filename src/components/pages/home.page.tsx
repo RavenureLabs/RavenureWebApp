@@ -20,7 +20,6 @@ export default function HomePageComponent() {
   }, []);
   return (
     <div>
-        
         <section id="products" className="py-24">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-center text-white">Öne Çıkan Ürünler</h2>

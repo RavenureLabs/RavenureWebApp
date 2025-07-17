@@ -9,6 +9,7 @@ export type UserType = {
     products: ObjectId[];
     profilePictureUrl?: string;
     accountType: 'discord' | 'email';
+    phoneNumber?: string;
     discordId?: string;
     isActive?: boolean;
     isVerified?: boolean;
@@ -25,6 +26,7 @@ const userSchema = new mongoose.Schema({
     products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     profilePictureUrl: { type: String, default: null },
     accountType: { type: String, enum: ['discord', 'email'], required: true },
+    phoneNumber: { type: String, required: false, default: null },
     discordId: { type: String, required: false, default: null },
     isActive: { type: Boolean, default: true },
     isVerified: { type: Boolean, default: false },
