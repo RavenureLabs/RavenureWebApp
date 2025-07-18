@@ -6,18 +6,22 @@ import { FaDiscord, FaEnvelope, FaLock, FaPhone } from 'react-icons/fa';
 import { FiArrowLeft } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import NotificationComponent, { NotificationComponentProps } from '../notification/notification.component';
 
 export default function RegisterPageComponent() {
   const { text } = useLanguage();
   const router = useRouter();
-
+  const [notification, setNotification] = useState<NotificationComponentProps | null>(null);
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!termsAccepted) {
-      alert('Lütfen kullanım şartlarını kabul edin.');
+      setNotification({ iconPath: 'https://img.icons8.com/ios/50/error--v1.png', message: 'Kullanım sözlesmesini kabul etmelisiniz.' });
+      setTimeout(() => {
+        setNotification(null);
+      },3000)
       return;
     }
 
@@ -30,7 +34,10 @@ export default function RegisterPageComponent() {
     const phone = (form.elements.namedItem('phone') as HTMLInputElement).value;
 
     if (password !== confirmPassword) {
-      alert('Şifreler uyuşmuyor.');
+      setNotification({ iconPath: 'https://img.icons8.com/ios/50/error--v1.png', message: 'Sifreler uyusmuyor.' });
+      setTimeout(() => {
+        setNotification(null);
+      },3000)
       setLoading(false);
       return;
     }
@@ -46,7 +53,7 @@ export default function RegisterPageComponent() {
   return (
     <div className="h-screen flex bg-gradient-to-br from-[#0f0f10] via-[#1a1a1c] to-[#0f0f10] text-white relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#0e786a]/10 via-[#0f0f10]/20 to-[#0e786a]/10 animate-pulse z-0 pointer-events-none" />
-
+      {notification && <NotificationComponent {...notification} />}
       <div className="w-full flex justify-center items-center px-4 z-10">
         <div className="w-full max-w-xl space-y-8 bg-[#1a1a1c]/60 rounded-2xl p-10 backdrop-blur-xl shadow-xl relative">
 

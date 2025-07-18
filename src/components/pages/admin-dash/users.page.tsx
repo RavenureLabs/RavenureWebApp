@@ -68,7 +68,6 @@ function AddUserPage() {
     return (
         <div>
             Add User
-            <NotificationComponent />
         </div>
     )
 }

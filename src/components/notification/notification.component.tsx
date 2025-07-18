@@ -1,12 +1,16 @@
 'use client';
 
-export default function NotificationComponent() {
+export type NotificationComponentProps = {
+    iconPath: string;
+    message: string;
+}
+
+export default function NotificationComponent(prop : NotificationComponentProps) {
     return (
         <div className="fixed top-0 right-0 m-4">
-            <div className="bg-white text-white w-46 rounded-4xl p-4">
-                {/** ICON */}
-                <img width="25" height="25" className="absolute ml-4 mb-4" src="https://img.icons8.com/ios/50/error--v1.png" alt="error--v1"/>
-                <p className="text-red-500 ml-14">Notification</p>
+            <div className="bg-white text-white w-52 rounded-4xl p-4">
+                <img src={prop.iconPath} alt="icon" className="w-6 h-6" />
+                <div className="text-black">{prop.message}</div>
             </div>
         </div>
     );
