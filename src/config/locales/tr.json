@@ -39,17 +39,18 @@
         "create-account":"Hesap oluştur"
     },
     "register": {
-        "title": "Hesap Oluştur",
-        "description": "Kayıt olmak için gerekli alanları doldurun.",
-        "email": "E-Posta",
-        "password": "Şifre",
-        "confirm-password": "Tekrar Şifre",
-        "phone": "Telefon Numarası",
-        "have-account": "Zaten bir hesabınız var mı?",
-        "create-account": "Hesap oluştur",
-        "login": "Giriş Yap",
-        "login-with-discord": "Discord ile kayıt ol",
-        "back-home": "Ana Sayfa'ya dön"
-}
+    "title": "Hesap Oluştur",
+    "description": "Kayıt olmak için gerekli alanları doldurun.",
+    "email": "E-Posta",
+    "password": "Şifre",
+    "confirm-password": "Tekrar Şifre",
+    "phone": "Telefon Numarası",
+    "have-account": "Zaten bir hesabınız var mı?",
+    "create-account": "Hesap oluştur",
+    "login": "Giriş Yap",
+    "login-with-discord": "Discord ile kayıt ol",
+    "back-home": "Ana Sayfa'ya dön"
+    }
+
 
 }
