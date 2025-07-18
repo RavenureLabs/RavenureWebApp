@@ -25,7 +25,7 @@ export default function AdminCategoryPageComponent() {
 function TablePage(categories: CategoryType[]) {
     return(
         <TableComponent
-        title="Users"
+        title="Categories"
         fields={["Name", "Product size", "Is Active"]}
         objects={categories.map(category => ({
         data: [
