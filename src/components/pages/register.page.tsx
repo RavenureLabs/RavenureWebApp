@@ -2,15 +2,40 @@
 
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
 import { signIn } from 'next-auth/react';
-import { FaDiscord } from 'react-icons/fa';
+import { FaDiscord, FaEnvelope, FaLock, FaPhone } from 'react-icons/fa';
 import { FiArrowLeft } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function RegisterPageComponent() {
   const { text } = useLanguage();
   const router = useRouter();
 
-  const handleRegister = async () => {
+  const [loading, setLoading] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!termsAccepted) {
+      alert('Lütfen kullanım şartlarını kabul edin.');
+      return;
+    }
+
+    setLoading(true);
+
+    const form = event.currentTarget;
+    const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+    const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+    const confirmPassword = (form.elements.namedItem('confirmPassword') as HTMLInputElement).value;
+    const phone = (form.elements.namedItem('phone') as HTMLInputElement).value;
+
+    if (password !== confirmPassword) {
+      alert('Şifreler uyuşmuyor.');
+      setLoading(false);
+      return;
+    }
+
+    // TODO: Kayıt işlemi (API çağrısı vs)
     router.push('/dash');
   };
 
@@ -60,66 +85,129 @@ export default function RegisterPageComponent() {
             <div className="flex-grow h-px bg-gradient-to-r from-gray-600 to-transparent" />
           </div>
 
-          {/* Form Alanları */}
-          <div className="space-y-4">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+
             {/* Email */}
             <div>
               <label className="block text-base text-gray-300">{text('register.email')}</label>
-              <input
-                type="email"
-                name="email"
-                placeholder="you@ravenure.com"
-                required
-                className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition"
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500">
+                  <FaEnvelope />
+                </div>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="you@ravenure.com"
+                  required
+                  className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 pl-11 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition"
+                />
+              </div>
             </div>
 
             {/* Şifre ve Tekrar */}
             <div className="flex gap-4">
               <div className="w-1/2">
                 <label className="block text-base text-gray-300">{text('register.password')}</label>
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="••••••••"
-                  required
-                  className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition"
-                />
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500">
+                    <FaLock />
+                  </div>
+                  <input
+                    type="password"
+                    name="password"
+                    placeholder="••••••••"
+                    required
+                    className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 pl-11 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition"
+                  />
+                </div>
               </div>
               <div className="w-1/2">
                 <label className="block text-base text-gray-300">{text('register.confirm-password')}</label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  placeholder="••••••••"
-                  required
-                  className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition"
-                />
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500">
+                    <FaLock />
+                  </div>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    placeholder="••••••••"
+                    required
+                    className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 pl-11 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition"
+                  />
+                </div>
               </div>
             </div>
 
             {/* Telefon */}
             <div>
               <label className="block text-base text-gray-300">{text('register.phone')}</label>
-              <input
-                type="tel"
-                name="phone"
-                placeholder="+90 5xx xxx xx xx"
-                required
-                className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition"
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500">
+                  <FaPhone />
+                </div>
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="5xxxxxxxxx"
+                  required
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={10}
+                  onInput={(e) => {
+                    const input = e.currentTarget;
+                    input.value = input.value.replace(/[^0-9]/g, '');
+                  }}
+                  className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 pl-11 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition"
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Kayıt Butonu */}
-          <button
-            onClick={handleRegister}
-            className="w-full group relative flex items-center justify-center gap-2 bg-white text-[#0f0f10] font-semibold py-4 rounded-xl hover:scale-105 transition overflow-hidden cursor-pointer"
-          >
-            <span className="transition-all duration-200 ease-in-out group-hover:scale-90 group-hover:translate-x-[-6px]">
-              {text('register.create-account')}
-            </span>
-          </button>
+            {/* Checkbox */}
+      {/* Checkbox */}
+<div className="flex items-start gap-3">
+  <div className="relative w-[30px] h-[30px]">
+    <input
+      type="checkbox"
+      id="terms"
+      name="terms"
+      checked={termsAccepted}
+      onChange={() => setTermsAccepted(!termsAccepted)}
+      className="w-full h-full appearance-none border-2 border-gray-500 rounded flex items-center justify-center
+        checked:before:content-['✔'] checked:before:text-gray-500 checked:before:text-[20px]
+        checked:before:absolute checked:before:top-1/2 checked:before:left-1/2
+        checked:before:-translate-x-1/2 checked:before:-translate-y-1/2"
+    />
+  </div>
+  <label htmlFor="terms" className="text-sm text-gray-300 leading-[30px]">
+    I agree to the{' '}
+    <a href="#" className="text-[#139f8b] no-underline hover:underline">
+      Terms of service
+    </a>{' '}
+    and{' '}
+    <a href="#" className="text-[#139f8b] no-underline hover:underline">
+      Privacy Policy
+    </a>.
+  </label>
+</div>
+
+
+
+
+
+            {/* Kayıt Butonu */}
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full group relative flex items-center justify-center gap-2 bg-white text-[#0f0f10] font-semibold py-4 rounded-xl hover:scale-105 transition overflow-hidden cursor-pointer ${
+                loading ? 'opacity-70 cursor-not-allowed' : ''
+              }`}
+            >
+              <span className="transition-all duration-200 ease-in-out group-hover:scale-90 group-hover:translate-x-[-6px]">
+                {loading ? 'Kayıt oluyor...' : text('register.create-account')}
+              </span>
+            </button>
+          </form>
 
           {/* Giriş Linki */}
           <p className="text-sm text-center text-gray-400">
