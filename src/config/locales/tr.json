@@ -49,8 +49,15 @@
     "create-account": "Hesap oluştur",
     "login": "Giriş Yap",
     "login-with-discord": "Discord ile kayıt ol",
-    "back-home": "Ana Sayfa'ya dön"
-    }
+    "back-home": "Ana Sayfa'ya dön",
+    "terms-warning": "Kullanıcı sözleşmesini kabul etmelisiniz!",
+    "password-mismatch": "Şifreler eşleşmiyor!",
+    "invalid-phone": "Geçerli bir telefon numarası giriniz.",
+    "agree": "kabul ediyorum.",
+    "terms": "Kullanım Şartları",
+    "privacy": "Gizlilik Politikasını",
+    "and": "ve"
+  }
 
 
 }

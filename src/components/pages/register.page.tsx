@@ -2,57 +2,85 @@
 
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
 import { signIn } from 'next-auth/react';
-import { FaDiscord, FaEnvelope, FaLock, FaPhone } from 'react-icons/fa';
-import { FiArrowLeft } from 'react-icons/fi';
+import {
+  FaDiscord,
+  FaEnvelope,
+  FaLock,
+  FaPhone,
+  FaEye,
+  FaEyeSlash,
+} from 'react-icons/fa';
+import { FiArrowLeft, FiArrowRight } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import NotificationComponent, { NotificationComponentProps } from '../notification/notification.component';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 export default function RegisterPageComponent() {
   const { text } = useLanguage();
   const router = useRouter();
-  const [notification, setNotification] = useState<NotificationComponentProps | null>(null);
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
+  const [passwordError, setPasswordError] = useState('');
+  const [termsError, setTermsError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [phone, setPhone] = useState('');
+
+  const formatPhone = (value: string) => {
+    const digits = value.replace(/\D/g, '').substring(0, 10);
+    const parts = [];
+    if (digits.length > 0) parts.push(digits.substring(0, 3));
+    if (digits.length >= 4) parts.push(digits.substring(3, 6));
+    if (digits.length >= 7) parts.push(digits.substring(6, 8));
+    if (digits.length >= 9) parts.push(digits.substring(8, 10));
+    return parts.join(' ');
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhone(e.target.value);
+    setPhone(formatted);
+    if (phoneError) setPhoneError('');
+  };
+
+  const isValidPhoneNumber = (phoneStr: string) => {
+    const digits = phoneStr.replace(/\D/g, '');
+    const phoneNumber = parsePhoneNumberFromString(digits, 'TR');
+    return phoneNumber?.isValid() ?? false;
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    setPasswordError('');
+    setTermsError('');
+    setPhoneError('');
+
     if (!termsAccepted) {
-      setNotification({
-        path:"M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z",
-        message: "Kullanıcı sözleşmesini kabul etmelisiniz."
-      })
-      setTimeout(() => {
-        setNotification(null);
-      },3000)
+      setTermsError(text('register.terms-warning'));
       return;
     }
-
-    setLoading(true);
 
     const form = event.currentTarget;
     const email = (form.elements.namedItem('email') as HTMLInputElement).value;
     const password = (form.elements.namedItem('password') as HTMLInputElement).value;
     const confirmPassword = (form.elements.namedItem('confirmPassword') as HTMLInputElement).value;
-    const phone = (form.elements.namedItem('phone') as HTMLInputElement).value;
+    const rawPhone = phone.replace(/\s/g, '');
 
- if (password !== confirmPassword) {
-  setNotification({
-    path:"M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z",
-    message: "Şifreler uyuşmuyor."
-  });
+    if (password !== confirmPassword) {
+      setPasswordError(text('register.password-mismatch'));
+      return;
+    }
 
-  setTimeout(() => {
-    setNotification(null);
-  }, 3000);
+    if (!isValidPhoneNumber(rawPhone)) {
+      setPhoneError(text('register.invalid-phone'));
+      return;
+    }
 
-  setLoading(false);
-  return;
-}
+    setLoading(true);
 
-
-
-    // TODO: Kayıt işlemi (API çağrısı vs)
     router.push('/dash');
   };
 
@@ -63,27 +91,24 @@ export default function RegisterPageComponent() {
   return (
     <div className="h-screen flex bg-gradient-to-br from-[#0f0f10] via-[#1a1a1c] to-[#0f0f10] text-white relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#0e786a]/10 via-[#0f0f10]/20 to-[#0e786a]/10 animate-pulse z-0 pointer-events-none" />
-      {notification && <NotificationComponent {...notification} />}
+
       <div className="w-full flex justify-center items-center px-4 z-10">
         <div className="w-full max-w-xl space-y-8 bg-[#1a1a1c]/60 rounded-2xl p-10 backdrop-blur-xl shadow-xl relative">
 
-          {/* Geri Dön Butonu */}
           <a
             href="/"
             className="absolute top-4 right-4 flex items-center gap-2 text-sm text-gray-400 hover:text-white border-gray-600 px-4 py-3 rounded-xl transition group"
           >
-            <FiArrowLeft size={16} className="transition-all duration-200 ease-in-out group-hover:translate-x-[-10px]" />
+            <FiArrowLeft size={16} className="transition-all duration-200 ease-in-out group-hover:-translate-x-2" />
             {text('register.back-home')}
           </a>
 
-          {/* Başlık */}
           <div className="text-center text-2xl font-semibold text-gray-300 flex flex-col items-center justify-center space-y-4">
             <img src="/Ravenure-Logo.png" alt="Logo" className="w-16 h-16 mb-2" />
             <p>{text('register.title')}</p>
             <p className="text-sm text-gray-400 text-center">{text('register.description')}</p>
           </div>
 
-          {/* Discord ile Giriş */}
           <a
             onClick={handleLoginWithDiscord}
             className="w-full relative overflow-hidden flex items-center justify-center bg-[#5865F2] hover:bg-[#4752c4] transition-all duration-300 text-white font-medium py-3 rounded-xl group cursor-pointer"
@@ -102,10 +127,7 @@ export default function RegisterPageComponent() {
             <div className="flex-grow h-px bg-gradient-to-r from-gray-600 to-transparent" />
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-
-            {/* Email */}
             <div>
               <label className="block text-base text-gray-300">{text('register.email')}</label>
               <div className="relative">
@@ -117,102 +139,129 @@ export default function RegisterPageComponent() {
                   name="email"
                   placeholder="you@ravenure.com"
                   required
-                  className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 pl-11 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition"
+                  className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 pl-11 pr-4 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition"
                 />
               </div>
             </div>
 
-            {/* Şifre ve Tekrar */}
             <div className="flex gap-4">
-              <div className="w-1/2">
+              <div className="w-1/2 relative">
                 <label className="block text-base text-gray-300">{text('register.password')}</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500">
                     <FaLock />
                   </div>
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     name="password"
                     placeholder="••••••••"
                     required
-                    className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 pl-11 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition"
+                    className={`w-full bg-[#1a1a1a] border rounded-xl py-3 pl-11 pr-10 text-white text-sm placeholder-gray-400 focus:outline-none transition ${
+                      passwordError ? 'border-red-500 focus:border-red-500' : 'border-gray-600 focus:border-[#139f8b]'
+                    }`}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition cursor-pointer"
+                    tabIndex={-1}
+                    aria-label={showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
+                  >
+                    {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+                  </button>
                 </div>
               </div>
-              <div className="w-1/2">
+
+              <div className="w-1/2 relative">
                 <label className="block text-base text-gray-300">{text('register.confirm-password')}</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500">
                     <FaLock />
                   </div>
                   <input
-                    type="password"
+                    type={showConfirmPassword ? 'text' : 'password'}
                     name="confirmPassword"
                     placeholder="••••••••"
                     required
-                    className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 pl-11 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition"
+                    className={`w-full bg-[#1a1a1a] border rounded-xl py-3 pl-11 pr-10 text-white text-sm placeholder-gray-400 focus:outline-none transition ${
+                      passwordError ? 'border-red-500 focus:border-red-500' : 'border-gray-600 focus:border-[#139f8b]'
+                    }`}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition cursor-pointer"
+                    tabIndex={-1}
+                    aria-label={showConfirmPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
+                  >
+                    {showConfirmPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+                  </button>
                 </div>
+                {passwordError && <p className="mt-1 text-sm text-red-500">{passwordError}</p>}
               </div>
             </div>
 
-            {/* Telefon */}
-            <div>
-              <label className="block text-base text-gray-300">{text('register.phone')}</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500">
-                  <FaPhone />
-                </div>
+            <div className="relative">
+              <div className={`absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none ${
+                phoneError ? 'text-red-500' : 'text-gray-500'
+              }`}>
+                <FaPhone />
+              </div>
+              <input
+                type="tel"
+                name="phone"
+                placeholder="555 *** ** **"
+                required
+                inputMode="numeric"
+                pattern="[0-9\s]*"
+                maxLength={13}
+                value={phone}
+                onChange={handlePhoneChange}
+                className={`w-full bg-[#1a1a1a] border rounded-xl py-3 pl-11 pr-4 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition ${
+                  phoneError ? 'border-red-500 focus:border-red-500' : 'border-gray-600 focus:border-[#139f8b]'
+                }`}
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="relative w-[20px] h-[20px]">
                 <input
-                  type="tel"
-                  name="phone"
-                  placeholder="5xxxxxxxxx"
-                  required
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  maxLength={10}
-                  onInput={(e) => {
-                    const input = e.currentTarget;
-                    input.value = input.value.replace(/[^0-9]/g, '');
+                  type="checkbox"
+                  id="terms"
+                  name="terms"
+                  checked={termsAccepted}
+                  onChange={() => {
+                    setTermsAccepted(!termsAccepted);
+                    if (termsError) setTermsError('');
                   }}
-                  className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 pl-11 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition"
+                  className={`w-full h-full appearance-none border-[1.5px] rounded flex items-center justify-center
+                    checked:before:content-['✔'] checked:before:text-gray-500 checked:before:text-[15px]
+                    checked:before:absolute checked:before:top-1/2 checked:before:left-1/2
+                    checked:before:-translate-x-1/2 checked:before:-translate-y-1/2
+                    transition ${
+                      termsError ? 'border-red-500 focus:border-red-500' : 'border-gray-500'
+                    }`}
                 />
               </div>
+              <label
+            htmlFor="terms"
+            className={`text-sm leading-[30px] select-none ${
+              termsError ? 'text-red-500' : 'text-gray-300'
+            }`}
+          >
+            <a href="/terms" className="text-[#139f8b] no-underline hover:underline">
+              {text('register.terms')}
+            </a>{' '}
+            {text('register.and')} {' '}
+            <a href="/privacy" className="text-[#139f8b] no-underline hover:underline">
+              {text('register.privacy')} {' '}
+            </a> 
+            {text('register.agree')}
+          </label>
+
             </div>
+            {termsError && <p className="text-red-500 text-sm mt-1">{termsError}</p>}
 
-            {/* Checkbox */}
-      {/* Checkbox */}
-<div className="flex items-start gap-3">
-  <div className="relative w-[30px] h-[30px]">
-    <input
-      type="checkbox"
-      id="terms"
-      name="terms"
-      checked={termsAccepted}
-      onChange={() => setTermsAccepted(!termsAccepted)}
-      className="w-full h-full appearance-none border-2 border-gray-500 rounded flex items-center justify-center
-        checked:before:content-['✔'] checked:before:text-gray-500 checked:before:text-[20px]
-        checked:before:absolute checked:before:top-1/2 checked:before:left-1/2
-        checked:before:-translate-x-1/2 checked:before:-translate-y-1/2"
-    />
-  </div>
-  <label htmlFor="terms" className="text-sm text-gray-300 leading-[30px]">
-    I agree to the{' '}
-    <a href="#" className="text-[#139f8b] no-underline hover:underline">
-      Terms of service
-    </a>{' '}
-    and{' '}
-    <a href="#" className="text-[#139f8b] no-underline hover:underline">
-      Privacy Policy
-    </a>.
-  </label>
-</div>
-
-
-
-
-
-            {/* Kayıt Butonu */}
             <button
               type="submit"
               disabled={loading}
@@ -220,18 +269,21 @@ export default function RegisterPageComponent() {
                 loading ? 'opacity-70 cursor-not-allowed' : ''
               }`}
             >
-              <span className="transition-all duration-200 ease-in-out group-hover:scale-90 group-hover:translate-x-[-6px]">
+              <span className="transition-all duration-300 ease-in-out transform group-hover:-translate-x-3">
                 {loading ? 'Kayıt oluyor...' : text('register.create-account')}
               </span>
+              {!loading && (
+                <FiArrowRight
+                  size={20}
+                  className="opacity-0 scale-75 -translate-x-1 group-hover:opacity-100 group-hover:scale-100 group-hover:-translate-x-3 transform transition-all duration-300 ease-in-out"
+                />
+              )}
             </button>
           </form>
 
-          {/* Giriş Linki */}
           <p className="text-sm text-center text-gray-400">
             {text('register.have-account')}{' '}
-            <a href="/login" className="text-blue-400 hover:underline">
-              {text('register.login')}
-            </a>
+            <a href="/login" className="text-blue-400 hover:underline">{text('register.login')}</a>
           </p>
         </div>
       </div>
