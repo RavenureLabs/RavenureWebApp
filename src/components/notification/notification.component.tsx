@@ -3,11 +3,11 @@
 import { useState } from 'react';
 
 export type NotificationComponentProps = {
-  iconPath: string;
+  path: string;
   message: string;
 };
 
-export default function NotificationComponent({ iconPath, message }: NotificationComponentProps) {
+export default function NotificationComponent({ path, message }: NotificationComponentProps) {
   const [isVisible, setIsVisible] = useState(true);
 
   if (!isVisible) return null;
@@ -20,11 +20,11 @@ export default function NotificationComponent({ iconPath, message }: Notificatio
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="w-12 h-12 rounded-xl p-2 border border-blue-100 text-blue-400 bg-blue-50"
-              fill="none"
-              viewBox="0 0 24 24"
+              fill="currentColor"
+              viewBox="0 0 384 512"
               stroke="currentColor"
             >
-              <path d={iconPath} />
+              <path d={path} />
             </svg>
             <p className="ml-3 text-gray-800">{message}</p>
           </div>
