@@ -4,7 +4,8 @@ import { SessionProvider } from "next-auth/react";
 import NavbarComponent from "../navbar/navbar.component";
 import { usePathname } from "next/navigation";
 import FooterComponent from "../footer/footer.component";
-import path from "path";
+import { useCartStore } from "@/src/stores/cart.store";
+import CartComponent from "../cart/cart.component";
 
 
 const HIDDEN_NAVBAR_ROUTES = ['/login', "/admin-dashboard/*", "/register"];
@@ -12,6 +13,7 @@ const HIDDEN_FOOTER_ROUTES = ['/login', "/admin-dashboard/*", "/register"];
 
 export default function ClientLayout({ children, lang }: { children: React.ReactNode, lang: string }) {
   const pathname = usePathname();
+  const {isOpen} = useCartStore();
   const hideNavbar = HIDDEN_NAVBAR_ROUTES.some(uri => {
     if(uri.includes("/*")){
       const basePath = pathname.split("/")[1];
@@ -44,6 +46,7 @@ export default function ClientLayout({ children, lang }: { children: React.React
         <LanguageProvider lang={lang}>
           {!hideNavbar && <NavbarComponent />}
           {children}
+          {isOpen && <CartComponent />}
           {!hideFooter && <FooterComponent />}
         </LanguageProvider>
     </SessionProvider>
