@@ -5,7 +5,6 @@ import TableComponent from "../../admin-dashboard/table.component";
 import { userService } from "@/src/lib/services";
 import { UserType } from "@/src/models/user.model";
 import TabsComponent from "../../admin-dashboard/tabs.component";
-import NotificationComponent from "../../notification/notification.component";
 
 export default function AdminUsersPageComponent() {
     const [users, setUsers] = useState<UserType[]>([]);

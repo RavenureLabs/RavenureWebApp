@@ -14,6 +14,8 @@ import { FiArrowLeft, FiArrowRight } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import { userService } from '@/src/lib/services';
+import { api } from '@/src/lib/api';
 
 export default function RegisterPageComponent() {
   const { text } = useLanguage();
@@ -78,6 +80,18 @@ export default function RegisterPageComponent() {
       setPhoneError(text('register.invalid-phone'));
       return;
     }
+
+    /*const res = await userService.register({
+      name: "Guest",
+      email: email,
+      password: password,
+      accountType: "email",
+      phoneNumber: rawPhone,
+      role: "user",
+      createdAt: new Date().toISOString(),
+      products: [],
+      isVerified: true
+    })*/
 
     setLoading(true);
 
