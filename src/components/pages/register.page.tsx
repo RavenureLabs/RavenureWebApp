@@ -1,7 +1,7 @@
 'use client';
 
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import {
   FaDiscord,
   FaEnvelope,
@@ -12,12 +12,13 @@ import {
 } from 'react-icons/fa';
 import { FiArrowLeft, FiArrowRight } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
  
 
 export default function RegisterPageComponent() {
   const { text } = useLanguage();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -29,6 +30,12 @@ export default function RegisterPageComponent() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [phone, setPhone] = useState('');
+
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      window.location.href = '/dash';
+    }
+  }, [status, session]);
 
   const formatPhone = (value: string) => {
     const digits = value.replace(/\D/g, '').substring(0, 10);
@@ -88,7 +95,7 @@ export default function RegisterPageComponent() {
   };
 
   const handleLoginWithDiscord = async () => {
-    signIn('discord', { callbackUrl: '/dash' });
+    await signIn('discord', { callbackUrl: '/dash' });
   };
 
   return (
