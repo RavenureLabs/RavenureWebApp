@@ -8,13 +8,13 @@ import { FaDiscord, FaEnvelope, FaLock } from 'react-icons/fa';
 
 export default function LoginPageComponent() {
   const { text } = useLanguage();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    if (session?.user) {
+    if (status === 'authenticated' && session?.user) {
       window.location.href = '/dash';
     }
-  }, [session]);
+  }, [status, session]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
