@@ -14,8 +14,7 @@ import { FiArrowLeft, FiArrowRight } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
-import { userService } from '@/src/lib/services';
-import { api } from '@/src/lib/api';
+ 
 
 export default function RegisterPageComponent() {
   const { text } = useLanguage();
@@ -66,6 +65,8 @@ export default function RegisterPageComponent() {
     }
 
     const form = event.currentTarget;
+    const firstName = (form.elements.namedItem('firstName') as HTMLInputElement).value;
+    const lastName = (form.elements.namedItem('lastName') as HTMLInputElement).value;
     const email = (form.elements.namedItem('email') as HTMLInputElement).value;
     const password = (form.elements.namedItem('password') as HTMLInputElement).value;
     const confirmPassword = (form.elements.namedItem('confirmPassword') as HTMLInputElement).value;
@@ -80,18 +81,6 @@ export default function RegisterPageComponent() {
       setPhoneError(text('register.invalid-phone'));
       return;
     }
-
-    /*const res = await userService.register({
-      name: "Guest",
-      email: email,
-      password: password,
-      accountType: "email",
-      phoneNumber: rawPhone,
-      role: "user",
-      createdAt: new Date().toISOString(),
-      products: [],
-      isVerified: true
-    })*/
 
     setLoading(true);
 
@@ -142,6 +131,31 @@ export default function RegisterPageComponent() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+
+            <div className="flex gap-4">
+              <div className="w-1/2">
+                <label className="block text-base text-gray-300">{text('register.first-name')}</label>
+                <input
+                  type="text"
+                  name="firstName"
+                  placeholder={text('register.first-name-placeholder') || 'Ad'}
+                  required
+                  className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 px-4 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition"
+                />
+              </div>
+
+              <div className="w-1/2">
+                <label className="block text-base text-gray-300">{text('register.last-name')}</label>
+                <input
+                  type="text"
+                  name="lastName"
+                  placeholder={text('register.last-name-placeholder') || 'Soyad'}
+                  required
+                  className="w-full bg-[#1a1a1a] border border-gray-600 rounded-xl py-3 px-4 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-[#139f8b] transition"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="block text-base text-gray-300">{text('register.email')}</label>
               <div className="relative">
@@ -179,7 +193,6 @@ export default function RegisterPageComponent() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition cursor-pointer"
                     tabIndex={-1}
-                    aria-label={showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
                   >
                     {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
                   </button>
@@ -206,7 +219,6 @@ export default function RegisterPageComponent() {
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition cursor-pointer"
                     tabIndex={-1}
-                    aria-label={showConfirmPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
                   >
                     {showConfirmPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
                   </button>
@@ -258,21 +270,20 @@ export default function RegisterPageComponent() {
                 />
               </div>
               <label
-            htmlFor="terms"
-            className={`text-sm leading-[30px] select-none ${
-              termsError ? 'text-red-500' : 'text-gray-300'
-            }`}
-          >
-            <a href="/terms" className="text-[#139f8b] no-underline hover:underline">
-              {text('register.terms')}
-            </a>{' '}
-            {text('register.and')} {' '}
-            <a href="/privacy" className="text-[#139f8b] no-underline hover:underline">
-              {text('register.privacy')} {' '}
-            </a> 
-            {text('register.agree')}
-          </label>
-
+                htmlFor="terms"
+                className={`text-sm leading-[30px] select-none ${
+                  termsError ? 'text-red-500' : 'text-gray-300'
+                }`}
+              >
+                <a href="/terms" className="text-[#139f8b] no-underline hover:underline">
+                  {text('register.terms')}
+                </a>{' '}
+                {text('register.and')}{' '}
+                <a href="/privacy" className="text-[#139f8b] no-underline hover:underline">
+                  {text('register.privacy')}
+                </a>{' '}
+                {text('register.agree')}
+              </label>
             </div>
             {termsError && <p className="text-red-500 text-sm mt-1">{termsError}</p>}
 

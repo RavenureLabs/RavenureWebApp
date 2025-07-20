@@ -7,7 +7,6 @@ import { CategoryType } from '@/src/models/category.model';
 import { ProductType } from '@/src/models/product.model';
 import { categoryService, commentService, productService } from '@/src/lib/services';
 import { Suspense, useEffect, useState } from 'react';
-import CommentComponent from '@/src/components/comment/comment.component';
 import { CommentType } from '@/src/models/comment.model';
 
 export default function ShopPageComponent() {
@@ -113,28 +112,6 @@ export default function ShopPageComponent() {
               />
             ))}
           </div>
-      </section>
-
-      {/* Müşteri Yorumu */}
-      <section className="w-full max-w-screen-md py-16 px-4">
-        <h3 className="text-2xl font-bold mb-4 text-center">Müşterilerimiz Ne Diyor?</h3>
-        
-        <div className="relative overflow-hidden">
-          <div
-            className="flex transition-transform duration-700"
-            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-          >
-            {comments.map((comment, index) => (
-              <div key={index} className="flex-shrink-0 w-full flex justify-center">
-                <CommentComponent
-                  author={comment.author}
-                  text={comment.text}
-                  createdAt={comment.createdAt}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
       </section>
     </div>
   );
