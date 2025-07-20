@@ -41,6 +41,10 @@
     "register": {
     "title": "Hesap Oluştur",
     "description": "Kayıt olmak için gerekli alanları doldurun.",
+    "first-name": "Ad",
+    "last-name": "Soyad",
+    "first-name-placeholder": "Ömer Faruk",
+    "last-name-placeholder": "Sarraç",
     "email": "E-Posta",
     "password": "Şifre",
     "confirm-password": "Tekrar Şifre",
@@ -57,7 +61,8 @@
     "terms": "Kullanım Şartları",
     "privacy": "Gizlilik Politikasını",
     "and": "ve"
-  }
+    }
+
 
 
 }
