@@ -35,7 +35,7 @@ export default function LoginPageComponent() {
   };
 
   const handleLoginWithDiscord = async () => {
-    signIn('discord', { callbackUrl: '/dash' });
+    await signIn('discord', { callbackUrl: '/dash' });
   };
 
   return (
