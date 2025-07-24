@@ -26,5 +26,9 @@ body {
   color: var(--foreground);
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+}
 
 
