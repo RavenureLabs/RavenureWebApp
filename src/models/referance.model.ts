@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 export type ReferanceType = {
+    _id?: mongoose.Types.ObjectId;
     name: string;
     url?: string;
     imageUrl: string;

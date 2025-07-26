@@ -1,5 +1,7 @@
+import { MultiLangText } from "@/src/types/global";
+
 export type CategoryComponentType = {
-    name: string;
+    name: MultiLangText;
     image?: string;
     href?: string;
     clickHandler?: () => void;

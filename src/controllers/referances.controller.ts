@@ -59,9 +59,9 @@ export async function deleteReferance(data: any) {
     }
 }
 
-const convertToDto = (referance: any) => {
+const convertToDto = (referance: ReferanceType) => {
     return {
-        id: referance._id,
+        _id: referance._id,
         name: referance.name,
         url: referance.url,
         imageUrl: referance.imageUrl,

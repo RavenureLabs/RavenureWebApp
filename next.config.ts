@@ -57,6 +57,15 @@ const nextConfig = {
   
   // Build optimizasyonları
   swcMinify: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "placeholder.pics",
+        pathname: "/svg/300",
+      }
+    ]
+  }
 };
 
 module.exports = withFlowbiteReact(nextConfig);

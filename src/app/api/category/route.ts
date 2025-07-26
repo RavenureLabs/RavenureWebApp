@@ -7,7 +7,7 @@ export async function GET(request: NextRequest){
 }
 
 export async function PUT(request: NextRequest){
-    const{ data } = await request.json();
+    const data  = await request.json();
     const auth = await requireAuth(request, ["admin"]);
     if (auth instanceof NextResponse) {
         return auth;
@@ -19,7 +19,7 @@ export async function PUT(request: NextRequest){
     return updateCategory(data);
 }
 export async function DELETE(request: NextRequest){
-    const { data } = await request.json();
+    const  data  = await request.json();
     const auth = await requireAuth(request, ["admin"]);
     if (auth instanceof NextResponse) {
         return auth;
@@ -31,7 +31,7 @@ export async function DELETE(request: NextRequest){
     return deleteCategory(data);
 }
 export async function POST(request: NextRequest){
-    const { data } = await request.json();
+    const body  = await request.json();
     const auth = await requireAuth(request, ["admin"]);
     if (auth instanceof NextResponse) {
         return auth;
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest){
     if (user.role !== 'admin') {
         return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
     }
-    return createCategory(data);
+    return createCategory(body);
 }
 
 /**

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "../lib/database";
-import Category from "../models/category.model";
+import Category, { CategoryType } from "../models/category.model";
+import { translate } from "../utils/translate.utils";
 
 export async function getCategories() {
     await connectToDatabase();
@@ -19,7 +20,7 @@ export async function getCategories() {
 export async function getCategoryById(data: any) {
     await connectToDatabase();
     try{
-        const category = await Category.findById(data.id);
+        const category = await Category.findById(data);
         return NextResponse.json(convertToDto(category), { status: 200 });
     }
     catch (error) {
@@ -30,6 +31,10 @@ export async function getCategoryById(data: any) {
 export async function createCategory(data: any) {
     await connectToDatabase();
     try{
+        console.log("Creating category with data:", data);
+        const { name } = data;
+        const translated = await translate(name);
+        data.name = translated;
         const category = await Category.create(data);
         return NextResponse.json(convertToDto(category), { status: 200 });
     }
@@ -62,9 +67,9 @@ export async function deleteCategory(data: any) {
     }
 }
 
-const  convertToDto = (category: any) => {
+const  convertToDto = (category: CategoryType) => {
     return {
-        id: category._id,
+        _id: category._id,
         name: category.name,
         products: category.products,
         createdAt: category.createdAt,

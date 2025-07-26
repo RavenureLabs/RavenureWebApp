@@ -29,6 +29,10 @@ export class CategoryService {
         const response = await api.get('/api/category');
         return response.data as CategoryType[];
     }
+    async getCategory(id: string){
+        const response = await api.get(`/api/category/${id}`);
+        return response.data as CategoryType;
+    }
 }
 
 export class CommentService {

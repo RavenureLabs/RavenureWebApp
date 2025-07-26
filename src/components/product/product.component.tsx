@@ -1,17 +1,36 @@
 'use client';
 import { useLanguage } from "@/src/hooks/uselanguage.hooks";
-import { embedService } from "@/src/lib/services";
+import { categoryService, embedService } from "@/src/lib/services";
 import { ProductType } from "@/src/models/product.model";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export default function ProductComponent({product}: {product: ProductType}) {
-  const {text} = useLanguage(); 
+  const {text, language} = useLanguage(); 
+  const [category, setCategory] = useState<string>("");
+
+  useEffect(() => {
+    if (!product) {
+      console.error("Product data is not available");
+      return;
+    }
+    const fetchCategory = async () => {
+      try {
+        const reponse = await categoryService.getCategory(product.category.toString());
+        setCategory(reponse.name[language] || reponse.name["tr"]);
+    } catch (error) {
+        console.error("Error fetching category:", error);
+    }
+    };
+    fetchCategory();
+  }, [product.category, language]);
+
   return(
       <div className="bg-white rounded-xl border border-gray-200 transition-all overflow-hidden flex flex-col items-center max-w-[400px] mx-auto w-full">
         <div className="relative w-full overflow-hidden rounded-t-xl">
           <Image
             src={product.imageUrl}
-            alt={product.name}
+            alt={product.name["tr"]}
             width={400}
             height={200}
             className="w-full h-[200px] object-cover transition-transform duration-300 hover:scale-110 cursor-pointer"
@@ -23,20 +42,22 @@ export default function ProductComponent({product}: {product: ProductType}) {
         </div>
         <div className="flex-1 p-3 flex flex-col justify-between w-full">
           <h3 className="text-lg font-bold text-[#25d170] mb-1">
-            <a href="/product-detail/1" className="hover:underline transition">{product.name}</a>
+            <a href="/product-detail/1" className="hover:underline transition">{
+              product.name[language] || product.name["tr"]
+            }</a>
           </h3>
           <span className="inline-flex items-center gap-1 bg-gray-100 text-xs px-2 py-1 rounded mb-2">
             <span className="bg-gradient-to-l from-[#25d170] to-[#139f8b] bg-clip-text text-transparent font-semibold">{product.author}</span>
-            <span className="text-gray-600">• {product.category}</span>
+            <span className="text-gray-600">• {category}</span>
           </span>
           <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-            {product.description || text('product.no_description')}
+            {product.description?.[language] || text('product.no_description')}
           </p>
           <div className="flex justify-between items-center text-xs text-gray-500 mb-3">
             <div className="flex items-center gap-1 text-blue-500">
               <svg className="w-4 h-4 fill-current text-teal-400" viewBox="0 0 24 24"><path d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73-1.64 7.03z"/></svg>
-              <span className="text-gray-700">{product.reviews.rating}</span>
-              <span className="text-gray-400">({product.reviews.count} {text('product.review_count')})</span>
+              <span className="text-gray-700">{product.reviews?.rating || 0}</span>
+              <span className="text-gray-400">({product.reviews?.count || 0} {text('product.review_count')})</span>
             </div>
             <div className="flex items-center gap-1">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-teal-400" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
