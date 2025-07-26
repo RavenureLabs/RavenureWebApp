@@ -29,6 +29,10 @@ export class CategoryService {
         const response = await api.get('/api/category');
         return response.data as CategoryType[];
     }
+    async getCategory(id: string){
+        const response = await api.get(`/api/category/${id}`);
+        return response.data as CategoryType;
+    }
 }
 
 export class CommentService {
@@ -70,7 +74,7 @@ export class UserService {
         return false;
     }
 
-    async register(data: UserType) {
+    async register(data: any) {
     try {
         const response = await api.post('/api/auth/register', data);
         return response.data;

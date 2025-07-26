@@ -1,8 +1,10 @@
+import { MultiLangText } from "../types/global";
 import { ProductType } from "./product.model";
 
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 export type CategoryType = {
-    name: string;
+    _id: ObjectId;
+    name: MultiLangText;
     products: ProductType[];
     createdAt: string;
     updatedAt?: string;
@@ -10,11 +12,12 @@ export type CategoryType = {
 };
 
 const categorySchema = new mongoose.Schema({
-    name: { type: String, required: true, unique: true },
+    name: { type: Object, required: true },
     products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
     isActive: { type: Boolean, default: true }
+},
+{
+    timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' }
 });
 const Category = mongoose.models.Category || mongoose.model<CategoryType & mongoose.Document>('Category', categorySchema);
 export default Category;

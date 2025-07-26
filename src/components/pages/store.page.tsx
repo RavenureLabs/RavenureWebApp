@@ -8,6 +8,7 @@ import { ProductType } from '@/src/models/product.model';
 import { categoryService, commentService, productService } from '@/src/lib/services';
 import { Suspense, useEffect, useState } from 'react';
 import { CommentType } from '@/src/models/comment.model';
+import mongoose from 'mongoose';
 
 export default function ShopPageComponent() {
   const { text } = useLanguage();
@@ -22,23 +23,6 @@ export default function ShopPageComponent() {
       const categories = await categoryService.getCategories();
       setCategories(categories);
       const products = await productService.getProducts();
-      products.push({
-        id: "1",
-        name: "RBlackShop",
-        description: "RBlackShop",
-        price: 100,
-        imageUrl: "/storewall.jpg",
-        category: "Eklentiler",
-        author: "Weesli",
-        reviews: {rating: 5, count: 1},
-        salesCount: 100,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        stock: 100,
-        isFeatured: true,
-        isActive: true,
-        discountPrice: 100,
-      })
       setProducts(products);
       // get the comments from db service
       const comments = await commentService.getComments();
@@ -83,7 +67,7 @@ export default function ShopPageComponent() {
         <div className="flex flex-wrap gap-4 mb-14">
           {/* Default all category component */}
           <CategoryComponent
-            name="Tüm Ürünler"
+            name={{ "en": "All Products", "tr": "Tüm Ürünler" }}
             href="#products"
             clickHandler={() => {
               setActiveCategory("Tüm Ürünler");
@@ -96,8 +80,8 @@ export default function ShopPageComponent() {
               name={category.name}
               href="#products"
               clickHandler={() => {
-                setActiveCategory(category.name);
-                const filtered = products.filter(product => product.category === category.name);
+                setActiveCategory(category._id.toString());
+                const filtered = products.filter(product => product.category === category._id);
                 setFiltredProducts(filtered);
               }}
             />

@@ -15,12 +15,10 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { FaKey, FaArrowRight } from "react-icons/fa";
-import { UserType } from '@/src/models/user.model';
 import { hashPassword } from '@/src/lib/bcrypt';
 import { api } from '@/src/lib/api';
 import { userService } from '@/src/lib/services';
 import Notification from '../notification/notification.component';
-
 
 export default function RegisterPageComponent() {
   const { text } = useLanguage();
@@ -36,7 +34,7 @@ export default function RegisterPageComponent() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [phone, setPhone] = useState('');
-  const [userData, setUserData] = useState<UserType | null>(null);
+  const [userData, setUserData] = useState<any | null>(null);
   const [notification, setNotificationMessage] = useState<string | null>(null);
   const [notificationType, setNotificationType] = useState<'success' | 'error'>('error');
 
@@ -124,7 +122,7 @@ export default function RegisterPageComponent() {
     setLoading(true);
     let totalName = firstName + ' ' + lastName;
     const hashedPassword = await hashPassword(password);
-    const data: UserType = {
+    const data = {
       name: totalName,
       email: email,
       password: hashedPassword,

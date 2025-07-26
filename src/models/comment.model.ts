@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 export type CommentType = {
+    _id?: mongoose.Types.ObjectId;
     author: string;
     text: string;
     createdAt?: Date;

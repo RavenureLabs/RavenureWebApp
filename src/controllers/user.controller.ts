@@ -212,6 +212,7 @@ export async function register(data: UserType) {
 
 const convertToDto = (user: UserType) => {
     return {
+        _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
