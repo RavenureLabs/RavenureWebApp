@@ -3,10 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
     const { from, to, subject } = await request.json();
-    sendEmail({
+    if (!from || !to || !subject) {
+        return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+    await sendEmail({
         from: from,
         to: to,
         subject: subject
     });
-    return NextResponse.json({ message: "Email sent successfully" });
+    return NextResponse.json({ message: "Email sent successfully" }, { status: 200 });
 }

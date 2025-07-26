@@ -1,5 +1,5 @@
-import AdminCategoryPageComponent from "@/src/components/pages/admin-dash/category.page";
+import AdminProductsPageComponent from "@/src/components/pages/admin-dash/products.page";
 
 export default function AdminProductsPage() {
-    return (<AdminCategoryPageComponent />);
+    return (<AdminProductsPageComponent />);
 }

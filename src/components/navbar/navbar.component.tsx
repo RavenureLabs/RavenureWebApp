@@ -14,7 +14,7 @@ const languages = [
 ];
 
 export default function Header() {
-  const { text, setLanguage } = useLanguage();
+  const { text, setLanguage , language} = useLanguage();
   const { data: session } = useSession();
   const { toggle } = useCartStore();
   const [selectedLang, setSelectedLang] = useState(languages[0]);
@@ -78,7 +78,7 @@ export default function Header() {
           </div>
           <div className="relative text-sm select-none">
             <button onClick={() => setIsOpen(!isOpen)} className="relative flex items-center gap-1 px-2 py-2 text-white cursor-pointer">
-              <span className="z-10 pointer-events-none">{selectedLang.label}</span>
+              <span className="z-10 pointer-events-none">{languages.find((lang) => lang.code === language)?.label}</span>
               <FaChevronDown className={`w-3 h-3 transition-transform z-10 pointer-events-none ${isOpen ? "rotate-180" : ""}`} />
               <span className="absolute inset-0 rounded-[20px] bg-gradient-to-r from-white/10 to-transparent opacity-0 hover:opacity-100 transition-all duration-300" />
             </button>

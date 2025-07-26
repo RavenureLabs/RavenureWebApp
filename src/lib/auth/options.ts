@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import DiscordProvider from "next-auth/providers/discord";
 import { userService } from "../services";
 import { api } from "../api";
+import { error } from "console";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -29,25 +30,25 @@ export const authOptions: NextAuthOptions = {
             }),
         })
         const user = await res.json();
-        if (res.ok && user) {
+        if (user.user !== undefined) {
           if(user.user.discordId !== null){
-            return {
-              code: -1,
-              error: "This account is linked to discord.",
-            }
+            return null;
           }
           return user.user;
         } else {
-          return {
-            error: user.message,
-          }
+          return null;
         }
-        }
+      }
     }),
     DiscordProvider({
       clientId: process.env.DISCORD_CLIENT_ID as string,
       clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
       async profile(profile) {
+        if (!profile?.email || !profile?.username) {
+          console.error("Missing required Discord profile fields:", profile);
+          throw new Error("Discord hesabınızdan e-posta ve kullanıcı adı alınamadı.");
+        }
+
         const res = await fetch(`${process.env.NEXTAUTH_URL}/api/user/discord/${profile.id}`, {
           method: "GET",
           headers: {
@@ -55,46 +56,47 @@ export const authOptions: NextAuthOptions = {
             "x-auth-id": profile.id
           }
         });
-        const user = await res.json();
-        if(res.status==404){
-          const newUser = await userService.register({
-            name: profile.username as string,
-            email: profile.email as string,
+
+        if (res.status === 404) {
+          const result = await userService.register({
+            name: profile.username || "DiscordUser",
+            email: profile.email,
             password: undefined,
             accountType: "discord",
-            discordId: profile.id as string,
-            profilePictureUrl: `https://cdn.discordapp.com/avatars/${profile.id}/${profile?.avatar}.png`,
+            discordId: profile.id,
+            profilePictureUrl: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`,
             role: "admin",
             createdAt: new Date().toISOString(),
             products: [],
             isVerified: true,
-          })
+          });
           return {
-            id: newUser.user.discordId,   
-            name: newUser.user.name,            
-            email: newUser.user.email,     
-            image: newUser.user.profilePictureUrl,  
-            role: newUser.user.role,
-            phoneNumber: newUser.user.phoneNumber,
-            accountType: newUser.user.accountType, 
-            isActive: newUser.user.isActive,
-            isVerified: newUser.user.isVerified,
-            lastLogin: newUser.user.lastLogin,
+            id: result.user.discordId,
+            name: result.user.name,
+            email: result.user.email,
+            image: result.user.profilePictureUrl,
+            role: result.user.role,
+            phoneNumber: result.user.phoneNumber,
+            accountType: result.user.accountType,
+            isActive: result.user.isActive,
+            isVerified: result.user.isVerified,
+            lastLogin: result.user.lastLogin,
           };
         }
+
+        const user = await res.json();
         return {
-          id: user.user.discordId,   
-          name: user.user.name,            
-          email: user.user.email,     
-          image: user.user.profilePictureUrl,  
+          id: user.user.discordId,
+          name: user.user.name,
+          email: user.user.email,
+          image: user.user.profilePictureUrl,
           role: user.user.role,
           phoneNumber: user.user.phoneNumber,
-          accountType: user.user.accountType, 
+          accountType: user.user.accountType,
           isActive: user.user.isActive,
           isVerified: user.user.isVerified,
           lastLogin: user.user.lastLogin,
         };
-
       }
     })
   ],

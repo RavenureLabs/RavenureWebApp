@@ -15,6 +15,11 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { FaKey, FaArrowRight } from "react-icons/fa";
+import { UserType } from '@/src/models/user.model';
+import { hashPassword } from '@/src/lib/bcrypt';
+import { api } from '@/src/lib/api';
+import { userService } from '@/src/lib/services';
+import Notification from '../notification/notification.component';
 
 
 export default function RegisterPageComponent() {
@@ -31,7 +36,9 @@ export default function RegisterPageComponent() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [phone, setPhone] = useState('');
-  
+  const [userData, setUserData] = useState<UserType | null>(null);
+  const [notification, setNotificationMessage] = useState<string | null>(null);
+  const [notificationType, setNotificationType] = useState<'success' | 'error'>('error');
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
@@ -60,6 +67,23 @@ export default function RegisterPageComponent() {
     const phoneNumber = parsePhoneNumberFromString(digits, 'TR');
     return phoneNumber?.isValid() ?? false;
   };
+
+  const handleResendCode = async () => {
+    if (!userData) {
+      setNotificationMessage(text('register.verification-code-missing'));
+      setNotificationType('error');
+      return;
+    }
+    const { email } = userData;
+      let response = await api.post('/api/smtp/request-code', 
+        { from: "sefasam553498@gmail.com", to: email, subject: 'Kod dogrulama' }, 
+        { headers: { 'Content-Type': 'application/json' } } 
+      );
+    if (response.status === 200) {
+      setNotificationMessage(text('register.verification-code-sent'));
+      setNotificationType('success');
+    }
+  }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -90,9 +114,42 @@ export default function RegisterPageComponent() {
       setPhoneError(text('register.invalid-phone'));
       return;
     }
+    const isRegistered = await userService.isRegistered(email);
+    if(isRegistered) {
+      setNotificationMessage(text('register.email-already-registered'));
+      setNotificationType('error');
+      return;
+    }
 
     setLoading(true);
-    setShowVerificationInput(true);
+    let totalName = firstName + ' ' + lastName;
+    const hashedPassword = await hashPassword(password);
+    const data: UserType = {
+      name: totalName,
+      email: email,
+      password: hashedPassword,
+      phoneNumber: rawPhone,
+      products: [],
+      isVerified: true,
+      accountType: 'email',
+      role: 'user',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    try {
+      let res = await api.post('/api/smtp/request-code', 
+        { from: "sefasam553498@gmail.com", to: email, subject: 'Kod dogrulama' }, 
+        { headers: { 'Content-Type': 'application/json' } } 
+      );
+      if (res.status === 200) {
+        setShowVerificationInput(true);
+        setUserData(data);
+      }
+    }catch (error) {
+      console.error('Kod doğrulama hatası:', error);
+      setNotificationMessage(text('register.verification-code-error'));
+      setNotificationType('error');
+    }
   };
 
   const handleLoginWithDiscord = async () => {
@@ -112,16 +169,47 @@ export default function RegisterPageComponent() {
     }
   };
 
+  const handleCodeVerify = async () => {
+    if (verificationCode.length < 6) {
+      setNotificationMessage(text('register.verification-code-length'));
+      setNotificationType('error');
+      return;
+    }
+    if (!userData) {
+      setNotificationMessage(text('register.verification-code-missing'));
+      setNotificationType('error');
+      return;
+    }
+    setLoading(true);
+
+    const { email } = userData;
+    const code = verificationCode.split('').join('');
+    const verificationResponse = await api.post('/api/smtp/verify-code', { email, code });
+    if (verificationResponse.status !== 200) {
+      setNotificationMessage(text('register.verification-code-invalid'));
+      setNotificationType('error');
+      setLoading(false);
+      return;
+    }
+    const user = await api.post('/api/auth/register', userData);
+    if (user.data.user !== null) {
+      setNotificationMessage(text('register.registration-success'));
+      setNotificationType('success');
+      router.push('/login');
+    } else {
+      setNotificationMessage(text('register.registration-failed'));
+      setNotificationType('error');
+    }
+  }
+
   const handleCodeKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
   if (e.key === 'Backspace') {
     const newCode = verificationCode.split('');
 
     if (newCode[index]) {
-      // Sadece karakteri sil
       newCode[index] = '';
       setVerificationCode(newCode.join(''));
     } else if (index > 0) {
-      // Önceki inputa geç ve onu da sil
       const prevInput = e.currentTarget.previousElementSibling as HTMLInputElement;
       if (prevInput) {
         prevInput.focus();
@@ -132,7 +220,7 @@ export default function RegisterPageComponent() {
       }
     }
 
-    e.preventDefault(); // Geri silme davranışını biz yönettik
+    e.preventDefault(); 
   }
 };
 
@@ -140,7 +228,13 @@ export default function RegisterPageComponent() {
 if (showVerificationInput) {
    const isAnyInputFilled = verificationCode.split('').some(char => char.trim() !== '');
    return (
+
     <div className="h-screen flex bg-gradient-to-br from-[#0f0f10] via-[#1a1a1c] to-[#0f0f10] text-white relative overflow-hidden">
+        <Notification
+          message={notification}
+          type={notificationType}
+          onClose={() => setNotificationMessage(null)}
+        />
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#0e786a]/10 via-[#0f0f10]/20 to-[#0e786a]/10 animate-pulse z-0 pointer-events-none" />
 
       <div className="w-full flex justify-center items-center px-4 z-10">
@@ -163,7 +257,7 @@ if (showVerificationInput) {
           <div className="text-center">
             <h2 className="text-2xl font-bold">Doğrulama Kodunu Girin</h2>
             <p className="text-sm mt-2">
-              <span className="font-semibold">ravenurelabs@gmail.com</span> adresine bir kod gönderildi 
+              <span className="font-semibold">{userData?.email}</span> adresine bir kod gönderildi 
             </p>
           </div>
 
@@ -183,34 +277,29 @@ if (showVerificationInput) {
             ))}
           </div>
          <button
-  onClick={() => alert("Submitted")}
-  className="relative w-full py-3 
-             bg-gradient-to-r from-[#25d170] to-[#139f8b] 
-             text-white font-semibold rounded-2xl cursor-pointer 
-             flex items-center justify-center gap-3
-             transition-all duration-300 
-             hover:scale-105 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]
-             hover:bg-gradient-to-l group"
->
-  Doğrula
+            onClick={() => handleCodeVerify()}
+            className="relative w-full py-3 
+                      bg-gradient-to-r from-[#25d170] to-[#139f8b] 
+                      text-white font-semibold rounded-2xl cursor-pointer 
+                      flex items-center justify-center gap-3
+                      transition-all duration-300 
+                      hover:scale-105 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)]
+                      hover:bg-gradient-to-l group"
+                      >
+              Doğrula
 
-  {/* Ok ikonu yazının yanında */}
-  <span className="w-8 h-8 flex items-center justify-center rounded-full border border-white/40 
-                   transition-transform duration-300 group-hover:translate-x-2">
-    <FaArrowRight size={14} />
-  </span>
-</button>
-
-
-
-
-
+              {/* Ok ikonu yazının yanında */}
+              <span className="w-8 h-8 flex items-center justify-center rounded-full border border-white/40 
+                              transition-transform duration-300 group-hover:translate-x-2">
+                <FaArrowRight size={14} />
+              </span>
+            </button>
           {/* Alt metin */}
           <p className="text-xs text-white text-center">
             Kodu almadınız mı?{' '}
             <button
               className="cursor-pointer hover:text-gray-300 transition font-semibold"
-              onClick={() => alert('Code resent')}
+              onClick={() => handleResendCode()}
             >
               Yeniden kod gönder
             </button>
@@ -224,6 +313,11 @@ if (showVerificationInput) {
 
   return (
     <div className="h-screen flex bg-gradient-to-br from-[#0f0f10] via-[#1a1a1c] to-[#0f0f10] text-white relative overflow-hidden">
+      <Notification
+        message={notification}
+        type={notificationType}
+        onClose={() => setNotificationMessage(null)}
+      />
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#0e786a]/10 via-[#0f0f10]/20 to-[#0e786a]/10 animate-pulse z-0 pointer-events-none" />
 
       <div className="w-full flex justify-center items-center px-4 z-10">
