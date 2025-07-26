@@ -53,7 +53,7 @@ export default function ProductEditForm({ product, onSave, onCancel, isNew = fal
             <input
               type="text"
               name="name"
-              value={formData.name}
+              value={formData.name['tr']}
               onChange={handleChange}
               className="w-full p-2 border rounded"
               required
@@ -94,7 +94,7 @@ export default function ProductEditForm({ product, onSave, onCancel, isNew = fal
             <label className="block mb-2">Açıklama</label>
             <textarea
               name="description"
-              value={formData.description || ''}
+              value={formData.description?.['tr'] || ''}
               onChange={handleChange}
               className="w-full p-2 border rounded"
               rows={3}

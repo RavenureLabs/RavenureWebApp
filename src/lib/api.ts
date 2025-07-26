@@ -74,7 +74,7 @@ export class UserService {
         return false;
     }
 
-    async register(data: UserType) {
+    async register(data: any) {
     try {
         const response = await api.post('/api/auth/register', data);
         return response.data;
