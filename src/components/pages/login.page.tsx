@@ -2,13 +2,16 @@
 
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
 import { signIn, useSession } from 'next-auth/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { FiLogIn, FiArrowRight, FiArrowLeft } from 'react-icons/fi';
 import { FaDiscord, FaEnvelope, FaLock } from 'react-icons/fa';
+import Notification from '../notification/notification.component';
 
 export default function LoginPageComponent() {
   const { text } = useLanguage();
   const { data: session, status } = useSession();
+  const [notificationMessage, setNotificationMessage] = useState<string | null>(null);
+  const [notificationType, setNotificationType] = useState<'success' | 'error'>('error');
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
@@ -28,9 +31,12 @@ export default function LoginPageComponent() {
       password,
       redirect: false,
     });
-
-    if (res?.ok) {
-      window.location.href = '/dash';
+    if(!res?.ok){
+      setNotificationMessage(text('login.invalid-credentials'));
+      setNotificationType('error');
+    }else{
+      setNotificationMessage(text('login.login-success'));
+      setNotificationType('success');
     }
   };
 
@@ -40,6 +46,11 @@ export default function LoginPageComponent() {
 
   return (
     <div className="h-screen flex bg-gradient-to-br from-[#0f0f10] via-[#1a1a1c] to-[#0f0f10] text-white relative overflow-hidden">
+      <Notification 
+      message={notificationMessage}
+      onClose={() => setNotificationMessage(null)}
+      type={notificationType}
+      />
       {/* Arka plan efekti */}
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#0e786a]/10 via-[#0f0f10]/20 to-[#0e786a]/10 animate-pulse z-0 pointer-events-none" />
 

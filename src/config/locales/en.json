@@ -1,3 +1,74 @@
 {
-    
+  "navbar": {
+    "home": "Home",
+    "referances": "References",
+    "discord": "Discord",
+    "store": "Store",
+    "sss": "FAQ",
+    "broadcast": "Summer Sale: 20% off all products! — Discover now 🚀"
+  },
+  "store": {
+    "hero-title": "Store",
+    "categories": "Categories",
+    "looking for something?": "Looking for something specific?",
+    "looking for something?-2": "Find what you need with our filters.",
+    "categories-1": "All",
+    "categories-2": "Plugins",
+    "categories-3": "Plugin Bundles",
+    "categories-4": "Discord Bots"
+  },
+  "product": {
+    "no_description": "No description available for this product!",
+    "review_count": "Votes",
+    "sales_count": "Sales",
+    "buy": "Buy",
+    "preview": "Preview"
+  },
+  "referances": {
+    "title": "Game Servers That Trust Us",
+    "sub-title": "Those who trust our quality and assurance!"
+  },
+  "login": {
+    "back-home": "Back to Home",
+    "login-with-discord": "Login with Discord",
+    "or": "OR",
+    "mail-and-password": "Email and Password",
+    "forgot-password": "Forgot Password?",
+    "login": "Login",
+    "dont-have-account": "Don't have an account?",
+    "create-account": "Create Account",
+    "invalid-credentials": "Invalid credentials! Please try again.",
+    "login-success": "Login successful! Redirecting..."
+  },
+  "register": {
+    "title": "Create Account",
+    "description": "Fill in the required fields to register.",
+    "first-name": "First Name",
+    "last-name": "Last Name",
+    "first-name-placeholder": "John",
+    "last-name-placeholder": "Doe",
+    "email": "Email",
+    "password": "Password",
+    "confirm-password": "Confirm Password",
+    "phone": "Phone Number",
+    "have-account": "Already have an account?",
+    "create-account": "Create Account",
+    "login": "Login",
+    "login-with-discord": "Sign up with Discord",
+    "back-home": "Back to Home",
+    "terms-warning": "You must accept the user agreement!",
+    "password-mismatch": "Passwords do not match!",
+    "invalid-phone": "Please enter a valid phone number.",
+    "agree": "I agree.",
+    "terms": "Terms of Use",
+    "privacy": "Privacy Policy",
+    "and": "and",
+    "email-already-registered": "This email address is already registered!",
+    "verification-code-error": "Verification code is incorrect!",
+    "verification-code-length": "Verification code must be 6 digits!",
+    "verification-code-missing": "Verification code is missing!",
+    "verification-code-invalid": "Verification code is invalid!",
+    "registration-success": "User created successfully! You can now log in.",
+    "registration-failed": "Failed to create user. Please try again."
+  }
 }

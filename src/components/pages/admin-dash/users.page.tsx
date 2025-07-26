@@ -1,190 +1,184 @@
-
 'use client';
+
 import { useEffect, useState } from "react";
-import TableComponent from "../../admin-dashboard/table.component";
-import { userService } from "@/src/lib/services";
 import { UserType } from "@/src/models/user.model";
-import TabsComponent from "../../admin-dashboard/tabs.component";
+import { userService } from "@/src/lib/services";
 
 export default function AdminUsersPageComponent() {
-    const [users, setUsers] = useState<UserType[]>([]);
-    const [addStatus, toggleAddStatus] = useState(false);
-    const [editStatus, toggleEditStatus] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
+  const [users, setUsers] = useState<UserType[]>([]);
+  const [editingUser, setEditingUser] = useState<UserType | null>(null);
 
-    const [tab, setTab] = useState<'User Information' | 'Products' | 'Orders'>('User Information');
-    useEffect(() => {
-        const getUsers = async () => {
-            const users = await userService.getUsers();
-            console.log(users)
-            setUsers(users);
-        }
-        getUsers();
-    }, []);
-    return (
-        <div className="justify-center items-center flex mt-36 flex-col w-full">
-            {!addStatus && !editStatus && TablePage(users, toggleAddStatus, toggleEditStatus, setSelectedUser, setUsers)}
-            {addStatus && AddUserPage()}
-            {editStatus && EditUserPage(selectedUser!, tab, setTab, setSelectedUser, selectedUser!)}
-        </div>
-    );
-}
+  useEffect(() => {
+    const fetchUsers = async () => {
+        const users = await userService.getUsers();
+        setUsers(users);
+    }
+    fetchUsers();
+  }, []);
 
-function TablePage(users: UserType[], toggleAddStatus: any, toggleEditStatus: any, setSelectedUser: any, setUsers: any) {
-    return(
-        <TableComponent
-        title="Users"
-        fields={["Name", "Email", "Role", "Account Type", "Is Verified"]}
-        objects={users.map(user => ({
-        data: [
-        user.name,
-        user.email,
-        user.role,
-        user.accountType,
-        user.isVerified ? "Yes" : "No"
-        ],
-        AccessCode: user.email,
-        editButton: (email) => {
-            console.log("Edit user:", email);
-            setSelectedUser(user);
-            toggleEditStatus(true);
-        },
-        deleteButton: (email) => {
-            userService.deleteUser(email);
-            // delete user to users array
-            setUsers(users.filter(user => user.email !== email));
-            // refresh the users list
-            window.location.reload();
-        }
-        }))}
-        addButton={() => toggleAddStatus(true)}
-        />
+  const handleEdit = (user: UserType) => {
+    setEditingUser(user);
+  };
 
-    )
-}
+  const handleDelete = async (id: string) => {
+    // Delete logic here
+  };
 
-function AddUserPage() {
-    return (
-        <div>
-            Add User
-        </div>
-    )
-}
+  const handleSave = async (updatedUser: UserType) => {
 
-export function EditUserPage(selectedUser: UserType, tab: string, setTab: any, setSelectedUser: any, selectedUserState: UserType) {
+    setEditingUser(null);
+  };
 
+  return (
+    <div className="p-6 bg-black">
+      <div className="flex justify-between items-center mb-6 bg-black">
+        <h1 className="text-2xl font-bold bg-black">Kullanıcılar</h1>
+        <button 
+          onClick={() => setEditingUser({
+            name: '',
+            email: '',
+            password: '',
+            role: 'user',
+            accountType: 'email',
+            products: [],
+            isActive: true,
+            createdAt: new Date().toISOString()
+          })}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Yeni Kullanıcı Ekle
+        </button>
+      </div>
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value, type, ariaChecked } = e.target;
-        setSelectedUser({
-            ...selectedUserState,
-            [name]: type === 'checkbox' ? ariaChecked : value
-        });
-    };
-
-    const handleSave = () => {
-        console.log('Updated user:', );
-        alert('User info saved successfully!');
-    };
-
-    return (
-        <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-            {/* ✅ Tabs */}
-            <div className="border-b mb-4">
-                <ul className="flex text-sm font-medium text-gray-500 dark:text-gray-400">
-                    {['User Information', 'Products', 'Orders'].map((item) => (
-                        <li
-                            key={item}
-                            className={`cursor-pointer px-4 py-2 border-b-2 ${
-                                tab === item
-                                    ? 'text-blue-600 border-blue-600'
-                                    : 'border-transparent hover:text-gray-700 hover:border-gray-300'
-                            }`}
-                            onClick={() => setTab(item)}
-                        >
-                            {item}
-                        </li>
-                    ))}
-                </ul>
+      {editingUser && (
+        <div className="mb-6 p-4 border rounded">
+          <h2 className="text-xl mb-4">
+            {editingUser.email ? 'Kullanıcı Düzenle' : 'Yeni Kullanıcı Ekle'}
+          </h2>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            const name = formData.get('name') as string;
+            const email = formData.get('email') as string;
+            const role = formData.get('role') as 'admin' | 'user';
+            const isActive = formData.get('isActive') === 'on';
+            handleSave({ ...editingUser, name, email, role, isActive });
+          }}>
+            <div className="mb-4 bg-black">
+              <label className="block mb-2">Ad</label>
+              <input 
+                type="text" 
+                name="name" 
+                defaultValue={editingUser.name}
+                className="w-full p-2 border rounded"
+                required
+              />
             </div>
-
-            {/* ✅ Tab Content */}
-            {tab === 'User Information' && (
-                <div className="space-y-4">
-                    {/* Name */}
-                    <div>
-                        <label className="block text-gray-700 dark:text-gray-300">Name</label>
-                        <input
-                            type="text"
-                            name="name"
-                            value={selectedUserState.name}
-                            onChange={handleChange}
-                            className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                        />
-                    </div>
-
-                    {/* Email */}
-                    <div>
-                        <label className="block text-gray-700 dark:text-gray-300">Email</label>
-                        <input
-                            type="email"
-                            name="email"
-                            value={selectedUserState.email}
-                            onChange={handleChange}
-                            className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                        />
-                    </div>
-
-                    {/* Role */}
-                    <div>
-                        <label className="block text-gray-700 dark:text-gray-300">Role</label>
-                        <select
-                            name="role"
-                            value={selectedUserState.role}
-                            onChange={handleChange}
-                            className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                        >
-                            <option value="admin">Admin</option>
-                            <option value="user">User</option>
-                        </select>
-                    </div>
-
-                    {/* Account Type */}
-                    <div>
-                        <label className="block text-gray-700 dark:text-gray-300">Account Type</label>
-                        <input
-                            type="text"
-                            name="accountType"
-                            value={selectedUserState.accountType}
-                            onChange={handleChange}
-                            className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                        />
-                    </div>
-
-                    {/* Verified */}
-                    <div className="flex items-center space-x-2">
-                        <input
-                            type="checkbox"
-                            name="isVerified"
-                            checked={selectedUserState.isVerified}
-                            onChange={handleChange}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        />
-                        <label className="text-gray-700 dark:text-gray-300">Is Verified</label>
-                    </div>
-
-                    {/* Save Button */}
-                    <button
-                        onClick={handleSave}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                    >
-                        Save Changes
-                    </button>
-                </div>
-            )}
-
-            {tab === 'Products' && <div className="text-gray-700 dark:text-gray-300">Products will be listed here.</div>}
-            {tab === 'Orders' && <div className="text-gray-700 dark:text-gray-300">Orders will be listed here.</div>}
+            <div className="mb-4">
+              <label className="block mb-2">Email</label>
+              <input 
+                type="email" 
+                name="email" 
+                defaultValue={editingUser.email}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+            <div className="mb-4">
+                <label className="block mb-2">Şifre</label>
+                <input 
+                  type="password" 
+                  name="password" 
+                  className="w-full p-2 border rounded"
+                  placeholder="Yeni şifre (isteğe bağlı)"
+                />
+            </div>
+            <div className="mb-4">
+              <label className="block mb-2">Rol</label>
+              <select 
+                name="role" 
+                defaultValue={editingUser.role}
+                className="w-full p-2 border rounded"
+              >
+                <option value="user">Kullanıcı</option>
+                <option value="admin">Yönetici</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="flex items-center">
+                <input 
+                  type="checkbox" 
+                  name="isActive" 
+                  defaultChecked={editingUser.isActive}
+                  className="mr-2"
+                />
+                Aktif
+              </label>
+            </div>
+            <div className="flex justify-end">
+              <button 
+                type="button" 
+                onClick={() => setEditingUser(null)}
+                className="mr-2 px-4 py-2 border rounded"
+              >
+                İptal
+              </button>
+              <button 
+                type="submit"
+                className="bg-green-500 text-white px-4 py-2 rounded"
+                disabled={!editingUser.name || !editingUser.email}
+                onClick={() => handleSave(editingUser)}
+              >
+                Kaydet
+              </button>
+            </div>
+          </form>
         </div>
-    );
+      )}
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-black">
+          <thead>
+            <tr>
+              <th className="py-2 px-4 border">ID</th>
+              <th className="py-2 px-4 border">Ad</th>
+              <th className="py-2 px-4 border">Email</th>
+              <th className="py-2 px-4 border">Rol</th>
+              <th className="py-2 px-4 border">Durum</th>
+              <th className="py-2 px-4 border">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user.name}>
+                <td className="py-2 px-4 border">{user.name}</td>
+                <td className="py-2 px-4 border">{user.name}</td>
+                <td className="py-2 px-4 border">{user.email}</td>
+                <td className="py-2 px-4 border">{user.role}</td>
+                <td className="py-2 px-4 border">
+                  <span className={`px-2 py-1 rounded-full text-xs ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {user.isActive ? 'Aktif' : 'Pasif'}
+                  </span>
+                </td>
+                <td className="py-2 px-4 border">
+                  <button 
+                    onClick={() => handleEdit(user)}
+                    className="bg-yellow-500 text-white px-2 py-1 rounded mr-2"
+                  >
+                    Düzenle
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(user.email)}
+                    className="bg-red-500 text-white px-2 py-1 rounded"
+                  >
+                    Sil
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }

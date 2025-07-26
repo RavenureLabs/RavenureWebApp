@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "../lib/database";
 import User, { UserType } from "../models/user.model";
+import { comparePassword } from "../lib/bcrypt";
 
 export async function createUser(data: any) {
     await connectToDatabase();
@@ -138,19 +139,21 @@ export async function deleteUser(email: string) {
 export async function login(data: { email: string, password: string }) {
     await connectToDatabase();
     try {
-        console.log("Login request received:", data);
         const user = await User.findOne({ email: data.email });
         if (!user) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
-        if (user.password !== data.password) {
+        if (!(await comparePassword(data.password, user.password))) {
             return NextResponse.json({ message: "Invalid password" }, { status: 401 });
         }
         if (!user.isActive) {
             return NextResponse.json({ message: "User is not active" }, { status: 403 });
         }
-        user.lastLogin = new Date().toISOString(); // Update last login time
-        user.isActive = true; // Set user as active on login
+        if (user.accountType === 'discord' && !user.discordId) {
+            return NextResponse.json({ message: "User is not linked with Discord" }, { status: 403 });
+        }
+        user.lastLogin = new Date().toISOString();
+        user.isActive = true; 
         await user.save();
         return NextResponse.json({ message: "Login successful", user: convertToDto(user)
         }, { status: 200 });
@@ -173,7 +176,6 @@ export async function isRegistered(email: string) : Promise<boolean> {
 
 export async function register(data: UserType) {
   await connectToDatabase();
-
   try {
     const existingUser = await User.findOne({ email: data.email });
 

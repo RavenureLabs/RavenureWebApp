@@ -32,14 +32,22 @@ export const LanguageContext = createContext<LanguageContextType>({
 });
 
 export function LanguageProvider({ children, lang }: { children: React.ReactNode, lang: string }) {
-  const [language, setLanguage] = useState(lang);
-  const [translations, setTranslations] = useState<Translations>(
-    getTranslations(lang)
-  );
+  const [language, setLanguageState] = useState(lang);
+  const [translations, setTranslations] = useState<Translations>(getTranslations(lang));
 
   useEffect(() => {
-    setTranslations(getTranslations(language));
-  }, [language]);
+    const storedLang = localStorage.getItem("lang");
+    if (storedLang) {
+      setLanguageState(storedLang);
+      setTranslations(getTranslations(storedLang));
+    }
+  }, []);
+
+  const setLanguage = (lang: string) => {
+    localStorage.setItem("lang", lang);
+    setLanguageState(lang);
+    setTranslations(getTranslations(lang));
+  };
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, translations }}>

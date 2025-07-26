@@ -70,25 +70,35 @@ export class UserService {
         return false;
     }
 
-    async register(data: UserType){
-        const response = await api.post('/api/auth/register', {
-            data: {
-                ...data
-            }
-        });
+    async register(data: UserType) {
+    try {
+        const response = await api.post('/api/auth/register', data);
         return response.data;
+    } catch (error: any) {
+        // Axios hatalarında response.data olabilir
+        if (error.response?.data) {
+        return error.response.data;
+        }
+        // Diğer durumlar için
+        return { message: error.message || 'Unknown error' };
+    }
     }
     async login(data: any){
         const response = await api.post('/api/auth/login', data);
         return response.data;
     }
-    async isRegistered(email: any) : Promise<boolean> {
-        const response = await api.get(`/api/user/${email}`);
-        if(response.status === 404){
-            return false;
+    async isRegistered(email: any): Promise<boolean> {
+        try {
+            const response = await api.get(`/api/user/check-user/${email}`);
+            return true;
+        } catch (err: any) {
+            if (err.response && err.response.status === 404) {
+                return false;
+            }
+            throw new Error(err.message || 'Unknown error');
         }
-        return true;
     }
+
 }
 
 export class EmbedService {
