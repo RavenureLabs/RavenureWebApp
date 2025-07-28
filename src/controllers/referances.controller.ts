@@ -39,7 +39,7 @@ export async function createReferance(data: any) {
 export async function updateReferance(data: any) {
     await connectToDatabase();
     try{
-        const referance = await Referance.findByIdAndUpdate(data.id, data, { new: true });
+        const referance = await Referance.findByIdAndUpdate(data._id, data, { new: true });
         return NextResponse.json(convertToDto(referance), { status: 200 });
     }
     catch (error) {
@@ -50,8 +50,8 @@ export async function updateReferance(data: any) {
 export async function deleteReferance(data: any) {
     await connectToDatabase();
     try{
-        const referance = await Referance.findByIdAndDelete(data.id);
-        return NextResponse.json(convertToDto(referance), { status: 200 });
+        const referance = await Referance.findByIdAndDelete(data);
+        return NextResponse.json({ message: "Referance deleted successfully" }, { status: 200 });
     }
     catch (error) {
         console.error("Error deleting referance:", error);

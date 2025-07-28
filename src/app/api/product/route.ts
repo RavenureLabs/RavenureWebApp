@@ -17,7 +17,20 @@ export async function PUT(request: NextRequest){
     }
     return updateProduct(data);
 }
-export async function DELETE(request: NextRequest){
+export async function DELETE(request: NextRequest) {
+  const auth = await requireAuth(request, ["admin"]);
+  if (auth instanceof NextResponse) return auth;
+
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get("id");
+
+  if (!id) {
+    return NextResponse.json({ message: "Missing ID" }, { status: 400 });
+  }
+
+  return deleteProduct({ id });
+}
+export async function POST(request: NextRequest){
     const  data  = await request.json();
     const auth = await requireAuth(request, ["admin"]);
     if (auth instanceof NextResponse) {
@@ -27,18 +40,6 @@ export async function DELETE(request: NextRequest){
     if (user.role !== 'admin') {
         return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
     }
-    return deleteProduct(data);
-}
-export async function POST(request: NextRequest){
-    const  data  = await request.json();
-    /*const auth = await requireAuth(request, ["admin"]);
-    if (auth instanceof NextResponse) {
-        return auth;
-    }
-    const user = auth.user;
-    if (user.role !== 'admin') {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
-    }*/
     return createProduct(data);
 }
 

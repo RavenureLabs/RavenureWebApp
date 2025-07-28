@@ -6,7 +6,7 @@ export async function GET(request: NextRequest){
     return getReferances();
 }
 export async function PUT(request: NextRequest){
-    const{ data } = await request.json();
+    const data  = await request.json();
     const auth = await requireAuth(request, ["admin"]);
     if (auth instanceof NextResponse) {
         return auth;
@@ -18,19 +18,24 @@ export async function PUT(request: NextRequest){
     return updateReferance(data);
 }
 export async function DELETE(request: NextRequest){
-    const { data } = await request.json();
     const auth = await requireAuth(request, ["admin"]);
     if (auth instanceof NextResponse) {
         return auth;
+    }
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+        return NextResponse.json({ message: "Missing ID" }, { status: 400 });
     }
     const user = auth.user;
     if (user.role !== 'admin') {
         return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
     }
-    return deleteReferance(data);
+    return deleteReferance(id);
 }
 export async function POST(request: NextRequest){
-    const { data } = await request.json();
+    const  data  = await request.json();
     const auth = await requireAuth(request, ["admin"]);
     if (auth instanceof NextResponse) {
         return auth;

@@ -5,7 +5,6 @@ import mongoose, { ObjectId } from "mongoose";
 export type CategoryType = {
     _id: ObjectId;
     name: MultiLangText;
-    products: ProductType[];
     createdAt: string;
     updatedAt?: string;
     isActive?: boolean;
@@ -13,7 +12,6 @@ export type CategoryType = {
 
 const categorySchema = new mongoose.Schema({
     name: { type: Object, required: true },
-    products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     isActive: { type: Boolean, default: true }
 },
 {

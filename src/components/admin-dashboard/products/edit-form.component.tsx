@@ -1,7 +1,9 @@
 'use client';
 
+import { categoryService } from "@/src/lib/services";
+import { CategoryType } from "@/src/models/category.model";
 import { ProductType } from "@/src/models/product.model";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {
   product?: ProductType;
@@ -11,8 +13,7 @@ type Props = {
 };
 
 export default function ProductEditForm({ product, onSave, onCancel, isNew = false }: Props) {
-  const [formData, setFormData] = useState<ProductType>(product || {
-    id: '', // or generate a temporary id if needed
+  const [formData, setFormData] = useState<any>(product || {
     name: '',
     description: '',
     price: 0,
@@ -25,14 +26,23 @@ export default function ProductEditForm({ product, onSave, onCancel, isNew = fal
     stock: 0,
     isFeatured: false,
     isActive: true,
-    createdAt: new Date().toISOString() // or another default value
+    createdAt: new Date().toISOString() 
   });
+
+  const [categories, setCategories] = useState<CategoryType[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const categories = await categoryService.getCategories();
+      setCategories(categories);
+    };
+    fetchCategories();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
-    
-    setFormData(prev => ({
+    setFormData((prev: typeof formData) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
@@ -85,7 +95,7 @@ export default function ProductEditForm({ product, onSave, onCancel, isNew = fal
             <input
               type="number"
               name="stock"
-              value={formData.stock || 0}
+              value={formData.stock || '-1'}
               onChange={handleChange}
               className="w-full p-2 border rounded"
             />
@@ -94,10 +104,10 @@ export default function ProductEditForm({ product, onSave, onCancel, isNew = fal
             <label className="block mb-2">Açıklama</label>
             <textarea
               name="description"
-              value={formData.description?.['tr'] || ''}
+              value={formData.description?.['tr']}
               onChange={handleChange}
               className="w-full p-2 border rounded"
-              rows={3}
+              rows={4}
             />
           </div>
           <div className="mb-4">
@@ -124,14 +134,20 @@ export default function ProductEditForm({ product, onSave, onCancel, isNew = fal
           </div>
           <div className="mb-4">
             <label className="block mb-2">Kategori</label>
-            <input
-              type="text"
+            <select
               name="category"
               value={formData.category}
               onChange={handleChange}
               className="w-full p-2 border rounded"
               required
-            />
+            >
+              <option value="">Kategori Seçin</option>
+              {categories.map((i) => (
+                <option className="bg-black" key={i._id.toString()} value={i._id.toString()}>
+                  {i.name['tr']}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="mb-4 flex items-center">
             <input
