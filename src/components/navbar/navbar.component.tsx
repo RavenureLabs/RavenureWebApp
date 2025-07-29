@@ -27,16 +27,13 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 text-white border-b border-gray-700 border-opacity-40 backdrop-blur bg-gradient-to-b from-[#0f0f10] to-[#171717]">
+    <header className="sticky top-0 z-50 text-white  backdrop-blur bg-gradient-to-b from-[#09080a] to-[#171717]">
       {/* Broadcast Banner */}
       <div className="w-full bg-gradient-to-r from-[#25d170] to-[#139f8b] text-center py-2 text-sm font-semibold">
         {text("navbar.broadcast")}
       </div>
 
-      {/* 🔆 Gölge efekti */}
-      <div className="absolute w-[800px] h-[1800px] left-[-395px] -top-60 z-0 opacity-100 bg-[linear-gradient(91deg,var(--background-color),var(--background-color))] blur-[140px] pointer-events-none" />
-
-      {/* Ana Navbar */}
+      {/* Navbar */}
       <div className="relative z-10 max-w-screen-2xl mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <a href="/" className="transition-transform duration-200 hover:scale-110">
