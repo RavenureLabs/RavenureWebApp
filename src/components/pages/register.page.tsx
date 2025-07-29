@@ -427,12 +427,7 @@ if (showVerificationInput) {
                 />
               )}
             </button>
- 
-
-
-
           </form>
-
           <p className="text-sm text-center text-gray-400">
             {text('register.have-account')}{' '}
             <a href="/login" className="text-blue-400 hover:underline">{text('register.login')}</a>
