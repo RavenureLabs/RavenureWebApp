@@ -1,23 +1,40 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ReferanceType } from "@/src/models/referance.model";
+import { referanceService } from "@/src/lib/services";
 
 export default function AdminReferancesPageComponent() {
   const [referances, setReferances] = useState<ReferanceType[]>([]);
   const [editingReferance, setEditingReferance] = useState<ReferanceType | null>(null);
   const [isAdding, setIsAdding] = useState(false);
 
+
+  useEffect(() => {
+    const fetchReferances = async () => {
+      const referances = await referanceService.getReferances();
+      setReferances(referances);
+    };
+    fetchReferances();
+  }, []);
+
   const handleEdit = (referance: ReferanceType) => {
     setEditingReferance(referance);
   };
 
   const handleDelete = async (id: string) => {
-    // Delete logic here
+    await referanceService.deleteReferance(id);
+    setReferances(referances.filter(referance => referance._id?.toString() !== id));
   };
 
   const handleSave = async (updatedReferance: ReferanceType) => {
-    // Save logic here
+    if(editingReferance){
+      let response = await referanceService.updateReferance(updatedReferance);
+      setReferances(referances.map(referance => referance._id === response._id ? response : referance));
+    }else if (isAdding){
+      let response = await referanceService.createReferance(updatedReferance);
+      setReferances([...referances, response]);
+    }
     setEditingReferance(null);
     setIsAdding(false);
   };
@@ -161,8 +178,8 @@ export default function AdminReferancesPageComponent() {
           </thead>
           <tbody>
             {referances.map((referance) => (
-              <tr key={referance.name}>
-                <td className="py-2 px-4 border">{referance.name}</td>
+              <tr key={referance._id?.toString()}>
+                <td className="py-2 px-4 border">{referance._id?.toString()}</td>
                 <td className="py-2 px-4 border">{referance.name}</td>
                 <td className="py-2 px-4 border">{referance.url || '-'}</td>
                 <td className="py-2 px-4 border">

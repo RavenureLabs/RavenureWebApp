@@ -4,7 +4,8 @@ import { ProductType } from "../models/product.model";
 import { CommentType } from "../models/comment.model";
 import { ReferanceType } from "../models/referance.model";
 import { UserType } from "../models/user.model";
-import { getJson } from "../utils/discord/jsonViewer.util";
+import { OrderType } from "../models/order.model";
+import { CartType } from "../models/cart.model";
 export const api = axios.create({
     baseURL: process.env.NEXTAUTH_URL
 });
@@ -22,6 +23,22 @@ export class ProductService {
         const response = await api.get(`/api/product/category/${category}`);
         return response.data as ProductType[];
     }
+    async createProduct(data: any){
+        const response = await api.post('/api/product', data);
+        return response.data as ProductType;
+    }
+    async updateProduct(data: any){
+        const response = await api.put(`/api/product`, data);
+        return response.data as ProductType;
+    }
+    async deleteProduct(data: any){
+        const response = await api.delete(`/api/product?id=${data}`);
+        return response.data as ProductType;
+    }
+    async getMostSoldProducts(){
+        const response = await api.get('/api/product/most-sold');
+        return response.data as ProductType[];
+    }
 }
 
 export class CategoryService {
@@ -33,8 +50,21 @@ export class CategoryService {
         const response = await api.get(`/api/category/${id}`);
         return response.data as CategoryType;
     }
+    async createCategory(data: any){
+        const response = await api.post('/api/category', data);
+        return response.data as CategoryType;
+    }
+    async updateCategory(data: any){
+        const response = await api.put(`/api/category`, data);
+        return response.data as CategoryType;
+    }
+    async deleteCategory(id: string){
+        const response = await api.delete(`/api/category?id=${id}`);
+        return response.data as CategoryType;
+    }
 }
 
+/** @deprecated */
 export class CommentService {
     async getComments(){
         const reponse = await api.get('/api/comment');
@@ -46,14 +76,29 @@ export class ReferanceService {
         const response = await api.get('/api/referances');
         return response.data as ReferanceType[];
     }
+    async getReferanceById(id: string){
+        const response = await api.get(`/api/referances/${id}`);
+        return response.data as ReferanceType;
+    }
+    async createReferance(data: any){
+        const response = await api.post('/api/referances', data);
+        return response.data as ReferanceType;
+    }
+    async updateReferance(data: any){
+        const response = await api.put(`/api/referances`, data);
+        return response.data as ReferanceType;
+    }
+    async deleteReferance(id: string){
+        const response = await api.delete(`/api/referances?id=${id}`);
+        return response.data as ReferanceType;
+    }
 }
 export class UserService {
 
-    async getUser(email: string){
-        const response = await api.get(`/api/user/${email}`);
+    async getUser(data: string){
+        const response = await api.get(`/api/user/${data}`);
         return response.data as UserType;
     }
-
     async getUserByDiscordId(discordId: string){
         const response = await api.get(`/api/user/discord/${discordId}`);
         return response.data as UserType;
@@ -64,12 +109,13 @@ export class UserService {
         return response.data.users as UserType[];
     }
 
+    async updateUser(data: any){
+        const response = await api.put(`/api/user`, data);
+        return response.data as UserType;
+    }
+    
     async deleteUser(id: any){
-        const res = await api.delete("/api/user", {
-            data: {
-                id: id
-            }
-        });
+        const res = await api.delete(`/api/user?id=${id}`);
         if(res.status === 200) return true;
         return false;
     }
@@ -92,15 +138,8 @@ export class UserService {
         return response.data;
     }
     async isRegistered(email: any): Promise<boolean> {
-        try {
-            const response = await api.get(`/api/user/check-user/${email}`);
-            return true;
-        } catch (err: any) {
-            if (err.response && err.response.status === 404) {
-                return false;
-            }
-            throw new Error(err.message || 'Unknown error');
-        }
+        const response = await api.get(`/api/user/check-user/${email}`);
+        return response.data.registeryStatus as boolean;
     }
 
 }
@@ -109,5 +148,39 @@ export class EmbedService {
     async sendSellEmbed(productName: string, userName: string) {
         const res = await api.post("/api/discord/embed/sell-embed", { productName, userName });
         return res.data;
+    }
+}
+
+export class OrderService {
+    async createOrder(data: any){
+        const response = await api.post('/api/order', data);
+        return response.data as OrderType;
+    }
+    async getOrders(){
+        const response = await api.get('/api/order');
+        return response.data as OrderType[];
+    }
+    async getOrder(id: string){
+        const response = await api.get(`/api/order/${id}`);
+        return response.data as OrderType;
+    }
+    async updateOrder(data: any){
+        const response = await api.put(`/api/order`, data);
+        return response.data as OrderType;
+    }
+    async deleteOrder(id: string){
+        const response = await api.delete(`/api/order?id=${id}`);
+        return response.data as OrderType;
+    }
+}
+
+export class CartService {
+    async getCart(email: string){
+        const response = await api.get(`/api/cart/${email}`);
+        return response.data.cart as CartType;
+    }
+    async saveCart(data: any){
+        const response = await api.post('/api/cart', data);
+        return response.data.cart as CartType;
     }
 }

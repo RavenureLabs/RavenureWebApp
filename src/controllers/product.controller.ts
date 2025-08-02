@@ -21,7 +21,7 @@ export async function getProducts() {
 export async function getProductById(data: any) {
     await connectToDatabase();
     try{
-        const product = await Product.findById(data.id);
+        const product = await Product.findById(data);
         return NextResponse.json(convertToDto(product), { status: 200 });
     }
     catch (error) {
@@ -33,7 +33,8 @@ export async function getProductById(data: any) {
 export async function getProductsByCategory(data: any) {
     await connectToDatabase();
     try{
-        const products = await Product.find().populate({path: 'category',match: { name: data.category }});
+        const id = data;
+        const products = await Product.find({ category: id });
         return NextResponse.json(products.map(product => {
             return convertToDto(product);
         }), { status: 200 });
@@ -73,7 +74,15 @@ export async function createProduct(data: any) {
 export async function updateProduct(data: any) {
     await connectToDatabase();
     try{
-        const product = await Product.findByIdAndUpdate(data.id, data, { new: true });
+        const product = await Product.findByIdAndUpdate(data._id.toString(), data, { new: true });
+        // update the category if changed
+        if (data.category) {
+            const category = await Category.findById(data.category);
+            if (category) {
+                product.category = data.category;
+                await category.save();
+            }
+        }
         return NextResponse.json(convertToDto(product), { status: 200 });
     }
     catch (error) {
@@ -85,8 +94,8 @@ export async function updateProduct(data: any) {
 export async function deleteProduct(data: any) {
     await connectToDatabase();
     try{
-        const product = await Product.findByIdAndDelete(data.id);
-        return NextResponse.json(convertToDto(product)), { status: 200 };
+        await Product.findByIdAndDelete({_id: data.id});
+        return NextResponse.json({ message: "Product deleted successfully" }, { status: 200 });
     }
     catch (error) {
         console.error("Error deleting product:", error);
@@ -94,22 +103,21 @@ export async function deleteProduct(data: any) {
     }
 }
 
+
+export async function getMostSoldProducts(){
+    await connectToDatabase();
+    try{
+        const products = await Product.find().sort({ sales: -1 }).limit(5);
+        return NextResponse.json(products.map(product => {
+            return convertToDto(product);
+        }), { status: 200 });
+    }
+    catch (error) {
+        console.error("Error fetching most sold products:", error);
+        return NextResponse.json({ message: "Error fetching most sold products", error }, { status: 500 });
+    }
+}
+
 const convertToDto = (product: ProductType) => {
-    return {
-        _id: product._id,
-        name: product.name,
-        description: product.description,
-        price: product.price,
-        discountPrice: product.discountPrice,
-        imageUrl: product.imageUrl,
-        author: product.author,
-        reviews: product.reviews,
-        category: product.category,
-        salesCount: product.salesCount,
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-        stock: product.stock,
-        isFeatured: product.isFeatured,
-        isActive: product.isActive
-    };
+    return product;
 };

@@ -2,31 +2,44 @@
 
 import { useEffect, useState } from "react";
 import { CategoryType } from "@/src/models/category.model";
-import { categoryService } from "@/src/lib/services";
+import { categoryService, productService } from "@/src/lib/services";
 
 export default function AdminCategoriesPageComponent() {
-  const [categories, setCategories] = useState<CategoryType[]>([]);
-  const [editingCategory, setEditingCategory] = useState<CategoryType | null>(null);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [editingCategory, setEditingCategory] = useState<any | null>(null);
   const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() =>{
     const fetchCategories = async () => {
-      const categories = await categoryService.getCategories();
+      const categories: any[] = await categoryService.getCategories();
+      for (const category of categories) {
+        category.products = await productService.getProductsByCategory(category._id);
+        category.productCount = category.products.length;
+      }
       setCategories(categories);
     };
     fetchCategories();
   }, []);
 
-  const handleEdit = (category: CategoryType) => {
+  const handleEdit = (category: any) => {
     setEditingCategory(category);
   };
 
   const handleDelete = async (id: string) => {
-    // Delete logic here
+    await categoryService.deleteCategory(id);
+    setCategories(categories.filter(category => category._id !== id));
+    setEditingCategory(null);
+    setIsAdding(false);
   };
 
-  const handleSave = async (updatedCategory: CategoryType) => {
-    // Save logic here
+  const handleSave = async (updatedCategory: any) => {
+    if(editingCategory){
+      let response = await categoryService.updateCategory(updatedCategory);
+      setCategories(categories.map(category => category._id === response._id ? response : category));
+    }else if (isAdding){
+      let response = await categoryService.createCategory(updatedCategory);
+      setCategories([...categories, response]);
+    }
     setEditingCategory(null);
     setIsAdding(false);
   };
@@ -130,10 +143,10 @@ export default function AdminCategoriesPageComponent() {
           </thead>
           <tbody>
             {categories.map((category) => (
-              <tr key={category.name}>
-                <td className="py-2 px-4 border">{category.name}</td>
-                <td className="py-2 px-4 border">{category.name}</td>
-                <td className="py-2 px-4 border">{category.products.length}</td>
+              <tr key={category._id.toString()}>
+                <td className="py-2 px-4 border">{category._id.toString()}</td>
+                <td className="py-2 px-4 border">{category.name['tr']}</td>
+                <td className="py-2 px-4 border">{category.productCount}</td>
                 <td className="py-2 px-4 border">
                   <button 
                     onClick={() => handleEdit(category)}
@@ -142,7 +155,7 @@ export default function AdminCategoriesPageComponent() {
                     Düzenle
                   </button>
                   <button 
-                    onClick={() => handleDelete(category.name)}
+                    onClick={() => handleDelete(category._id.toString())}
                     className="bg-red-500 text-white px-2 py-1 rounded"
                   >
                     Sil

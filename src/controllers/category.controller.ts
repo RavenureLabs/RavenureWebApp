@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "../lib/database";
 import Category, { CategoryType } from "../models/category.model";
 import { translate } from "../utils/translate.utils";
+import Product from "../models/product.model";
 
 export async function getCategories() {
     await connectToDatabase();
@@ -57,8 +58,10 @@ export async function updateCategory(data: any) {
 export async function deleteCategory(data: any) {
     await connectToDatabase();
     try{
-        const category = await Category.findByIdAndDelete(data.id);
-        return NextResponse.json(convertToDto(category), { status: 200 });
+        await Category.findByIdAndDelete(data);
+        // delete the products associated with the category
+        await Product.deleteMany({ category: data });
+        return NextResponse.json({ message: "Category deleted successfully" }, { status: 200 });
     }
     catch (
         error) {
@@ -71,7 +74,6 @@ const  convertToDto = (category: CategoryType) => {
     return {
         _id: category._id,
         name: category.name,
-        products: category.products,
         createdAt: category.createdAt,
         updatedAt: category.updatedAt,
         isActive: category.isActive,

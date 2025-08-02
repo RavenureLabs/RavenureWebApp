@@ -9,6 +9,7 @@ import {
   FaPhone,
   FaEye,
   FaEyeSlash,
+  FaSpinner,
 } from 'react-icons/fa';
 import { FiArrowLeft, FiArrowRight } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
@@ -510,7 +511,7 @@ if (showVerificationInput) {
               className={`w-full group relative flex items-center justify-center gap-2 bg-white text-[#0f0f10] font-semibold py-4 rounded-xl hover:scale-105 transition overflow-hidden cursor-pointer ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
               <span className="transition-all duration-300 ease-in-out transform group-hover:-translate-x-3">
-                <span>{text('register.create-account')}</span>
+                <span>{loading ? <FaSpinner size={20} className="animate-spin" /> :text('register.create-account')}</span>
               </span>
               {!loading && (
                 <FiArrowRight

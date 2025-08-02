@@ -19,16 +19,20 @@ export async function PUT(request: NextRequest){
     return updateCategory(data);
 }
 export async function DELETE(request: NextRequest){
-    const  data  = await request.json();
     const auth = await requireAuth(request, ["admin"]);
     if (auth instanceof NextResponse) {
         return auth;
+    }
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    if (!id) {
+        return NextResponse.json({ message: "Missing ID" }, { status: 400 });
     }
     const user = auth.user;
     if (user.role !== 'admin') {
         return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
     }
-    return deleteCategory(data);
+    return deleteCategory(id);
 }
 export async function POST(request: NextRequest){
     const body  = await request.json();

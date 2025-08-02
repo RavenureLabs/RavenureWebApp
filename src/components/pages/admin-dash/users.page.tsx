@@ -6,7 +6,7 @@ import { userService } from "@/src/lib/services";
 
 export default function AdminUsersPageComponent() {
   const [users, setUsers] = useState<UserType[]>([]);
-  const [editingUser, setEditingUser] = useState<UserType | null>(null);
+  const [editingUser, setEditingUser] = useState<any | null>(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -21,33 +21,26 @@ export default function AdminUsersPageComponent() {
   };
 
   const handleDelete = async (id: string) => {
-    // Delete logic here
+    await userService.deleteUser(id);
+    setUsers(users.filter(user => user._id.toString() !== id));
+    setEditingUser(null);
+    window.location.reload();
   };
 
   const handleSave = async (updatedUser: UserType) => {
-
-    setEditingUser(null);
+    if(editingUser){
+      let response = await userService.updateUser(updatedUser);
+      console.log(response);
+      setUsers(users.map(user => user._id === response._id ? response : user));
+      setEditingUser(null);
+      window.location.reload();
+    }
   };
 
   return (
     <div className="p-6 bg-black">
       <div className="flex justify-between items-center mb-6 bg-black">
         <h1 className="text-2xl font-bold bg-black">Kullanıcılar</h1>
-        <button 
-          onClick={() => setEditingUser({
-            name: '',
-            email: '',
-            password: '',
-            role: 'user',
-            accountType: 'email',
-            products: [],
-            isActive: true,
-            createdAt: new Date().toISOString()
-          })}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Yeni Kullanıcı Ekle
-        </button>
       </div>
 
       {editingUser && (
@@ -62,7 +55,7 @@ export default function AdminUsersPageComponent() {
             const email = formData.get('email') as string;
             const role = formData.get('role') as 'admin' | 'user';
             const isActive = formData.get('isActive') === 'on';
-            handleSave({ ...editingUser, name, email, role, isActive });
+            handleSave({ ...editingUser, name, email, role, isActive, password: formData.get('password') as string || undefined });
           }}>
             <div className="mb-4 bg-black">
               <label className="block mb-2">Ad</label>

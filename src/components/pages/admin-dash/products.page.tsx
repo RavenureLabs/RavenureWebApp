@@ -1,25 +1,55 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ProductType } from "@/src/models/product.model";
 import ProductEditForm from "@/src/components/admin-dashboard/products/edit-form.component";
+import { useLanguage } from "@/src/hooks/uselanguage.hooks";
+import { categoryService, productService } from "@/src/lib/services";
 
 export default function AdminProductsPageComponent() {
-  const [products, setProducts] = useState<ProductType[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [editingProduct, setEditingProduct] = useState<ProductType | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const {language} = useLanguage();
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const preResponse = await productService.getProducts();
+      let lastResponse: any[] = [];
+      for (const product of preResponse) {
+        const response = await categoryService.getCategory(product.category.toString());
+        let lastProduct:any = product;
+        lastProduct.category = response.name[language];
+        lastResponse.push(lastProduct);
+      }
+      setProducts(lastResponse);
+    };
+    fetchProducts();
+  }, []);
   const handleEdit = (product: ProductType) => {
     setEditingProduct(product);
   };
 
   const handleDelete = async (id: string) => {
-    // Delete logic here
+    await productService.deleteProduct(id);
+    setProducts(products.filter(product => product._id !== id));
+    setEditingProduct(null);
+    setIsAdding(false);
   };
 
   const handleSave = async (updatedProduct: ProductType) => {
+    if(isAdding){
+      let response: any = await productService.createProduct(updatedProduct);
+      response.category = (await categoryService.getCategory(response.category.toString())).name['tr'];
+      setProducts([...products, response]);
+    }else if (editingProduct){
+      let response: any = await productService.updateProduct(updatedProduct);
+      response.category = (await categoryService.getCategory(response.category.toString())).name['tr'];
+      setProducts(products.map(product => product._id === response._id ? response : product));
+    }
     // Save logic here
     setEditingProduct(null);
+    setIsAdding(false);
   };
 
   return (
@@ -64,11 +94,11 @@ export default function AdminProductsPageComponent() {
           </thead>
           <tbody>
             {products.map((product) => (
-              <tr key={product.id}>
-                <td className="py-2 px-4 border">{product.id}</td>
-                <td className="py-2 px-4 border">{product.name}</td>
+              <tr key={product._id.toString()}>
+                <td className="py-2 px-4 border">{product._id.toString()}</td>
+                <td className="py-2 px-4 border">{product.name[language]}</td>
                 <td className="py-2 px-4 border">{product.price}</td>
-                <td className="py-2 px-4 border">{product.stock}</td>
+                <td className="py-2 px-4 border">{product.stock || "Sınırsız"}</td>
                 <td className="py-2 px-4 border">{product.category}</td>
                 <td className="py-2 px-4 border">
                   <button 
@@ -78,7 +108,7 @@ export default function AdminProductsPageComponent() {
                     Düzenle
                   </button>
                   <button 
-                    onClick={() => handleDelete(product.id)}
+                    onClick={() => handleDelete(product._id.toString())}
                     className="bg-red-500 text-white px-2 py-1 rounded"
                   >
                     Sil

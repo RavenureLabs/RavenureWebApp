@@ -9,9 +9,9 @@ export async function GET(request: NextRequest, { params }: { params: { email: s
     try {
         const user = await getUserByEmail(email);
         if (user.status === 200) {
-            return new Response(JSON.stringify({ error: "User already exists" }), { status: 404 });
+            return new Response(JSON.stringify({ registeryStatus: true }), { status: 202 });
         }
-        return new Response(JSON.stringify("{}"), { status: user.status });
+        return new Response(JSON.stringify({registeryStatus: false}), { status: 202 });
     } catch (error) {
         console.error("Error fetching user data:", error);
         return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500 });

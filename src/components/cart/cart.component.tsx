@@ -1,8 +1,14 @@
 'use client';
 
+import { cartService, productService } from '@/src/lib/services';
+import { CartType } from '@/src/models/cart.model';
 import { useCartStore } from '@/src/stores/cart.store';
+import { useSession } from 'next-auth/react';
 import { useEffect, useRef, useState } from 'react';
 import { FiTrash2 } from 'react-icons/fi';
+import CardProductComponent from './cartproduct.component';
+import { ProductType } from '@/src/models/product.model';
+import ForYouComponent from './foryou.component';
 
 export default function CartComponent() {
   const { isOpen, toggle } = useCartStore();
@@ -10,8 +16,34 @@ export default function CartComponent() {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
-
   const [animate, setAnimate] = useState(false);
+  const [cart, setCart] = useState<CartType | null>(null);
+  const [total, setTotal] = useState(0);
+  const {data:session,status} = useSession();
+  const [mostSold, setMostSold] = useState<ProductType[]>([]);
+
+  useEffect(() =>{
+
+    if(!session || !session.user || status !== 'authenticated') return;
+    const fetchCart = async () => {
+      const mostSold = await productService.getMostSoldProducts();
+      const cart = await cartService.getCart(session?.user?.email as string);
+      let total = 0;
+      if (cart?.items && cart.items.length > 0) {
+        const prices = await Promise.all(
+          cart.items.map(async (item) => {
+            const product = await productService.getProduct(item.productId);
+            return (product?.price || 0) * item.quantity;
+          })
+        );
+        total = prices.reduce((acc, price) => acc + price, 0);
+      }
+      setCart(cart);
+      setTotal(total);
+      setMostSold(mostSold);
+    }
+    fetchCart();
+  }, [session])
 
   useEffect(() => {
     if (isOpen) {
@@ -26,6 +58,27 @@ export default function CartComponent() {
       document.body.style.overflow = 'auto';
     };
   }, [isOpen]);
+
+  const refresh = () => {
+    const fetchCart = async () => {
+      const mostSold = await productService.getMostSoldProducts();
+      const cart = await cartService.getCart(session?.user?.email as string);
+      let total = 0;
+      if (cart?.items && cart.items.length > 0) {
+        const prices = await Promise.all(
+          cart.items.map(async (item) => {
+            const product = await productService.getProduct(item.productId);
+            return (product?.price || 0) * item.quantity;
+          })
+        );
+        total = prices.reduce((acc, price) => acc + price, 0);
+      }
+      setCart(cart);
+      setTotal(total);
+      setMostSold(mostSold);
+    }
+    fetchCart();
+  }
 
   const handleClose = () => {
     setAnimate(false);
@@ -47,6 +100,16 @@ export default function CartComponent() {
     const x = e.pageX - (scrollRef.current?.offsetLeft || 0);
     const walk = (x - startX) * 0.5;
     if (scrollRef.current) scrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleDelete = async (id: string) => {
+    const newItems = cart?.items.filter(item => item.productId !== id);
+    const data = {
+      email: session?.user?.email,
+      items: newItems
+    }
+    const response = await cartService.saveCart({...cart, ...data});
+    if(response) refresh();
   };
 
   if (!isOpen && !animate) return null;
@@ -73,7 +136,8 @@ export default function CartComponent() {
         {/* Başlık */}
         <div className="flex items-center justify-between p-6 border-b border-white/10 text-white">
           <h2 className="text-lg font-semibold">Sepetim</h2>
-          <span className="text-xs absolute  left-26">( 3 Eşya )</span>
+          {cart?.items.length !== 0 && 
+          <span className="text-xs absolute  left-26">( {cart?.items.length} Eşya )</span>}
           <button
             onClick={handleClose}
             aria-label="Kapat"
@@ -100,62 +164,13 @@ export default function CartComponent() {
         <div className="flex-1 overflow-y-auto px-6 py-4 text-white space-y-6 divide-y divide-white/10">
           {/* Ürünler */}
           <div className="space-y-6 pb-6">
-            {/* Ürün 1 */}
-            <div className="pt-0 flex items-center gap-4 group ml-3">
-              <img
-                src="/Product Thumbnail Ticket bot.png"
-                alt="Throwback Hip Bag"
-                className="w-20 h-20 object-cover rounded-lg"  // Büyüttüm
+            {cart?.items.map((item) => (
+              <CardProductComponent
+              productId={item.productId}
+              quantity={item.quantity}
+              handleDelete={() => handleDelete(item.productId)}
               />
-              <div className="flex-1 flex flex-col ml-2">
-                <h4 className="text-sm font-medium mb-2">Ravenure RGuilds</h4>
-                <div className="flex items-center gap-3">
-                  <p className="text-xs line-through text-red-400/70">$120.00</p>
-                  <p className="text-sm font-medium text-white">$90.00</p>
-                </div>
-              </div>
-              <button className="transition cursor-pointer">
-                <FiTrash2 className="text-gray-400 hover:text-red-600 w-5 h-5 hover:scale-110 transition-all duration-200 mr-3" />
-              </button>
-            </div>
-
-            {/* Ürün 2 */}
-            <div className="flex items-center gap-4 group ml-3">
-              <img
-                src="/Product Thumbnail Ticket bot.png"
-                alt="Medium Stuff Satchel"
-                className="w-20 h-20 object-cover rounded-lg"  // Büyüttüm
-              />
-              <div className="flex-1 flex flex-col ml-2">
-                <h4 className="text-sm font-medium mb-2">Ravenure Ticket Bot</h4>
-                <div className="flex items-center gap-3">
-                  <p className="text-xs line-through text-red-400/70">$50.00</p>
-                  <p className="text-sm font-medium text-white">$32.00</p>
-                </div>
-              </div>
-              <button className="transition cursor-pointer">
-                <FiTrash2 className="text-gray-400 hover:text-red-600 w-5 h-5 hover:scale-110 transition-all duration-200 mr-3" />
-              </button>
-            </div>
-
-            {/* Ürün 3 */}
-            <div className="flex items-center gap-4 group ml-3">
-              <img
-                src="/Product Thumbnail Ticket bot.png"
-                alt="Zip Tote Basket"
-                className="w-20 h-20 object-cover rounded-lg"  // Büyüttüm
-              />
-              <div className="flex-1 flex flex-col ml-2">
-                <h4 className="text-sm font-medium mb-2">Ravenure RBlackShop</h4>
-                <div className="flex items-center gap-3">
-                  <p className="text-xs line-through  text-red-400/70">$160.00</p>
-                  <p className="text-sm font-medium text-white">$140.00</p>
-                </div>
-              </div>
-              <button className="transition cursor-pointer mr-3">
-                <FiTrash2 className="text-gray-400 hover:text-red-600 w-5 h-5 hover:scale-110 transition-all duration-200" />
-              </button>
-            </div>
+            ))}
           </div>
 
           {/* Sizin İçin Bölümü */}
@@ -170,33 +185,15 @@ export default function CartComponent() {
               className="flex gap-4 overflow-x-auto cursor-default scrollbar-hide"
               style={{ scrollbarWidth: 'none', paddingLeft: '0.5rem' }}
             >
-              <div className="w-[140px] bg-transparent p-2 rounded-lg cursor-default transition flex flex-col items-center"> {/* Küçülttüm */}
-                <div className="w-full aspect-square overflow-hidden rounded-md mb-2 group">
-                  <img
-                    src="/Product Thumbnail Ticket bot.png"
-                    alt="Ravenure Ticket Bot"
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    draggable={false}
+              {
+                mostSold.map((product) => (
+                  !cart?.items.find(item => item.productId === product._id.toString()) &&
+                  <ForYouComponent
+                    refresh={refresh}
+                    product={product}
                   />
-                </div>
-                <p className="text-white text-sm font-medium text-center mb-1 truncate">
-                  Ravenure Ticket Bot
-                </p>
-                <div className="flex items-center space-x-0.5 text-purple-500 text-xs mb-1">
-                  {[...Array(5)].map((_, i) => (
-                    <svg key={i} className="w-3 h-3 fill-current" viewBox="0 0 20 20">
-                      <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.561-.955L10 0l2.949 5.955 6.561.955-4.755 4.635 1.123 6.545z" />
-                    </svg>
-                  ))}
-                </div>
-                <div className="flex items-baseline justify-end w-full px-1 mb-2">
-                  <p className="text-xs text-gray-400 line-through mr-1">€19,99</p>
-                  <p className="text-white font-semibold text-sm">€15,99</p>
-                </div>
-                <button className="w-full bg-gradient-to-r from-[#25d170] to-[#139f8b] text-white text-sm py-1.5 rounded-full hover:opacity-90 transition cursor-pointer">
-                  Hızlı Ekle
-                </button>
-              </div>
+                ))
+              }
             </div>
           </div>
         </div>
@@ -205,7 +202,7 @@ export default function CartComponent() {
         <div className="bg-white/10 border-t border-white/10 px-6 py-4 text-white">
           <div className="flex justify-between mt-2 text-sm">
             <span className="text-gray-200 font-semibold">Ara toplam</span>
-            <span className="text-lg font-bold text-white">₺262.00</span>
+            <span className="text-lg font-bold text-white">₺{total}.00</span>
           </div>
           <p className="text-xs text-gray-400 mb-4">
             Vergiler ödeme sırasında hesaplanır.

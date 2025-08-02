@@ -1,11 +1,14 @@
 'use client';
 import { useLanguage } from "@/src/hooks/uselanguage.hooks";
-import { categoryService, embedService } from "@/src/lib/services";
+import { cartService, categoryService, embedService } from "@/src/lib/services";
 import { ProductType } from "@/src/models/product.model";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import Notification from "../notification/notification.component";
 
-export default function ProductComponent({product}: {product: ProductType}) {
+export default function ProductComponent(
+  {product, handleBuy}: {product: ProductType, handleBuy: (id: string) => void}) {
   const {text, language} = useLanguage(); 
   const [category, setCategory] = useState<string>("");
 
@@ -24,6 +27,10 @@ export default function ProductComponent({product}: {product: ProductType}) {
     };
     fetchCategory();
   }, [product.category, language]);
+
+  const handleAddToCart = async (id: string) => {
+    handleBuy(id); 
+  }
 
   return(
       <div className="bg-white rounded-xl border border-gray-200 transition-all overflow-hidden flex flex-col items-center max-w-[400px] mx-auto w-full">
@@ -67,9 +74,7 @@ export default function ProductComponent({product}: {product: ProductType}) {
             </div>
           </div>
           <div className="flex gap-2">
-            <a  onClick={async () => {
-              await embedService.sendSellEmbed("RBlackShop", "Weesli"); 
-            }} className="w-1/2 text-center px-3 py-2 bg-[#25d170] text-white text-sm font-medium rounded-xl hover:bg-[#139f8b] transition">
+            <a onClick={() => handleAddToCart(product._id.toString())} className="w-1/2 text-center px-3 py-2 bg-[#25d170] text-white text-sm font-medium rounded-xl hover:bg-[#139f8b] transition">
               {text('product.buy')}
             </a>
             <a href="/product-detail/1" className="w-1/2 text-center px-3 py-2 border border-[#25d170] text-[#25d170] text-sm font-medium rounded-xl hover:bg-[#25d170]/10 transition">

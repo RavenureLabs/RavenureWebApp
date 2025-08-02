@@ -30,8 +30,7 @@ export async function createUser(data: any) {
 export async function updateUser(data: any) {
     await connectToDatabase();
     try {
-        const { id } = data.id;
-        const updatedUser = await User.findByIdAndUpdate(id, {
+        const updatedUser = await User.findByIdAndUpdate(data._id, {
             name: data.name,
             email: data.email,
             password: data.password,
@@ -122,7 +121,6 @@ export async function getAllUsers() {
 }
 
 export async function deleteUser(email: string) {
-    console.log("Deleting user with email:", email);
     await connectToDatabase();
     try {
         const user = await User.findOneAndDelete({ email });
