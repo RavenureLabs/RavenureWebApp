@@ -30,5 +30,12 @@ html, body {
   margin: 0;
   padding: 0;
 }
-
+ 
+.custom-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.custom-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
