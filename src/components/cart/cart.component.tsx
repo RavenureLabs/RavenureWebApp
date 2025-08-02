@@ -136,8 +136,7 @@ export default function CartComponent() {
         {/* Başlık */}
         <div className="flex items-center justify-between p-6 border-b border-white/10 text-white">
           <h2 className="text-lg font-semibold">Sepetim</h2>
-          {cart?.items.length !== 0 && 
-          <span className="text-xs absolute  left-26">( {cart?.items.length} Eşya )</span>}
+          {cart && cart?.items.length !== 0 && <span className="text-xs absolute  left-26">( {cart?.items.length} Eşya )</span>}
           <button
             onClick={handleClose}
             aria-label="Kapat"
