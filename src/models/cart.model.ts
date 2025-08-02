@@ -6,9 +6,11 @@ export type CartType = {
     items: {
         productId: string;
         quantity: number;
-    }
+    }[];
+    createdAt: Date;
+    updatedAt: Date;
 }
-export const CartSchema = new mongoose.Schema<CartType>({
+const CartSchema = new mongoose.Schema<CartType>({
     userId: { type: String, required: true },
     items: [{
         productId: { type: String, required: true },
@@ -18,4 +20,5 @@ export const CartSchema = new mongoose.Schema<CartType>({
     timestamps: true,
 });
 
-export default mongoose.models.Cart || mongoose.model<CartType>('Cart', CartSchema);
+const Cart = mongoose.models.Cart || mongoose.model<CartType>('Cart', CartSchema);
+export default Cart;
