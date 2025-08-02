@@ -12,9 +12,12 @@ export async function getUserCart(email: string) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
         
-        const cart = await Cart.findOne({ userId: user._id }).populate('items.productId');
+        const cart = await Cart.findOne({ userId: user._id.toString() }).populate('items.productId');
         if (!cart) {
-            return NextResponse.json({ message: "Cart not found" }, { status: 404 }); 
+            // create a new empty cart if one doesn't exist
+            await Cart.create({ userId: user._id.toString(), items: [] });
+            const newCart = await Cart.findOne({ userId: user._id.toString() }).populate('items.productId');
+            return NextResponse.json({ success: "Cart created successfully", cart: newCart }, { status: 200 });
         }
         return NextResponse.json({ success: "Cart fetched successfully", cart }, { status: 200 }); 
     } catch (error) {
@@ -34,15 +37,15 @@ export async function deleteCart(userId: string) {
     }
 }
 
-export async function updateOrCreate(userId: string, cartData: any) {
+export async function updateOrCreate(email: string, cartData: any) {
     await connectToDatabase();
     try {
-        
+        const user = await User.findOne({ email });
         const allowedFields = {
             items: cartData.items,
         };
         const cart = await Cart.findOneAndUpdate(
-            { userId },
+            {  userId: user._id.toString() },
             { $set: allowedFields },
             { new: true, upsert: true }
         );

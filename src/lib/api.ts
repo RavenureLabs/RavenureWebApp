@@ -5,6 +5,7 @@ import { CommentType } from "../models/comment.model";
 import { ReferanceType } from "../models/referance.model";
 import { UserType } from "../models/user.model";
 import { OrderType } from "../models/order.model";
+import { CartType } from "../models/cart.model";
 export const api = axios.create({
     baseURL: process.env.NEXTAUTH_URL
 });
@@ -31,9 +32,12 @@ export class ProductService {
         return response.data as ProductType;
     }
     async deleteProduct(data: any){
-        console.log("Deleting product with id:", data);
         const response = await api.delete(`/api/product?id=${data}`);
         return response.data as ProductType;
+    }
+    async getMostSoldProducts(){
+        const response = await api.get('/api/product/most-sold');
+        return response.data as ProductType[];
     }
 }
 
@@ -134,15 +138,8 @@ export class UserService {
         return response.data;
     }
     async isRegistered(email: any): Promise<boolean> {
-        try {
-            const response = await api.get(`/api/user/check-user/${email}`);
-            return true;
-        } catch (err: any) {
-            if (err.response && err.response.status === 404) {
-                return false;
-            }
-            throw new Error(err.message || 'Unknown error');
-        }
+        const response = await api.get(`/api/user/check-user/${email}`);
+        return response.data.registeryStatus as boolean;
     }
 
 }
@@ -174,5 +171,16 @@ export class OrderService {
     async deleteOrder(id: string){
         const response = await api.delete(`/api/order?id=${id}`);
         return response.data as OrderType;
+    }
+}
+
+export class CartService {
+    async getCart(email: string){
+        const response = await api.get(`/api/cart/${email}`);
+        return response.data.cart as CartType;
+    }
+    async saveCart(data: any){
+        const response = await api.post('/api/cart', data);
+        return response.data.cart as CartType;
     }
 }

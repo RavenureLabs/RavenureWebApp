@@ -5,10 +5,12 @@ import ProductComponent from '@/src/components/product/product.component';
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
 import { CategoryType } from '@/src/models/category.model';
 import { ProductType } from '@/src/models/product.model';
-import { categoryService, commentService, productService } from '@/src/lib/services';
+import { cartService, categoryService, commentService, productService } from '@/src/lib/services';
 import { Suspense, useEffect, useState } from 'react';
 import { CommentType } from '@/src/models/comment.model';
 import mongoose from 'mongoose';
+import Notification from '../notification/notification.component';
+import { useSession } from 'next-auth/react';
 
 export default function ShopPageComponent() {
   const { text } = useLanguage();
@@ -17,7 +19,12 @@ export default function ShopPageComponent() {
   const [categories, setCategories] = useState<CategoryType[]>([]);
   const [comments, setComments] = useState<CommentType[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>("Tüm Ürünler");
+  const [message, setMessage] = useState<string | null>(null);
+  const [type, setType] = useState<"error" | "success">("error");
+  const { data: session } = useSession();
   const [currentIndex, setCurrentIndex] = useState(0);
+
+
   useEffect(() => {
     const fetchCategories = async () => {
       const categories = await categoryService.getCategories();
@@ -41,8 +48,48 @@ export default function ShopPageComponent() {
     return () => clearInterval(interval);
   }, [comments.length]);
 
+  const handleBuy = async (id: string) => {
+    if (!session?.user) {
+        setMessage("Lütfen giriş yapınız");
+        setType("error");
+        setTimeout(() => {
+            setMessage(null);
+        }, 3000);
+        return;
+    }
+  
+      const oldCart = await cartService.getCart(session?.user?.email as string);
+      if(oldCart.items.some(item => item.productId === id)){
+        setMessage("Ürün zaten sepetinizde var");
+        setType("error");
+        return;
+      }
+      const data = {
+        email: session?.user?.email,
+        items: [
+          {
+            productId: id,
+            quantity: 1
+          }
+        ]
+      }
+      const response = await cartService.saveCart({...oldCart, ...data});
+      if(response){
+        setMessage("Ürün sepete eklendi");
+        setType("success");
+        setTimeout(() => {
+            setMessage(null);
+        }, 3000);
+      }
+}
+
   return (
     <div className="min-h-screen bg-[#0f0f10] text-white flex flex-col items-center">
+      <Notification
+        message={message}
+        onClose={() => setMessage(null)}
+        type={type}
+      />
       {/* Hero Section */}
       <section
         className="w-full py-22 bg-cover bg-center relative"
@@ -90,9 +137,10 @@ export default function ShopPageComponent() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {(activeCategory === "Tüm Ürünler" ? products : filteredProducts).map((product, index) => (
-              <ProductComponent 
+              <ProductComponent
                 key={index}
                 product={product}
+                handleBuy={handleBuy}
               />
             ))}
           </div>

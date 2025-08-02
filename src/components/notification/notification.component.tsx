@@ -7,7 +7,7 @@ interface NotificationProps {
   message: string | null;
   type?: 'error' | 'success' | 'info';
   duration?: number;
-  onClose?: () => void;
+  onClose: () => void;
 }
 
 export default function Notification({
@@ -16,13 +16,14 @@ export default function Notification({
   duration = 5000,
   onClose,
 }: NotificationProps) {
-  useEffect(() => {
-    if (!message) return;
-    const timer = setTimeout(() => {
-      onClose?.();
-    }, duration);
-    return () => clearTimeout(timer);
-  }, [message, duration, onClose]);
+    useEffect(() => {
+      if (!message) return;
+      const timer = setTimeout(() => {
+        onClose();
+      }, duration);
+      return () => clearTimeout(timer);
+    }, [message, duration, onClose]);
+
 
   const bgColor =
     type === 'error'
