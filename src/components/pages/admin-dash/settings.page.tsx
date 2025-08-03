@@ -4,34 +4,7 @@ import { useSettings } from '@/src/context/settings/settings.context';
 import { api } from '@/src/lib/api';
 import { useEffect, useState } from 'react';
 import Notification from '../../notification/notification.component';
-
-export type Settings = {
-  title: string;
-  smtp: {
-    host: string;
-    port: number;
-    secure: boolean;
-    auth: {
-      user: string;
-      pass: string;
-    };
-  };
-  payment: {
-    active: 'paytr';
-    paytr: {
-      merchantId: string;
-      merchantKey: string;
-    };
-  };
-  discord: {
-    botToken: string;
-    clientId: string;
-    secret: string;
-  };
-  translator: {
-    deepL: string;
-  };
-};
+import { Settings } from '@/src/models/settings.model';
 
 export default function AdminSettingsPageComponent() {
   const [settings, setSettings] = useState<Settings | null>(null);
@@ -118,31 +91,18 @@ export default function AdminSettingsPageComponent() {
           {renderInput('SMTP Host', 'smtp.host', settings?.smtp.host, 'text')}
           {renderInput('SMTP Port', 'smtp.port', settings?.smtp.port, 'number')}
           {renderInput('Güvenli Bağlantı', 'smtp.secure', settings?.smtp.secure, 'boolean')}
-          {renderInput('SMTP Kullanıcı', 'smtp.auth.user', settings?.smtp.auth.user, 'text')}
-          {renderInput('SMTP Şifre', 'smtp.auth.pass', settings?.smtp.auth.pass, 'text')}
         </div>
 
         {/* Payment */}
         <div>
           <h2 className="text-xl font-bold mb-2">Ödeme</h2>
           {renderInput('Merchant ID', 'payment.paytr.merchantId', settings?.payment.paytr.merchantId, 'text')}
-          {renderInput('Merchant Key', 'payment.paytr.merchantKey', settings?.payment.paytr.merchantKey, 'text')}
         </div>
-
-        {/* Discord */}
+        {/* KDV */}
         <div>
-          <h2 className="text-xl font-bold mb-2">Discord</h2>
-          {renderInput('Bot Token', 'discord.botToken', settings?.discord.botToken, 'text')}
-          {renderInput('Client ID', 'discord.clientId', settings?.discord.clientId, 'text')}
-          {renderInput('Secret', 'discord.secret', settings?.discord.secret, 'text')}
+          <h2 className="text-xl font-bold mb-2">KDV</h2>
+          {renderInput('KDV Oranı', 'kdv', settings?.kdv, 'number')}
         </div>
-
-        {/* Translator */}
-        <div>
-          <h2 className="text-xl font-bold mb-2">Çeviri</h2>
-          {renderInput('DeepL API Key', 'translator.deepL', settings?.translator.deepL, 'text')}
-        </div>
-
         <button
           onClick={async () => {
             if (!settings) return;

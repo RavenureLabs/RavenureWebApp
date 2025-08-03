@@ -10,7 +10,6 @@ if (!authKey) {
 const languages = ['en', 'tr'] as const;
 type Lang = typeof languages[number];
 
-// Burada dil kodları DeepL SDK belgelerine göre küçük harf ve doğru formatta olmalı
 const languageCodes: Record<Lang, deepl.TargetLanguageCode> = {
     en: "en-US",
     tr: "tr",

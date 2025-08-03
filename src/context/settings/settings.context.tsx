@@ -1,35 +1,8 @@
 'use client';
 
 import { api } from '@/src/lib/api';
+import { Settings } from '@/src/models/settings.model';
 import { createContext, useContext, useEffect, useState } from 'react';
-
-export type Settings = {
-  title: string;
-  smtp: {
-    host: string;
-    port: number;
-    secure: boolean;
-    auth: {
-      user: string;
-      pass: string;
-    };
-  };
-  payment: {
-    active: 'paytr';
-    paytr: {
-      merchantId: string;
-      merchantKey: string;
-    };
-  };
-  discord: {
-    botToken: string;
-    clientId: string;
-    secret: string;
-  };
-  translator: {
-    deepL: string;
-  };
-};
 
 type SettingsContextType = {
   settings: Settings | null;

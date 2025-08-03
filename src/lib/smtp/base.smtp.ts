@@ -24,8 +24,8 @@ const sendEmail = async (information: EmailInformation) => {
   port: settings.smtp.port,
   secure: settings.smtp.secure, 
   auth: {
-    user: settings.smtp.auth.user,
-    pass: settings.smtp.auth.pass,
+    user: process.env.SMTP_USERNAME as string,
+    pass: process.env.SMTP_PASSWORD as string,
   },
   tls: {
     rejectUnauthorized: false

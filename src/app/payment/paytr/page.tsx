@@ -21,7 +21,11 @@ export default function PaymentPage() {
             const cart = await cartService.getCart(session?.user?.email as string);
             setCart(cart);
             
-            const totalPrice = await getTotalPrice(cart);
+            let totalPrice = await getTotalPrice(cart);
+            const kdv = settings?.kdv as number;
+            if(kdv !== 0){
+                totalPrice += (totalPrice * kdv) / 100;
+            }
             setTotal(totalPrice);
 
             const ip = await getClientIp();

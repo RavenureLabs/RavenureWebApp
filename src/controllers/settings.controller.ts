@@ -12,31 +12,19 @@ export async function getSettings(permissionStatus: number) {
         if(!settings){
             // create
             const newSettings = new SettingsModel({
-                title: 'My Site',
+                title: "title",
                 smtp: {
-                    host: 'smtp.example.com',
+                    host: "example@example.com",
                     port: 587,
-                    secure: false,
-                    auth: {
-                        user: 'username',
-                        pass: 'password'
-                    }
+                    secure: false
                 },
                 payment: {
-                    active: 'paytr',
+                    active: "paytr",
                     paytr: {
-                        merchantId: 'merchant-id',
-                        merchantKey: 'merchant-key'
+                        merchantId: "your_merchant_id"
                     }
                 },
-                discord: {
-                    botToken: 'discord-bot-token',
-                    clientId: 'discord-client-id',
-                    secret: 'discord-secret'
-                },
-                translator: {
-                    deepL: 'deepL-api-key'
-                }
+                kdv: 0
             });
             await newSettings.save();
             return NextResponse.json(filtredData(newSettings, permissionStatus), { status: 200 });
