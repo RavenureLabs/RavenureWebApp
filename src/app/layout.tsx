@@ -2,6 +2,7 @@ import {Poppins } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "../components/layout/client.layout"; 
 import { headers } from "next/headers";
+import { SettingsProvider } from "../context/settings/settings.context";
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -27,7 +28,9 @@ export default async function RootLayout({
       </head>
       <body className={`${poppins.className} antialiased`}>
         <ClientLayout lang={lang}>
-          {children}
+          <SettingsProvider>
+            {children}
+          </SettingsProvider>
         </ClientLayout>
       </body>
     </html>

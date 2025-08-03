@@ -1,54 +1,69 @@
 "use client";
 import { LanguageProvider } from "@/src/context/language/language.context";
 import { SessionProvider } from "next-auth/react";
-import NavbarComponent from "../navbar/navbar.component";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import FooterComponent from "../footer/footer.component";
 import { useCartStore } from "@/src/stores/cart.store";
 import CartComponent from "../cart/cart.component";
+import { Suspense } from "react";
 
+const NavbarComponent = dynamic(() => import("../navbar/navbar.component"), { loading: () => <Loading /> });
+const FooterComponent = dynamic(() => import("../footer/footer.component"), { loading: () => <Loading /> });
 
 const HIDDEN_NAVBAR_ROUTES = ['/login', "/admin-dashboard/*", "/register", "/dash/*"];
 const HIDDEN_FOOTER_ROUTES = ['/login', "/admin-dashboard/*", "/register", "/dash/*"];
 
-export default function ClientLayout({ children, lang }: { children: React.ReactNode, lang: string }) {
+function Loading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center text-white">
+      <span className="animate-pulse text-lg">LOADING…</span>
+    </div>
+  );
+}
+
+export default function ClientLayout({
+  children,
+  lang,
+}: {
+  children: React.ReactNode;
+  lang: string;
+}) {
   const pathname = usePathname();
-  const {isOpen} = useCartStore();
+  const { isOpen } = useCartStore();
+
   const hideNavbar = HIDDEN_NAVBAR_ROUTES.some(uri => {
-    if(uri.includes("/*")){
+    if (uri.includes("/*")) {
       const basePath = pathname.split("/")[1];
-      if(basePath === uri.split("/")[1]){
-        return true;
-      }
-    }else{
-      if(pathname === uri){
-        return true;
-      }
+      return basePath === uri.split("/")[1];
     }
-    return false;
-  })
+    return pathname === uri;
+  });
 
   const hideFooter = HIDDEN_FOOTER_ROUTES.some(uri => {
-    if(uri.includes("/*")){
+    if (uri.includes("/*")) {
       const basePath = pathname.split("/")[1];
-      if(basePath === uri.split("/")[1]){
-        return true;
-      }
-    }else{
-      if(pathname === uri){
-        return true;
-      }
+      return basePath === uri.split("/")[1];
     }
-    return false;
-  })
-  return (
-    <SessionProvider>
-        <LanguageProvider lang={lang}>
-          {!hideNavbar && <NavbarComponent />}
-          {children}
-          {isOpen && <CartComponent />}
-          {!hideFooter && <FooterComponent />}
-        </LanguageProvider>
-    </SessionProvider>
-  );
+    return pathname === uri;
+  });
+
+return (
+  <SessionProvider>
+    <LanguageProvider lang={lang}>
+      <Suspense fallback={<Loading />}>
+        {!hideNavbar && <NavbarComponent />}
+      </Suspense>
+
+      <Suspense fallback={<Loading />}>
+        {children}
+      </Suspense>
+
+      {isOpen && <CartComponent />}
+
+      <Suspense fallback={<Loading />}>
+        {!hideFooter && <FooterComponent />}
+      </Suspense>
+    </LanguageProvider>
+  </SessionProvider>
+);
 }

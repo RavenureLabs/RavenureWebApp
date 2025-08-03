@@ -4,19 +4,8 @@ import EmailVerificationCodeModel, { EmailVerificationCodeType } from '@/src/mod
 import nodemailer from 'nodemailer';
 import { getHTML } from './html.smtp';
 import { connectToDatabase } from '../database';
-
-const transport = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: Number(process.env.SMTP_PORT) || 587,
-  secure: process.env.SMTP_SECURE === 'true', 
-  auth: {
-    user: process.env.SMTP_AUTH_USER,
-    pass: process.env.SMTP_AUTH_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false
-  }
-} as TransportOptions);
+import { getSettings } from '@/src/controllers/settings.controller';
+import { Settings } from '@/src/models/settings.model';
 
 export type EmailInformation = {
   from: string;
@@ -27,6 +16,22 @@ export type EmailInformation = {
 const sendEmail = async (information: EmailInformation) => {
   
   await connectToDatabase();
+
+  const settings: Settings = await (await getSettings(2)).json();
+
+  const transport = nodemailer.createTransport({
+  host: settings.smtp.host,
+  port: settings.smtp.port,
+  secure: settings.smtp.secure, 
+  auth: {
+    user: settings.smtp.auth.user,
+    pass: settings.smtp.auth.pass,
+  },
+  tls: {
+    rejectUnauthorized: false
+  }
+} as TransportOptions);
+
   const isAlreadySent = await EmailVerificationCodeModel.findOne({ email: information.to });
   if (isAlreadySent) {
     // if the code is already sent, delete old code and send a new one
