@@ -4,27 +4,15 @@ export type Settings = {
     smtp: {
         host: string,
         port: number,
-        secure: boolean,
-        auth: {
-            user: string,
-            pass: string
-        }
+        secure: boolean
     },
     payment: {
         active: 'paytr',
         paytr: {
-            merchantId: string,
-            merchantKey: string
+            merchantId: string
         }
     },
-    discord: {
-        botToken: string,
-        clientId: string
-        secret: string
-    },
-    translator: {
-        deepL: string
-    }
+    kdv: number
 }
 
 const settingsSchema = new mongoose.Schema<Settings>({
@@ -32,27 +20,15 @@ const settingsSchema = new mongoose.Schema<Settings>({
     smtp: {
         host: { type: String, required: true },
         port: { type: Number, required: true },
-        secure: { type: Boolean, required: true },
-        auth: {
-            user: { type: String, required: true },
-            pass: { type: String, required: true }
-        }
+        secure: { type: Boolean, required: true }
     },
     payment: {
-        active: { type: String, required: true },
+        active: { type: String, enum: ['paytr'], required: true },
         paytr: {
-            merchantId: { type: String, required: true },
-            merchantKey: { type: String, required: true }
+            merchantId: { type: String, required: true }
         }
     },
-    discord: {
-        botToken: { type: String, required: true },
-        clientId: { type: String, required: true },
-        secret: { type: String, required: true }
-    },
-    translator: {
-        deepL: { type: String, required: true }
-    }
+    kdv: { type: Number, required: true, default: 0 }
 });
 
 const SettingsModel = mongoose.models.Settings || mongoose.model<Settings>('Settings', settingsSchema);
