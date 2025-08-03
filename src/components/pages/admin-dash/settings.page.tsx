@@ -1,92 +1,163 @@
 'use client';
 
-import { useState } from "react";
+import { useSettings } from '@/src/context/settings/settings.context';
+import { api } from '@/src/lib/api';
+import { useEffect, useState } from 'react';
+import Notification from '../../notification/notification.component';
 
-type Setting = {
-  key: string;
-  value: string;
-  type: 'text' | 'number' | 'boolean' | 'select';
-  options?: string[];
+export type Settings = {
+  title: string;
+  smtp: {
+    host: string;
+    port: number;
+    secure: boolean;
+    auth: {
+      user: string;
+      pass: string;
+    };
+  };
+  payment: {
+    active: 'paytr';
+    paytr: {
+      merchantId: string;
+      merchantKey: string;
+    };
+  };
+  discord: {
+    botToken: string;
+    clientId: string;
+    secret: string;
+  };
+  translator: {
+    deepL: string;
+  };
 };
 
 export default function AdminSettingsPageComponent() {
-  const [settings, setSettings] = useState<Setting[]>([
-    { key: 'siteTitle', value: 'My Site', type: 'text' },
-    { key: 'maintenanceMode', value: 'false', type: 'boolean' },
-    { key: 'defaultCurrency', value: 'TRY', type: 'select', options: ['TRY', 'USD', 'EUR'] },
-    // Add more settings as needed
-  ]);
+  const [settings, setSettings] = useState<Settings | null>(null);
+  const [message, setMessage] = useState<string | null>('');
+  const [notificationType, setNotificationType] = useState<'error' | 'success'>('error');
+  const {settings: contextSettings, updateSettings} = useSettings();
 
-  const handleSave = (key: string, newValue: string) => {
-    setSettings(settings.map(setting => 
-      setting.key === key ? { ...setting, value: newValue } : setting
-    ));
-    // Save to API
+  useEffect(() => {
+    async function fetchSettings() {
+      const response = await api.get('/api/settings');
+      setSettings(response.data);
+    }
+    fetchSettings();
+  }, []);
+
+  
+  const handleChange = (path: string, value: any) => {
+    setSettings((prev) => {
+      if (!prev) return prev;
+      const newSettings: Settings = JSON.parse(JSON.stringify(prev));
+      const keys = path.split('.');
+      let nested: any = newSettings;
+      for (let i = 0; i < keys.length - 1; i++) {
+        nested = nested[keys[i]];
+      }
+      nested[keys[keys.length - 1]] = value;
+      return newSettings;
+    });
+  };
+
+  const renderInput = (
+    label: string,
+    path: string,
+    value: any,
+    type: 'text' | 'number' | 'boolean' = 'text'
+  ) => {
+    return (
+      <div className="mb-4">
+        <Notification
+        message={message}
+        type={notificationType}
+        onClose={() => setMessage(null)}
+        />
+        <label className="block font-semibold mb-1">
+          {label}
+        </label>
+        {type === 'boolean' ? (
+          <select
+            value={String(value)}
+            onChange={(e) => handleChange(path, e.target.value === 'true')}
+            className="w-full p-2 border rounded"
+          >
+            <option value="true">Açık</option>
+            <option value="false">Kapalı</option>
+          </select>
+        ) : (
+          <input
+            type={type}
+            value={value}
+            onChange={(e) =>
+              handleChange(path, type === 'number' ? Number(e.target.value) : e.target.value)
+            }
+            className="w-full p-2 border rounded"
+          />
+        )}
+      </div>
+    );
   };
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Ayarlar</h1>
-      
-      <div className="space-y-6">
-        {settings.map((setting) => (
-          <div key={setting.key} className="flex items-center border-b pb-4">
-            <div className="w-1/4">
-              <label className="font-medium capitalize">
-                {setting.key.replace(/([A-Z])/g, ' $1').trim()}
-              </label>
-            </div>
-            <div className="w-2/4">
-              {setting.type === 'text' && (
-                <input
-                  type="text"
-                  value={setting.value}
-                  onChange={(e) => handleSave(setting.key, e.target.value)}
-                  className="w-full p-2 border rounded"
-                />
-              )}
-              {setting.type === 'number' && (
-                <input
-                  type="number"
-                  value={setting.value}
-                  onChange={(e) => handleSave(setting.key, e.target.value)}
-                  className="w-full p-2 border rounded"
-                />
-              )}
-              {setting.type === 'boolean' && (
-                <select
-                  value={setting.value}
-                  onChange={(e) => handleSave(setting.key, e.target.value)}
-                  className="w-full p-2 border rounded"
-                >
-                  <option value="true">Açık</option>
-                  <option value="false">Kapalı</option>
-                </select>
-              )}
-              {setting.type === 'select' && setting.options && (
-                <select
-                  value={setting.value}
-                  onChange={(e) => handleSave(setting.key, e.target.value)}
-                  className="w-full p-2 border rounded"
-                >
-                  {setting.options.map(option => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </select>
-              )}
-            </div>
-            <div className="w-1/4 text-right">
-              <button 
-                onClick={() => {
-                  // You can add a save button for each setting if needed
-                }}
-                className="bg-blue-500 text-white px-4 py-2 rounded"
-              >
-                Kaydet
-              </button>
-            </div>
-          </div>
-        ))}
+
+      <div className="space-y-8">
+        {/* Genel */}
+        <div>
+          <h2 className="text-xl font-bold mb-2">Genel</h2>
+          {renderInput('Site Başlığı', 'title', settings?.title, 'text')}
+        </div>
+
+        {/* SMTP */}
+        <div>
+          <h2 className="text-xl font-bold mb-2">SMTP</h2>
+          {renderInput('SMTP Host', 'smtp.host', settings?.smtp.host, 'text')}
+          {renderInput('SMTP Port', 'smtp.port', settings?.smtp.port, 'number')}
+          {renderInput('Güvenli Bağlantı', 'smtp.secure', settings?.smtp.secure, 'boolean')}
+          {renderInput('SMTP Kullanıcı', 'smtp.auth.user', settings?.smtp.auth.user, 'text')}
+          {renderInput('SMTP Şifre', 'smtp.auth.pass', settings?.smtp.auth.pass, 'text')}
+        </div>
+
+        {/* Payment */}
+        <div>
+          <h2 className="text-xl font-bold mb-2">Ödeme</h2>
+          {renderInput('Merchant ID', 'payment.paytr.merchantId', settings?.payment.paytr.merchantId, 'text')}
+          {renderInput('Merchant Key', 'payment.paytr.merchantKey', settings?.payment.paytr.merchantKey, 'text')}
+        </div>
+
+        {/* Discord */}
+        <div>
+          <h2 className="text-xl font-bold mb-2">Discord</h2>
+          {renderInput('Bot Token', 'discord.botToken', settings?.discord.botToken, 'text')}
+          {renderInput('Client ID', 'discord.clientId', settings?.discord.clientId, 'text')}
+          {renderInput('Secret', 'discord.secret', settings?.discord.secret, 'text')}
+        </div>
+
+        {/* Translator */}
+        <div>
+          <h2 className="text-xl font-bold mb-2">Çeviri</h2>
+          {renderInput('DeepL API Key', 'translator.deepL', settings?.translator.deepL, 'text')}
+        </div>
+
+        <button
+          onClick={async () => {
+            if (!settings) return;
+            await api.post('/api/settings', settings);
+            updateSettings(settings);
+            setMessage('Ayarlar kaydedildi.');
+            setNotificationType('success');
+            setTimeout(() => {
+              setMessage(null);
+            }, 3000);
+          }}
+          className="bg-blue-600 text-white px-6 py-2 rounded"
+        >
+          Tümünü Kaydet
+        </button>
       </div>
     </div>
   );

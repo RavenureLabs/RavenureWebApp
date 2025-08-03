@@ -27,10 +27,8 @@ export default function CardProductComponent({ productId, quantity, handleDelete
               <div className="flex-1 flex flex-col ml-2">
                 <h4 className="text-sm font-medium mb-2">{product?.name["tr"]}</h4>
                 <div className="flex items-center gap-3">
-                  <p className="text-xs line-through text-red-400/70">${product?.price}</p>
-                  {product?.discountPrice &&
-                    <p className="text-sm font-medium text-white">₺{product?.discountPrice}</p>
-                  }
+                  <p className="text-sm font-medium text-white">₺{product?.price}</p>
+                  {product?.discountPrice || product?.discountPrice !== 0 && <p className="text-xs line-through text-red-400/70">₺{product?.discountPrice}</p>}
                 </div>
               </div>
               <button className="transition cursor-pointer" onClick={handleDelete}>

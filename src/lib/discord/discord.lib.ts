@@ -53,26 +53,6 @@ static async getClient(): Promise<Client> {
       DiscordBot.isReady = false;
     });
 
-    if (!DiscordBot.eventsInitialized) {
-      /*client.on(Events.MessageCreate, async (message) => {
-        try {
-          if (message.channelId === process.env.DISCORD_COMMENT_CHANNEL_ID) {
-            const author = message.author.username;
-            const content = message.content;
-            const comment = new commentModel({
-              author,
-              text: content,
-              createdAt: new Date()
-            });
-            await comment.save();
-          }
-        } catch (error) {
-          console.error('Comment save error:', error);
-        }
-      });*/
-      DiscordBot.eventsInitialized = true;
-    }
-
     try {
       await client.login(process.env.DISCORD_CLIENT_TOKEN);
       DiscordBot.instance = client;

@@ -31,9 +31,6 @@ export default function ShopPageComponent() {
       setCategories(categories);
       const products = await productService.getProducts();
       setProducts(products);
-      // get the comments from db service
-      const comments = await commentService.getComments();
-      setComments(comments);
     };
     fetchCategories();
   }, []);
