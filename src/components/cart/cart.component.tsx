@@ -10,6 +10,8 @@ import CardProductComponent from './cartproduct.component';
 import { ProductType } from '@/src/models/product.model';
 import ForYouComponent from './foryou.component';
 
+import { FiArrowRight } from "react-icons/fi";
+
 export default function CartComponent() {
   const { isOpen, toggle } = useCartStore();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -211,9 +213,11 @@ export default function CartComponent() {
           </button>
           <p className="text-center text-xs text-gray-300 mt-5">
             yada{' '}
-            <span className="bg-gradient-to-r from-[#25d170] to-[#139f8b] bg-clip-text text-transparent cursor-pointer font-semibold inline-flex items-center">
-              Alışverişe Devam Et →
-            </span>
+            
+<span className="bg-gradient-to-r from-[#25d170] to-[#139f8b] bg-clip-text text-transparent cursor-pointer font-semibold inline-flex items-center gap-1">
+  Alışverişe Devam Et 
+  <FiArrowRight className="text-base text-[#139f8b]" />
+</span>
           </p>
         </div>
       </div>
