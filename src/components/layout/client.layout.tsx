@@ -8,8 +8,8 @@ import { useCartStore } from "@/src/stores/cart.store";
 import CartComponent from "../cart/cart.component";
 
 
-const HIDDEN_NAVBAR_ROUTES = ['/login', "/admin-dashboard/*", "/register"];
-const HIDDEN_FOOTER_ROUTES = ['/login', "/admin-dashboard/*", "/register"];
+const HIDDEN_NAVBAR_ROUTES = ['/login', "/admin-dashboard/*", "/register", "/dash/*"];
+const HIDDEN_FOOTER_ROUTES = ['/login', "/admin-dashboard/*", "/register", "/dash/*"];
 
 export default function ClientLayout({ children, lang }: { children: React.ReactNode, lang: string }) {
   const pathname = usePathname();
