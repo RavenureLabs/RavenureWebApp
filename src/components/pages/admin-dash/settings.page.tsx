@@ -92,12 +92,35 @@ export default function AdminSettingsPageComponent() {
           {renderInput('SMTP Port', 'smtp.port', settings?.smtp.port, 'number')}
           {renderInput('Güvenli Bağlantı', 'smtp.secure', settings?.smtp.secure, 'boolean')}
         </div>
+      {/* Payment */}
+      <div>
+        <h2 className="text-xl font-bold mb-2">Ödeme</h2>
 
-        {/* Payment */}
-        <div>
-          <h2 className="text-xl font-bold mb-2">Ödeme</h2>
+        {/* Aktif ödeme sağlayıcı seçimi */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Aktif Ödeme Sağlayıcı</label>
+          <select
+            value={settings?.payment.active}
+            onChange={(e) => handleChange('payment.active', e.target.value)}
+            className="w-full border rounded p-2"
+          >
+            <option value="paytr">PayTR</option>
+            <option value="weepay">Weepay</option>
+          </select>
+        </div>
+
+        {/* PayTR ayarları */}
+        <div id="paytr" className="space-y-4 mb-4">
+          <h3 className="text-lg font-semibold">PayTR</h3>
           {renderInput('Merchant ID', 'payment.paytr.merchantId', settings?.payment.paytr.merchantId, 'text')}
         </div>
+
+        {/* Weepay ayarları */}
+        <div id="weepay" className="space-y-4 mb-4">
+          <h3 className="text-lg font-semibold">Weepay</h3>
+          {renderInput('Merchant ID', 'payment.weepay.merchantId', settings?.payment.weepay?.merchantId, 'text')}
+        </div>
+      </div>
         {/* KDV */}
         <div>
           <h2 className="text-xl font-bold mb-2">KDV</h2>

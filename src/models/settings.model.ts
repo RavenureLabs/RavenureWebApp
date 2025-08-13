@@ -10,6 +10,9 @@ export type Settings = {
         active: 'paytr',
         paytr: {
             merchantId: string
+        },
+        weepay:{
+            merchantId: string
         }
     },
     kdv: number
@@ -25,6 +28,9 @@ const settingsSchema = new mongoose.Schema<Settings>({
     payment: {
         active: { type: String, enum: ['paytr'], required: true },
         paytr: {
+            merchantId: { type: String, required: true }
+        },
+        weepay: {
             merchantId: { type: String, required: true }
         }
     },

@@ -12,11 +12,19 @@ export async function getUserCart(email: string) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
         
-        const cart = await Cart.findOne({ userId: user._id.toString() }).populate('items.productId');
+        const cart = await Cart.findOne({ userId: user._id.toString() }).populate({
+            path: 'items.productId',
+            model: 'Product',
+        });
         if (!cart) {
             // create a new empty cart if one doesn't exist
             await Cart.create({ userId: user._id.toString(), items: [] });
-            const newCart = await Cart.findOne({ userId: user._id.toString() }).populate('items.productId');
+            const newCart = await Cart.findOne({ userId: user._id.toString() }).populate(
+                {
+                    path: 'items.productId',
+                    model: 'Product',
+                }
+            );
             return NextResponse.json({ success: "Cart created successfully", cart: newCart }, { status: 200 });
         }
         return NextResponse.json({ success: "Cart fetched successfully", cart }, { status: 200 }); 
