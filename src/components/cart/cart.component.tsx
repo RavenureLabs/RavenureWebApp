@@ -161,10 +161,7 @@ export default function CartComponent() {
             </svg>
           </button>
         </div>
-
-        {/* İçerik */}
         <div className="flex-1 overflow-y-auto px-6 py-4 text-white space-y-6 divide-y divide-white/10">
-          {/* Ürünler */}
           <div className="space-y-6 pb-6">
             {loading && (
               <div className="space-y-3">
@@ -196,34 +193,10 @@ export default function CartComponent() {
                 />
               ))}
           </div>
-
-          {/* Sizin İçin */}
-          {mostSold.length > 0 && (
-            <div className="pt-6 pb-4">
-              <h3 className="text-md font-semibold mb-3">Sizin İçin</h3>
-              <div
-                ref={scrollRef}
-                onMouseDown={handleMouseDown}
-                onMouseLeave={handleMouseLeave}
-                onMouseUp={handleMouseUp}
-                onMouseMove={handleMouseMove}
-                className={`flex gap-4 overflow-x-auto scrollbar-hide select-none ${
-                  isDragging ? 'cursor-grabbing' : 'cursor-grab'
-                }`}
-                style={{ scrollbarWidth: 'none', paddingLeft: '0.5rem' }}
-              >
-                {mostSold.map(
-                  (product) =>
-                    !cart?.items.find((it) => it.productId === product._id.toString()) && (
-                      <ForYouComponent key={product._id.toString()} refresh={refresh} product={product} />
-                    )
-                )}
-              </div>
             </div>
           )}
         </div>
 
-        {/* Sepet Özeti */}
         <div className="bg-white/10 border-t border-white/10 px-6 py-4 text-white">
           <div className="flex justify-between mt-2 text-sm">
             <span className="text-gray-200 font-semibold">Ara toplam</span>
@@ -241,15 +214,17 @@ export default function CartComponent() {
             Ödeme Yap
           </button>
           <p className="text-center text-xs text-gray-300 mt-5">
-            ya da{' '}
-            <button
-              onClick={handleClose}
-              className="bg-gradient-to-r from-[#25d170] to-[#139f8b] bg-clip-text text-transparent font-semibold inline-flex items-center gap-1"
-            >
-              Alışverişe Devam Et <FiArrowRight className="text-base" />
-            </button>
           </p>
         </div>
+        </>
+          ): (
+            <div className="flex-1 overflow-y-auto px-6 py-4 text-white space-y-6 divide-y divide-white/10">
+              <div className="flex flex-col items-center justify-center h-full">
+                <h2 className="text-2xl font-semibold mb-2">Sepetiniz Boş</h2>
+                </div>
+                </div>
+          )
+        }
       </div>
     </div>
   );

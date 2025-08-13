@@ -9,21 +9,19 @@ export async function POST(req: NextRequest) {
     merchant_oid,
     email,
     payment_amount,
-    user_basket,
-    no_installment,
-    max_installment,
+    payment_type,
+    installment_count,
     currency,
     test_mode,
-    merchant_salt
+    non_3d
   } = body;
 
-  const merchant_key = process.env.PAYTR_MERCHANT_KEY!;
-  const concatStr = merchant_id + user_ip + merchant_oid + email + payment_amount + user_basket + no_installment + max_installment + currency + test_mode + merchant_salt;
 
-  const token = crypto
-    .createHmac('sha256', merchant_key)
-    .update(concatStr)
-    .digest('base64');
+    var hashSTR = `${merchant_id}${user_ip}${merchant_oid}${email}${payment_amount}${payment_type}${installment_count}${currency}${test_mode}${non_3d}`;
+    console.log('HASH STR' + hashSTR);
+    var paytr_token = hashSTR + process.env.PAYTR_MERCHANT_SALT!;
+    console.log('PAYTR TOKEN' + paytr_token);
+    var token = crypto.createHmac('sha256', process.env.PAYTR_MERCHANT_KEY!).update(paytr_token).digest('base64');
 
-  return Response.json({ paytr_token: token });
+  return Response.json({ token });
 }

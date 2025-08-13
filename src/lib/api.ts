@@ -172,6 +172,10 @@ export class OrderService {
         const response = await api.delete(`/api/order?id=${id}`);
         return response.data as OrderType;
     }
+    async getOrderCount(){
+        const response = await api.get('/api/order/total-order-count');
+        return response.data as number;
+    }
 }
 
 export class CartService {

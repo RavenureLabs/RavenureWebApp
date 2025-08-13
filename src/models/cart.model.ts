@@ -13,7 +13,7 @@ export type CartType = {
 const CartSchema = new mongoose.Schema<CartType>({
     userId: { type: String, required: true },
     items: [{
-        productId: { type: String, required: true },
+        productId: { type: String, required: true, ref: 'Product' },
         quantity: { type: Number, required: true, default: 1 }
     }]
 }, {
