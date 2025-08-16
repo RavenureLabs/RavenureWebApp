@@ -6,6 +6,7 @@ import { ReferanceType } from "../models/referance.model";
 import { UserType } from "../models/user.model";
 import { OrderType } from "../models/order.model";
 import { CartType } from "../models/cart.model";
+import { UserLoginLogType } from "../models/userLog.model";
 export const api = axios.create({
     baseURL: process.env.NEXTAUTH_URL
 });
@@ -142,6 +143,11 @@ export class UserService {
         return response.data.registeryStatus as boolean;
     }
 
+    async resetPassword(data: any) {
+        const response = await api.post('/api/user/reset-password', data);
+        return response.data;
+    }
+
 }
 
 export class EmbedService {
@@ -176,6 +182,14 @@ export class OrderService {
         const response = await api.get('/api/order/total-order-count');
         return response.data as number;
     }
+    async getTotalExpenditure(){
+        const response = await api.get('/api/order/total-expenditure');
+        return response.data as number;
+    }
+    async getLastPurchasesExpenditure(){
+        const response = await api.get('/api/order/last-purchases-expenditure');
+        return response.data as number;
+    }
 }
 
 export class CartService {
@@ -186,5 +200,16 @@ export class CartService {
     async saveCart(data: any){
         const response = await api.post('/api/cart', data);
         return response.data.cart as CartType;
+    }
+}
+
+export class UserLoginLogService {
+    async insertUserLog(data: any){
+        const response = await api.post('/api/log/login', data);
+        return response.data as UserLoginLogType;
+    }
+    async getAllUserLogs(id: string){
+        const response = await api.get(`/api/log/login/${id}`);
+        return response.data as UserLoginLogType[];
     }
 }

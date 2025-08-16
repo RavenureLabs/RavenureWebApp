@@ -3,9 +3,7 @@ import { NextAuthOptions, Profile } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import DiscordProvider from "next-auth/providers/discord";
 import { userService } from "../services";
-import { api } from "../api";
-import { error } from "console";
-
+import userLogModel from "@/src/models/userLog.model";
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -30,6 +28,30 @@ export const authOptions: NextAuthOptions = {
             }),
         })
         const user = await res.json();
+        const ipRes = await fetch("https://api.ipify.org?format=json");
+        const { ip } = await ipRes.json();
+
+        const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
+        const geoData = await geoRes.json();
+        const device = /mobile/i.test(navigator.userAgent) ? "Mobile" : "Desktop";
+
+        const {message} = user;
+        const data = {
+          userId: user.user._id.toString(),
+          loginTime: new Date().toISOString(),
+          ipAddress: ip,
+          city: geoData.city || 'Bilinmeyen',
+          device: device,
+          status: ""
+        }
+        if (message === "Invalid password"){
+          data['status'] = "Invialid Password";
+        }else if (message === "Login successful"){
+          data['status'] = "Success";
+        }else {
+          data['status'] = "Error";
+        }
+        await userLogModel.create(data);
         if (user.user !== undefined) {
           if(user.user.discordId !== null){
             return null;
@@ -56,7 +78,7 @@ export const authOptions: NextAuthOptions = {
             "x-auth-id": profile.id
           }
         });
-
+        
         if (res.status === 404) {
           const result = await userService.register({
             name: profile.username || "DiscordUser",
@@ -85,6 +107,30 @@ export const authOptions: NextAuthOptions = {
         }
 
         const user = await res.json();
+        const ipRes = await fetch("https://api.ipify.org?format=json");
+        const { ip } = await ipRes.json();
+
+        const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
+        const geoData = await geoRes.json();
+        const device = /mobile/i.test(navigator.userAgent) ? "Mobile" : "Desktop";
+
+        const {message} = user;
+        const data = {
+          userId: user.user._id.toString(),
+          loginTime: new Date().toISOString(),
+          ipAddress: ip,
+          city: geoData.city || 'Bilinmeyen',
+          device: device,
+          status: ""
+        }
+        if (message === "Invalid password"){
+          data['status'] = "Invialid Password";
+        }else if (message === "Login successful"){
+          data['status'] = "Success";
+        }else {
+          data['status'] = "Error";
+        }
+        await userLogModel.create(data);
         return {
           id: user.user.discordId,
           name: user.user.name,
@@ -141,3 +187,22 @@ export const authOptions: NextAuthOptions = {
     },
   secret: process.env.NEXTAUTH_SECRET,
 };
+
+const getIp = async () => {
+    const res = await fetch('https://api.ipify.org?format=json');
+    const data = await res.json();
+    return data.ip;
+};
+
+const getCity = async (ip: string) => {
+    const res = await fetch(`https://ipapi.co/${ip}/json/`);
+    const data = await res.json();
+    return data.city;
+};
+
+function getDeviceType() {
+  const ua = navigator.userAgent;
+  if (/mobile/i.test(ua)) return "Mobile";
+  if (/tablet/i.test(ua)) return "Tablet";
+  return "Desktop";
+}

@@ -4,7 +4,7 @@ export type CartType = {
     _id: ObjectId;
     userId: string;
     items: {
-        productId: string;
+        productId: ObjectId;
         quantity: number;
     }[];
     createdAt: Date;

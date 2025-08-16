@@ -1,7 +1,10 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
-import React, { useEffect, useMemo, useState } from 'react';
+import { orderService, productService, userLogService, userService } from '@/src/lib/services';
+import { OrderType } from '@/src/models/order.model';
+import { UserLoginLogType } from '@/src/models/userLog.model';
+import { signOut, useSession } from 'next-auth/react';
+import React, { JSX, useEffect, useMemo, useState } from 'react';
 import {
   FiHome, FiKey, FiCreditCard, FiClock, FiShield, FiSettings, FiBell, FiChevronRight, FiLogOut,
   FiCopy, FiSearch, FiAlertTriangle, FiEye, FiEyeOff, FiDownload
@@ -9,7 +12,7 @@ import {
 
 /* ---------------- PAGE ---------------- */
 
-export default function DashboardPageComponent() {
+export default function DashboardPageComponent() { 
   const { data: session, status } = useSession();
   const [active, setActive] = useState<'overview'|'licenses'|'purchases'|'logins'|'admin'|'settings'>('overview');
 
@@ -26,7 +29,6 @@ export default function DashboardPageComponent() {
   const displayName = capitalizeWords(session?.user?.name) || 'Kullanıcı';
   const avatarUrl = session?.user?.image || '/default-avatar.png';
 
-  // Overview sağ kart için örnek
   const licenses = ['Minecraft Market Eklentisi', 'Discord Destek Botu', 'Web Lisans Sistemi'];
 
   useEffect(() => {
@@ -35,20 +37,16 @@ export default function DashboardPageComponent() {
     return () => window.removeEventListener('keydown', onEsc);
   }, []);
 
-  // ✅ İlk kez panel açılınca giriş event'i gönder (email yoksa name, yoksa 'anon')
-  const userKey = session?.user?.email || session?.user?.name || 'anon';
   useEffect(() => {
-    if (status !== 'authenticated') return;
-    const onceKey = `login_event_sent:${userKey}`;
-    if (sessionStorage.getItem(onceKey)) return;
-    sessionStorage.setItem(onceKey, '1');
+    if (!session && status === 'unauthenticated') {
+      window.location.href = '/login';
+      return;
+    }
+    
+  }, [session, status]);
 
-    fetch('/api/login-events', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify({ email: userKey, name: session?.user?.name ?? '' })
-    }).catch(() => {});
-  }, [status, userKey, session?.user?.name]);
+  const userKey = session?.user?.email || 'Unknown';
+
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-[radial-gradient(60%_80%_at_20%_0%,#1e1b4b_0%,#0a0a0b_40%,#09080a_100%)] text-white">
@@ -70,12 +68,16 @@ export default function DashboardPageComponent() {
           <RailItem title="Giriş Kayıtları" icon={<FiClock />}      active={active==='logins'}    onClick={() => setActive('logins')}
                     iconColor="#94a3b8"    activeIconColor="#d946ef" />
           <div className="my-2 border-t border-white/10" />
-          <RailItem title="Yönetim"        icon={<FiShield />}      active={active==='admin'}     onClick={() => setActive('admin')}
+          {
+            (session?.user as any)?.role === 'admin' && (
+                <RailItem title="Yönetim"        icon={<FiShield />}      active={active==='admin'}     onClick={() => window.location.href = '/admin-dashboard'}
                     iconColor="#94a3b8"    activeIconColor="#16a34a" />
+            )
+          }
           <RailItem title="Ayarlar"        icon={<FiSettings />}    active={active==='settings'}  onClick={() => setActive('settings')}
                     iconColor="#94a3b8"    activeIconColor="#F6D703" />
           <div className="mt-6"></div>
-          <RailItem title="Çıkış Yap"      icon={<FiLogOut />}      danger onClick={() => alert('Çıkış işlemi')}
+          <RailItem title="Çıkış Yap"      icon={<FiLogOut />}      danger onClick={() => signOut()}
                     iconColor="#D0234A"    activeIconColor="#dc2626" />
         </nav>
       </aside>
@@ -141,7 +143,7 @@ export default function DashboardPageComponent() {
               displayName={displayName}
               avatarUrl={avatarUrl}
               licenses={licenses}
-              email={session?.user?.email || '—'}
+              email={userKey}
             />
           )}
 
@@ -152,8 +154,8 @@ export default function DashboardPageComponent() {
           {/* ✅ Gerçek loglar API’dan geliyor; e-posta yoksa name/anon ile listeler */}
           {active === 'logins' && <LoginsSection userKey={userKey} />}
 
-          {active === 'admin' && (
-            <AdminSection
+          {active === 'settings' && (
+            <SettingsSection
               name={displayName}
               email={session?.user?.email || '—'}
             />
@@ -169,11 +171,45 @@ export default function DashboardPageComponent() {
 function Overview({ displayName, avatarUrl, licenses, email }:{
   displayName:string; avatarUrl:string; licenses:string[]; email:string;
 }) {
+  const { data: session } = useSession();
+  const [totalExpenditure, setTotalExpenditure] = useState('');
+  const [lastPurchasesExpenditure, setLastPurchasesExpenditure] = useState('');
+  const [loginLog, setLoginLog] = useState<UserLoginLogType[]>([]);
+  const [lastPurchases, setLastPurchases] = useState<OrderType[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const totalExpenditure = await orderService.getTotalExpenditure();
+      setTotalExpenditure(totalExpenditure.toString());
+
+      const lastPurchasesExpenditure = await orderService.getLastPurchasesExpenditure();
+      setLastPurchasesExpenditure(lastPurchasesExpenditure.toString());
+
+      const loginLog = await userLogService.getAllUserLogs(session?.user?.email || '');
+      setLoginLog(loginLog);
+
+      const lastPurchases = await orderService.getOrders();
+      setLastPurchases(lastPurchases.slice(0, 4));
+      setLoading(false);
+    }
+    fetch();
+  }, [session]);
+
+  if (loading) 
+    return (
+        <div className="flex flex-col items-center justify-center h-full">
+          <svg className="animate-spin -ml-1 mr-3 h-12 w-12 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </div>
+      )
   return (
     <>
       <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
         <StatCard title="Lisanslar" value={`${licenses.length}`} hint="Bugün +1" />
-        <StatCard title="Toplam Harcama" value="₺1.250" hint="30 günde ₺350" />
+        <StatCard title="Toplam Harcama" value={totalExpenditure} hint={`30 günde ₺${lastPurchasesExpenditure}`} />
         <StatCard title="Destek Talepleri" value="5" hint="2 açık" />
       </section>
 
@@ -192,20 +228,19 @@ function Overview({ displayName, avatarUrl, licenses, email }:{
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/10">
-                  <tr>
-                    <td className="py-3 pr-3 whitespace-nowrap">10.08.2025</td>
-                    <td className="py-3 pr-3 min-w-0"><span className="block truncate max-w-[220px] sm:max-w-none">Minecraft Market Eklentisi</span></td>
-                    <td className="py-3 pr-3 whitespace-nowrap">PayTR</td>
-                    <td className="py-3 pr-3 whitespace-nowrap">₺350</td>
-                    <td className="py-3 pr-3 whitespace-nowrap"><Badge cls="bg-emerald-500/15 text-emerald-300 border-emerald-600/20" text="Başarılı" /></td>
-                  </tr>
-                  <tr>
-                    <td className="py-3 pr-3 whitespace-nowrap">22.07.2025</td>
-                    <td className="py-3 pr-3 min-w-0"><span className="block truncate max-w-[220px] sm:max-w-none">Discord Destek Botu</span></td>
-                    <td className="py-3 pr-3 whitespace-nowrap">Kredi Kartı</td>
-                    <td className="py-3 pr-3 whitespace-nowrap">₺199</td>
-                    <td className="py-3 pr-3 whitespace-nowrap"><Badge cls="bg-emerald-500/15 text-emerald-300 border-emerald-600/20" text="Başarılı" /></td>
-                  </tr>
+                 {
+                  lastPurchases.map(purchase => (
+                    purchase.productId.map(p => (
+                      <tr key={p.toString()}>
+                       <td className="py-3 pr-3 whitespace-nowrap">{new Date(purchase.createdAt).toLocaleDateString('tr-TR')}</td>
+                        <td className="py-3 pr-3 min-w-0"><span className="block truncate max-w-[220px] sm:max-w-none">{p.toString()}</span></td>
+                        <td className="py-3 pr-3 whitespace-nowrap">"PayWee"</td>
+                        <td className="py-3 pr-3 whitespace-nowrap">{purchase.price}</td>
+                       <td className="py-3 pr-3 whitespace-nowrap"><Badge cls="bg-emerald-500/15 text-emerald-300 border-emerald-600/20" text="Başarılı" /></td>
+                      </tr>
+                    ))
+                  ))
+                 }
                 </tbody>
               </table>
             </div>
@@ -213,8 +248,11 @@ function Overview({ displayName, avatarUrl, licenses, email }:{
 
           <GlassCard title="Giriş Kayıtları">
             <ul className="text-sm divide-y divide-white/10">
-              <LogItem dot="bg-emerald-500" text="10.08.2025 • 01:12 • İstanbul • Chrome / Windows" right="Başarılı" />
-              <LogItem dot="bg-rose-500" text="08.08.2025 • 23:02 • Ankara • iOS" right="Hatalı Şifre" />
+            {
+              loginLog.map((l, i) => {
+                return <LogItem key={i} dot={(l.status === 'failed' ? 'bg-rose-500' : 'bg-emerald-500')} text={`${new Date(l.loginTime).toLocaleString()} • ${l.city} • ${l.ipAddress} • ${l.device}`} right={l.status  === 'Invalid password' ? 'Hatalı Şifre' : 'Başarılı'} />
+              })
+            }
             </ul>
           </GlassCard>
         </div>
@@ -430,19 +468,72 @@ function LicensesSection() {
 
 /* ---------------- SATIN ALIMLAR (Sadece görüntüleme) ---------------- */
 
-function PurchasesSection() {
-  type Row = { id:string; date:string; product:string; pay:'PayTR'|'Kredi Kartı'|'Havale/EFT'; amount:string; status:'Başarılı' };
-  const rows: Row[] = [
-    { id:'S-1021', date:'12.08.2025', product:'Minecraft Market Eklentisi', pay:'PayTR',      amount:'₺350', status:'Başarılı' },
-    { id:'S-1018', date:'28.07.2025', product:'Discord Destek Botu',        pay:'Kredi Kartı', amount:'₺199', status:'Başarılı' },
-    { id:'S-1009', date:'05.06.2025', product:'Web Lisans Sistemi',         pay:'Havale/EFT',  amount:'₺699', status:'Başarılı' },
-    { id:'S-1001', date:'19.05.2025', product:'Ekstra Tema Paketi',         pay:'Kredi Kartı', amount:'₺149', status:'Başarılı' },
-  ];
-  const [q, setQ] = useState('');
-  const filtered = useMemo(() => {
-    const t = q.toLowerCase();
-    return rows.filter(r => (r.product + ' ' + r.pay + ' ' + r.date + ' ' + r.amount + ' ' + r.id).toLowerCase().includes(t));
-  }, [q]);
+function PurchasesSection(): JSX.Element {    
+  type Row = {
+  id: string;
+  date: string;
+  product: string[];
+  pay: 'PayTR' | 'Kredi Kartı' | 'Havale/EFT';
+  amount: number;
+  status: 'Başarılı';
+};
+
+const [rows, setRows] = useState<Row[]>([]);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  const fetchOrders = async () => {
+    try {
+      const orders = await orderService.getOrders();
+
+      const rows: Row[] = await Promise.all(
+        orders.map(async (order) => {
+          const products = await Promise.all(
+            order.productId.map((pid) =>
+              productService.getProduct(pid.toString())
+            )
+          );
+
+          return {
+            id: order._id.toString(),
+            date: new Date(order.createdAt).toLocaleDateString(),
+            product: products.map((p) => p.name['tr']),
+            pay: 'Kredi Kartı',
+            amount: order.price,
+            status: 'Başarılı',
+          };
+        })
+      );
+
+      setRows(rows);
+    } catch (err) {
+      console.error('Siparişler alınırken hata oluştu:', err);
+    } finally {
+      setLoading(false); 
+    }
+  };
+
+  fetchOrders();
+}, []); 
+
+const [q, setQ] = useState('');
+const filtered = useMemo(() => {
+  const t = q.toLowerCase();
+  return rows.filter((r) =>
+    (r.product.join(' ') +
+      ' ' +
+      r.pay +
+      ' ' +
+      r.date +
+      ' ' +
+      r.amount +
+      ' ' +
+      r.id)
+      .toLowerCase()
+      .includes(t)
+  );
+}, [q, rows]);
+
   const statusBadge = () => <Badge text="Başarılı" cls="bg-emerald-500/15 text-emerald-300 border-emerald-600/20" />;
 
   return (
@@ -469,6 +560,14 @@ function PurchasesSection() {
                 <th className="py-3 pr-3 font-medium whitespace-nowrap">Durum</th>
               </tr>
             </thead>
+            {
+              loading && 
+              <tbody className="divide-y divide-white/10">
+                <tr>
+                  <td colSpan={5} className="py-3 pr-3 whitespace-nowrap text-center ">Siparişler yüklüyor...</td>
+                </tr>
+              </tbody>
+            }
             <tbody className="divide-y divide-white/10">
               {filtered.map(r => (
                 <tr key={r.id}>
@@ -486,7 +585,7 @@ function PurchasesSection() {
                   <td className="py-3 pr-3 whitespace-nowrap">{statusBadge()}</td>
                 </tr>
               ))}
-              {filtered.length === 0 && (
+              {filtered.length === 0 && !loading && (
                 <tr><td colSpan={5} className="py-8 text-center text-white/60">Sonuç bulunamadı.</td></tr>
               )}
             </tbody>
@@ -515,7 +614,7 @@ function PurchasesSection() {
               </div>
             </div>
           ))}
-          {filtered.length === 0 && (
+          {filtered.length === 0 && !loading && (
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center text-white/60">Sonuç bulunamadı.</div>
           )}
         </div>
@@ -533,10 +632,20 @@ function LoginsSection({ userKey }:{ userKey: string }) {
 
   useEffect(() => {
     if (!userKey) return;
-    fetch(`/api/login-events?email=${encodeURIComponent(userKey)}`, { cache: 'no-store' })
-      .then(r => r.json())
-      .then(data => setRows(data.items ?? []))
-      .catch(() => setRows([]));
+    const fetch = async () => {
+      
+    const logs: UserLoginLogType[] = await userLogService.getAllUserLogs(userKey);
+
+      setRows(logs.map(l => ({
+        id: l._id ? l._id.toString() : '',
+        ts: new Date(l.loginTime).toLocaleString(),
+        city: l.city,
+        ip: l.ipAddress,
+        ua: l.device,
+        result: "Başarılı",
+      })))
+    };
+    fetch();
   }, [userKey]);
 
   const filtered = useMemo(() => {
@@ -615,7 +724,7 @@ function LoginsSection({ userKey }:{ userKey: string }) {
 
 /* ---------------- YÖNETİM (şifre) ---------------- */
 
-function AdminSection({ name, email }:{ name:string; email:string }) {
+function SettingsSection({ name, email }:{ name:string; email:string }) {
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showNew2, setShowNew2] = useState(false);
@@ -625,15 +734,34 @@ function AdminSection({ name, email }:{ name:string; email:string }) {
   const [newPass2, setNewPass2] = useState('');
   const [msg, setMsg] = useState<{type:'ok'|'err'; text:string} | null>(null);
 
-  const submit = (e: React.FormEvent) => {
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    
+  }, [session]);
+  const submit = async  (e: React.FormEvent) => {
     e.preventDefault();
     setMsg(null);
     if (!oldPass || !newPass || !newPass2) return setMsg({ type:'err', text:'Lütfen tüm alanları doldurun.' });
     if (newPass.length < 8 || !/[A-ZÇĞİÖŞÜ]/.test(newPass) || !/[a-zçğıöşü]/.test(newPass) || !/[0-9]/.test(newPass))
       return setMsg({ type:'err', text:'Yeni şifre en az 8 karakter olmalı ve büyük/küçük harf ile rakam içermelidir.' });
     if (newPass !== newPass2) return setMsg({ type:'err', text:'Yeni şifreler birbiriyle eşleşmiyor.' });
-    setMsg({ type:'ok', text:'Şifreniz başarıyla güncellendi.' });
+
     setOldPass(''); setNewPass(''); setNewPass2('');
+    setShowOld(false); setShowNew(false); setShowNew2(false);
+    setTimeout(() => setMsg(null), 3000);
+    try {
+      const res = await userService.resetPassword({
+        email: email,
+        newPassword: newPass
+      })
+  
+      if(res.status === 200){
+        setMsg({ type:'ok', text:'Şifre başarıyla değiştirildi.' });
+      }
+    }catch(e){
+      setMsg({ type:'err', text:'Bir hata oluştu. Lütfen daha sonra tekrar deneyiniz.' });
+    }
   };
 
   const readonlyInput = "bg-white/[0.04] border border-white/10 rounded-xl px-3 h-10 w-full text-sm text-white/80 cursor-not-allowed";
@@ -648,7 +776,9 @@ function AdminSection({ name, email }:{ name:string; email:string }) {
         <div className="mt-3 text-xs text-white/50">Diğer bilgiler bu panelden değiştirilemez.</div>
       </GlassCard>
 
-      <GlassCard title="Şifre Değiştir">
+      {
+        (session?.user as any)?.accountType !== "discord" && (
+        <GlassCard title="Şifre Değiştir">
         <form onSubmit={submit} className="grid gap-3 max-w-xl">
           <div>
             <div className="text-xs text-white/60 mb-1">Mevcut Şifre</div>
@@ -687,6 +817,8 @@ function AdminSection({ name, email }:{ name:string; email:string }) {
           </div>
         </form>
       </GlassCard>
+        )
+      }
     </section>
   );
 }
@@ -738,7 +870,7 @@ function StatCard({ title, value, hint }:{ title: string; value: string; hint: s
 function GlassCard({ title, children }:{ title: string; children: React.ReactNode }) {
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-xl p-4 sm:py-5 sm:px-5">
-      <h2 className="text-base font-semibold mb-2 sm:mb-3">{title}</h2>
+      <h2 className="texPıt-base font-semibold mb-2 sm:mb-3">{title}</h2>
       {children}
     </section>
   );

@@ -1,4 +1,4 @@
-import { CartService, CategoryService, CommentService, EmbedService, OrderService, ProductService, ReferanceService, UserService } from "./api";
+import { CartService, CategoryService, CommentService, EmbedService, OrderService, ProductService, ReferanceService, UserLoginLogService, UserService } from "./api";
 
 export const productService = new ProductService();
 export const categoryService = new CategoryService();
@@ -8,3 +8,4 @@ export const userService = new UserService();
 export const embedService = new EmbedService();
 export const orderService = new OrderService();
 export const cartService = new CartService();
+export const userLogService = new UserLoginLogService();
