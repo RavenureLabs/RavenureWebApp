@@ -39,6 +39,16 @@ export default function RegisterPageComponent() {
   const [notification, setNotificationMessage] = useState<string | null>(null);
   const [notificationType, setNotificationType] = useState<'success' | 'error'>('error');
 
+useEffect(() => {
+  const fetch = async () => {
+    
+    await signIn('discord', { callbackUrl: '/dash' });
+  }
+
+  fetch();
+}, [])
+
+
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
       window.location.href = '/dash';

@@ -1,8 +1,10 @@
 'use client';
 
-import { orderService, productService, userLogService, userService } from '@/src/lib/services';
+import { api } from '@/src/lib/api';
+import { licenseService, orderService, productService, userLogService, userService } from '@/src/lib/services';
 import { OrderType } from '@/src/models/order.model';
 import { UserLoginLogType } from '@/src/models/userLog.model';
+import { LicenseType } from '@/src/types/global';
 import { signOut, useSession } from 'next-auth/react';
 import React, { JSX, useEffect, useMemo, useState } from 'react';
 import {
@@ -15,7 +17,19 @@ import {
 export default function DashboardPageComponent() { 
   const { data: session, status } = useSession();
   const [active, setActive] = useState<'overview'|'licenses'|'purchases'|'logins'|'admin'|'settings'>('overview');
+  const [displayName, setDisplayName] = useState<string>('');
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
 
+  useEffect(() => {
+    if (session?.user) {
+      const fetch = async () => {
+        const res = await api.get('/api/discord/user');
+        setDisplayName(res.data.username || '');
+        setAvatarUrl(res.data.avatar || '');
+      }
+      fetch();
+    }
+  }, [session, status]);
   const capitalizeWords = (str?: string | null) => {
     if (!str) return '';
     return str
@@ -26,8 +40,6 @@ export default function DashboardPageComponent() {
       .join(' ');
   };
 
-  const displayName = capitalizeWords(session?.user?.name) || 'Kullanıcı';
-  const avatarUrl = session?.user?.image || '/default-avatar.png';
 
   const licenses = ['Minecraft Market Eklentisi', 'Discord Destek Botu', 'Web Lisans Sistemi'];
 
@@ -134,7 +146,6 @@ export default function DashboardPageComponent() {
         </div>
       </header>
 
-      {/* --- CONTENT --- */}
       <main className="pt-16 md:pt-0 md:pl-[84px]">
         <div className="mx-auto max-w-7xl w-full px-3 sm:px-4 lg:px-6 py-6 sm:py-8 grid gap-6 sm:gap-8">
 
@@ -142,8 +153,8 @@ export default function DashboardPageComponent() {
             <Overview
               displayName={displayName}
               avatarUrl={avatarUrl}
-              licenses={licenses}
               email={userKey}
+              setActive={setActive}
             />
           )}
 
@@ -151,7 +162,6 @@ export default function DashboardPageComponent() {
 
           {active === 'purchases' && <PurchasesSection />}
 
-          {/* ✅ Gerçek loglar API’dan geliyor; e-posta yoksa name/anon ile listeler */}
           {active === 'logins' && <LoginsSection userKey={userKey} />}
 
           {active === 'settings' && (
@@ -168,15 +178,17 @@ export default function DashboardPageComponent() {
 
 /* ---------------- SMALL SECTIONS ---------------- */
 
-function Overview({ displayName, avatarUrl, licenses, email }:{
-  displayName:string; avatarUrl:string; licenses:string[]; email:string;
+function Overview({ displayName, avatarUrl, email, setActive }:{
+  displayName:string; avatarUrl:string; email:string, setActive:Function;
 }) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [totalExpenditure, setTotalExpenditure] = useState('');
   const [lastPurchasesExpenditure, setLastPurchasesExpenditure] = useState('');
   const [loginLog, setLoginLog] = useState<UserLoginLogType[]>([]);
   const [lastPurchases, setLastPurchases] = useState<OrderType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [licenses, setLicenses] = useState<LicenseType[]>([]);
+  const [TodayLicenseCount, setTodayLicenseCount] = useState(0);
 
   useEffect(() => {
     const fetch = async () => {
@@ -191,10 +203,15 @@ function Overview({ displayName, avatarUrl, licenses, email }:{
 
       const lastPurchases = await orderService.getOrders();
       setLastPurchases(lastPurchases.slice(0, 4));
+
+      const licenses = await licenseService.getLicenses(session?.user.id!, session?.user.email!);
+      setLicenses(licenses);
+      
+      setTodayLicenseCount(licenses.filter((license) => new Date(license.createdAt).toDateString() === new Date().toDateString()).length)
       setLoading(false);
     }
     fetch();
-  }, [session]);
+  }, [session, status]);
 
   if (loading) 
     return (
@@ -208,7 +225,7 @@ function Overview({ displayName, avatarUrl, licenses, email }:{
   return (
     <>
       <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-        <StatCard title="Lisanslar" value={`${licenses.length}`} hint="Bugün +1" />
+        <StatCard title="Lisanslar" value={`${licenses.length}`} hint={`Bugün +${TodayLicenseCount}`} />
         <StatCard title="Toplam Harcama" value={totalExpenditure} hint={`30 günde ₺${lastPurchasesExpenditure}`} />
         <StatCard title="Destek Talepleri" value="5" hint="2 açık" />
       </section>
@@ -273,7 +290,7 @@ function Overview({ displayName, avatarUrl, licenses, email }:{
           <GlassCard title="Lisanslarım">
             <div className="text-xs text-white/60 mb-3">Toplam {licenses.length} lisans</div>
             <ul className="grid gap-2">
-              {licenses.map((name) => (<LicenseItem key={name} name={name} />))}
+              {licenses.map((name) => (<LicenseItem setActive={setActive} name={name.Product} key={name.Product} />))}
             </ul>
           </GlassCard>
         </div>
@@ -300,25 +317,78 @@ function WarnTooltip({ message, accent = '#f97316' }:{ message:string; accent?:s
 }
 
 function LicensesSection() {
-  type Row = { id:string; product:string; key:string; status:"Aktif"; created:string; devices:number; maxDevices:number; };
-
-  const rows: Row[] = [
-    { id:'L-001', product:'Minecraft Market Eklentisi', key:'MCME-1A2B-3C4D-5E6F', status:'Aktif', created:'10.01.2025', devices:4, maxDevices:3 },
-    { id:'L-002', product:'Discord Destek Botu',        key:'DDBO-AAAA-BBBB-CCCC', status:'Aktif', created:'22.07.2025', devices:0, maxDevices:2 },
-    { id:'L-003', product:'Web Lisans Sistemi',         key:'WLSY-ZZZZ-YYYY-XXXX', status:'Aktif', created:'05.06.2024', devices:0, maxDevices:1 },
-  ];
-
-  const [q, setQ] = useState('');
-  const [copied, setCopied] = useState<string|null>(null);
-
-  const filtered = useMemo(() => rows.filter(r => (r.product + ' ' + r.key).toLowerCase().includes(q.toLowerCase())), [q]);
-
-  const copy = async (text: string, id: string) => {
-    try { await navigator.clipboard.writeText(text); } finally { setCopied(id); setTimeout(() => setCopied(null), 1200); }
+  type Row = {
+    id: string;
+    product: string;
+    key: string;
+    status: "Aktif";
+    created: string;
+    devices: number;
+    maxDevices: number;
   };
 
-  const maskKey = (key: string) => key.replace(/.(?=.{4})/g, '•');
-  const StatusBadge = () => (<Badge text="Aktif" cls="bg-emerald-500/15 text-emerald-300 border-emerald-600/20" />);
+  const { data: session, status } = useSession();
+  const [rows, setRows] = useState<Row[]>([]);
+  const [q, setQ] = useState("");
+  const [copied, setCopied] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const filtered = useMemo(
+    () => rows.filter((r) => (r.product + " " + r.key).toLowerCase().includes(q.toLowerCase())),
+    [q, rows]
+  );
+
+  useEffect(() => {
+    if (status !== "authenticated" || !session?.user) return;
+
+    const load = async () => {
+      try {
+        setLoading(true);
+
+        const discordId = (session.user as any).discordId ?? session.user.id; 
+        const email = session.user.email ?? ""; 
+
+        const response: LicenseType[] = await licenseService.getLicenses(discordId, email);
+
+        setRows(
+          response.map((l) => ({
+            id: String(l._id),
+            product: l.Product,
+            key: l.LicenseKey,
+            status: "Aktif",
+            created: new Date(l.createdAt).toLocaleString(),
+            devices: Array.isArray(l.IPs) ? l.IPs.length : 0,
+            maxDevices: Number(l.MaxIPs ?? 0),
+          }))
+        );
+      } catch (err) {
+        console.error("licenses load error:", err);
+        setRows([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [status, session?.user]); 
+
+  if (loading) return (
+    <div className="flex items-center justify-center">
+      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900" />
+    </div>
+  );
+
+  const copy = async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } finally {
+      setCopied(id);
+      setTimeout(() => setCopied(null), 1200);
+    }
+  };
+
+  const maskKey = (key: string) => key.replace(/.(?=.{4})/g, "•");
+  const StatusBadge = () => <Badge text="Aktif" cls="bg-emerald-500/15 text-emerald-300 border-emerald-600/20" />;
 
   return (
     <section className="grid gap-6">
@@ -327,7 +397,12 @@ function LicensesSection() {
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
           <div className="flex items-center gap-2.5 bg-white/[0.04] border border-white/10 rounded-xl px-3 h-10 w-full sm:w-96">
             <FiSearch className="text-white/60 shrink-0" />
-            <input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="Lisans veya anahtar ara…" className="bg-transparent outline-none text-sm placeholder:text-white/50 w-full" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Lisans veya anahtar ara…"
+              className="bg-transparent outline-none text-sm placeholder:text-white/50 w-full"
+            />
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs px-3 py-2 rounded-lg border bg-white/[0.08] border-white/20">Tümü</span>
@@ -348,13 +423,13 @@ function LicensesSection() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/10">
-              {filtered.map(r => {
+              {filtered.map((r) => {
                 const overLimit = r.devices > r.maxDevices;
                 const critical43 = r.devices === 4 && r.maxDevices === 3;
                 const showWarn = overLimit || critical43;
                 const warnMsg = critical43
-                  ? 'Cihaz sayısı 4/3 olduğu için lisansınız çalışmayacaktır.'
-                  : 'Cihaz sayısı limitini aştığınız için lisansınız çalışmayacaktır.';
+                  ? "Cihaz sayısı 4/3 olduğu için lisansınız çalışmayacaktır."
+                  : "Cihaz sayısı limitini aştığınız için lisansınız çalışmayacaktır.";
 
                 return (
                   <tr key={r.id}>
@@ -366,15 +441,21 @@ function LicensesSection() {
                         <span className="font-medium text-white/90">{r.product}</span>
                       </div>
                     </td>
-                    <td className="py-3 pr-3 whitespace-nowrap"><span className="font-mono tracking-wider">{maskKey(r.key)}</span></td>
+                    <td className="py-3 pr-3 whitespace-nowrap">
+                      <span className="font-mono tracking-wider">{maskKey(r.key)}</span>
+                    </td>
                     <td className="py-3 pr-3 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
-                        <span className={showWarn ? 'text-rose-400 font-medium' : undefined}>{r.devices}/{r.maxDevices}</span>
+                        <span className={showWarn ? "text-rose-400 font-medium" : undefined}>
+                          {r.devices}/{r.maxDevices}
+                        </span>
                         {showWarn && <WarnTooltip message={warnMsg} />}
                       </div>
                     </td>
                     <td className="py-3 pr-3 whitespace-nowrap">{r.created}</td>
-                    <td className="py-3 pr-3 whitespace-nowrap"><StatusBadge /></td>
+                    <td className="py-3 pr-3 whitespace-nowrap">
+                      <StatusBadge />
+                    </td>
                     <td className="py-3 pr-3">
                       <div className="flex items-center gap-2 justify-end">
                         <button
@@ -383,24 +464,27 @@ function LicensesSection() {
                           title="Anahtarı kopyala"
                         >
                           <FiCopy className="opacity-80" />
-                          <span className="hidden lg:inline text-xs">{copied===r.id ? 'Kopyalandı' : 'Kopyala'}</span>
+                          <span className="hidden lg:inline text-xs">{copied === r.id ? "Kopyalandı" : "Kopyala"}</span>
                         </button>
 
                         <button
-                      type="button"
-                      className="h-9 px-3 rounded-lg border border-white/10 hover:bg-white/[0.06] inline-flex items-center gap-2 cursor-pointer"
-                    >
-                      <FiDownload className="opacity-80" />
-                      <span className="text-xs">İndir</span>
-                    </button>
-
+                          type="button"
+                          className="h-9 px-3 rounded-lg border border-white/10 hover:bg-white/[0.06] inline-flex items-center gap-2 cursor-pointer"
+                        >
+                          <FiDownload className="opacity-80" />
+                          <span className="text-xs">İndir</span>
+                        </button>
                       </div>
                     </td>
                   </tr>
                 );
               })}
               {filtered.length === 0 && (
-                <tr><td colSpan={6} className="py-8 text-center text-white/60">Sonuç bulunamadı.</td></tr>
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-white/60">
+                    Sonuç bulunamadı.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
@@ -408,13 +492,13 @@ function LicensesSection() {
 
         {/* Mobil kartlar */}
         <div className="md:hidden grid gap-3">
-          {filtered.map(r => {
+          {filtered.map((r) => {
             const overLimit = r.devices > r.maxDevices;
             const critical43 = r.devices === 4 && r.maxDevices === 3;
             const showWarn = overLimit || critical43;
             const warnMsg = critical43
-              ? 'Cihaz sayısı 4/3 olduğu için lisansınız çalışmayacaktır.'
-              : 'Cihaz sayısı limitini aştığınız için lisansınız çalışmayacaktır.';
+              ? "Cihaz sayısı 4/3 olduğu için lisansınız çalışmayacaktır."
+              : "Cihaz sayısı limitini aştığınız için lisansınız çalışmayacaktır.";
 
             return (
               <div key={r.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
@@ -429,9 +513,14 @@ function LicensesSection() {
                     <div className="mt-2 text-xs text-white/60">Anahtar</div>
                     <div className="font-mono text-sm">{maskKey(r.key)}</div>
                     <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-white/70 items-center">
-                      <div>Oluşturulma: <span className="text-white/90">{r.created}</span></div>
+                      <div>
+                        Oluşturulma: <span className="text-white/90">{r.created}</span>
+                      </div>
                       <div className="flex items-center gap-1.5">
-                        Cihazlar: <span className={`text-white/90 ${showWarn ? 'text-rose-400 font-medium' : ''}`}>{r.devices}/{r.maxDevices}</span>
+                        Cihazlar:{" "}
+                        <span className={`text-white/90 ${showWarn ? "text-rose-400 font-medium" : ""}`}>
+                          {r.devices}/{r.maxDevices}
+                        </span>
                         {showWarn && <WarnTooltip message={warnMsg} />}
                       </div>
                     </div>
@@ -446,10 +535,8 @@ function LicensesSection() {
                     <FiCopy className="opacity-80" />
                     <span className="text-xs">Kopyala</span>
                   </button>
- 
-                  <button
-                    className="h-9 px-3 rounded-lg border border-white/10 inline-flex items-center gap-2 opacity-50 cursor-pointer"
-                  >
+
+                  <button className="h-9 px-3 rounded-lg border border-white/10 inline-flex items-center gap-2 opacity-50 cursor-pointer">
                     <FiDownload className="opacity-80" />
                     <span className="text-xs">İndir</span>
                   </button>
@@ -458,13 +545,16 @@ function LicensesSection() {
             );
           })}
           {filtered.length === 0 && (
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center text-white/60">Sonuç bulunamadı.</div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center text-white/60">
+              Sonuç bulunamadı.
+            </div>
           )}
         </div>
       </GlassCard>
     </section>
   );
 }
+
 
 /* ---------------- SATIN ALIMLAR (Sadece görüntüleme) ---------------- */
 
@@ -892,7 +982,7 @@ function LogItem({ dot, text, right }:{ dot:string; text:string; right:string })
   );
 }
 
-function LicenseItem({ name }:{ name:string }) {
+function LicenseItem({ name, setActive }:{ name:string, setActive:Function }) {
   return (
     <li className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2.5 hover:bg-white/[0.06] transition-all duration-200">
       <div className="flex items-center gap-2.5 min-w-0">
@@ -901,7 +991,11 @@ function LicenseItem({ name }:{ name:string }) {
         </span>
         <span className="text-sm truncate">{name}</span>
       </div>
-      <button className="text-xs px-2.5 py-1 rounded-lg border border-white/10 hover:bg-white/5">Detay</button>
+      <button className="text-xs px-2.5 py-1 rounded-lg border border-white/10 hover:bg-white/5" onClick={
+        () => {
+          setActive("licenses");
+        }
+      }>Detay</button>
     </li>
   );
 }

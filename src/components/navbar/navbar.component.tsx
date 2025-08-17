@@ -7,7 +7,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
 import { config } from '@/src/config/config';
-import { useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useCartStore } from '@/src/stores/cart.store';
 import { FaChevronDown } from 'react-icons/fa';
 
@@ -82,7 +82,7 @@ export default function Header() {
               <span className="absolute inset-0 rounded-[20px] bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
             </a>
             <a
-              href={session?.user ? '/dash' : '/login'}
+              onClick={async () => await signIn('discord', { callbackUrl: '/dash' })}
               className="relative p-2 transition-all duration-300 overflow-hidden group"
             >
               <span className="relative z-10">
