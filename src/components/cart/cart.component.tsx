@@ -7,12 +7,12 @@ import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import CardProductComponent from './cartproduct.component';
 import { ProductType } from '@/src/models/product.model';
-import ForYouComponent from './foryou.component';
 import { FiArrowRight } from 'react-icons/fi';
 
 export default function CartComponent() {
   const { isOpen, toggle } = useCartStore();
   const scrollRef = useRef<HTMLDivElement>(null);
+
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
@@ -22,10 +22,14 @@ export default function CartComponent() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const { data: session, status } = useSession();
-  const [mostSold, setMostSold] = useState<ProductType[]>([]);
+  const [mostSold, setMostSold] = useState<ProductType[]>([]); // şu an kullanılmıyor ama bıraktım
 
   const formatTRY = (n: number) =>
-    new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(n);
+    new Intl.NumberFormat('tr-TR', {
+      style: 'currency',
+      currency: 'TRY',
+      maximumFractionDigits: 0,
+    }).format(n);
 
   const calcTotal = async (items: NonNullable<CartType['items']>) => {
     if (!items?.length) return 0;
@@ -85,7 +89,7 @@ export default function CartComponent() {
     setTimeout(() => toggle(), 300);
   };
 
-  // Drag to scroll (masaüstü)
+  // Drag scroll (opsiyonel)
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
     setStartX(e.pageX - (scrollRef.current?.offsetLeft || 0));
@@ -112,7 +116,6 @@ export default function CartComponent() {
       await cartService.saveCart({ ...(cart || {}), email: session?.user?.email, items: updatedItems });
       setTotal(await calcTotal(updatedItems));
     } catch {
-      // hata olursa tekrar yükle
       refresh();
     }
   };
@@ -148,7 +151,9 @@ export default function CartComponent() {
               Sepetim
             </h2>
             {itemCount > 0 && (
-              <span className="text-xs text-white/70">({itemCount} {itemCount > 1 ? 'ürün' : 'ürün'})</span>
+              <span className="text-xs text-white/70">
+                ({itemCount} {itemCount > 1 ? 'ürün' : 'ürün'})
+              </span>
             )}
           </div>
           <button
@@ -156,12 +161,27 @@ export default function CartComponent() {
             aria-label="Kapat"
             className="text-gray-300 hover:text-red-500 hover:scale-110 duration-150"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto px-6 py-4 text-white space-y-6 divide-y divide-white/10">
+
+        {/* İçerik */}
+        <div
+          ref={scrollRef}
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeave}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          className="flex-1 overflow-y-auto px-6 py-4 text-white space-y-6 divide-y divide-white/10"
+        >
           <div className="space-y-6 pb-6">
             {loading && (
               <div className="space-y-3">
@@ -193,10 +213,9 @@ export default function CartComponent() {
                 />
               ))}
           </div>
-            </div>
-          )}
         </div>
 
+        {/* Alt Bilgi */}
         <div className="bg-white/10 border-t border-white/10 px-6 py-4 text-white">
           <div className="flex justify-between mt-2 text-sm">
             <span className="text-gray-200 font-semibold">Ara toplam</span>
@@ -213,18 +232,7 @@ export default function CartComponent() {
           >
             Ödeme Yap
           </button>
-          <p className="text-center text-xs text-gray-300 mt-5">
-          </p>
         </div>
-        </>
-          ): (
-            <div className="flex-1 overflow-y-auto px-6 py-4 text-white space-y-6 divide-y divide-white/10">
-              <div className="flex flex-col items-center justify-center h-full">
-                <h2 className="text-2xl font-semibold mb-2">Sepetiniz Boş</h2>
-                </div>
-                </div>
-          )
-        }
       </div>
     </div>
   );
