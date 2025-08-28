@@ -1,14 +1,25 @@
-import { getAllUserLogs } from "@/src/controllers/userLog.controller";
-import { NextRequest } from "next/server";
+// app/api/log/login/[email]/route.ts
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-export async function GET(request: NextRequest, { params }: { params: { email: string } }) {
-    const { email } = await params;
-    if(!email) return new Response(JSON.stringify({ error: "Missing email" }), { status: 400 });
+import { authOptions } from "@/src/lib/auth/options"; 
+import { getAllUserLogs } from "@/src/controllers/userLog.controller";
 
-    const session = await getServerSession();
-    if (!session) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+export const dynamic = "force-dynamic";
 
-    if (session.user?.email !== email) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-    
-    return getAllUserLogs(email);
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: { email: string } }
+) {
+  const { email } = await params;
+  if (!email) {
+    return NextResponse.json({ error: "Missing email" }, { status: 400 });
+  }
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (session.user.email != email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const data = await getAllUserLogs(email);
+  return NextResponse.json(await data.json(), { status: 200 });
 }

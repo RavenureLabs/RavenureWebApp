@@ -2,30 +2,18 @@
 
 import Image from 'next/image';
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
+import { useEffect, useMemo, useState } from 'react';
+import { ProductType } from '@/src/models/product.model';
+import { cartService, categoryService, productService } from '@/src/lib/services';
+import { CategoryType } from '@/src/models/category.model';
+import { getSession, useSession } from 'next-auth/react';
 
 export default function ShopPageComponent() {
-  const { text } = useLanguage();
-
-  const categories = ['Tümü', 'Discord Botları', 'Eklentiler', 'Eklenti Paketleri'];
-
-  const products = [
-    {
-      id: 'p1',
-      name: 'Phoenix Crates',
-      desc: 'Phoenix Crates is one of the most exclusive and unique crate plugin you can find on the market. With a super customized animation system that allows more than 120...',
-      image: '/products/crates.png',
-      price: 15.99,
-      oldPrice: 19.99,
-    },
-    {
-      id: 'p2',
-      name: 'Phoenix Lobby',
-      desc: 'Phoenix Lobby is one of the most comprehensive and user-friendly Minecraft lobby plugins available. This plugin combines the best features from multiple lobby plugins...',
-      image: '/products/lobby.png',
-      price: 15.99,
-      oldPrice: 19.99,
-    },
-  ];
+  const { text, language } = useLanguage();
+    const {data: session} = useSession();
+  const [products, setProducts] = useState<ProductType[]>([]);
+  const [categories, setCategories] = useState<CategoryType[]>([]);
+  const [category, setCategory] = useState<string>('all');
 
   const fmt = (v: number) =>
     new Intl.NumberFormat('de-DE', {
@@ -33,6 +21,55 @@ export default function ShopPageComponent() {
       currency: 'TRY',
       maximumFractionDigits: 2,
     }).format(v);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const products = await productService.getProducts();
+      setProducts(products || []);
+      const categories = await categoryService.getCategories();
+      setCategories(categories || []);
+    };
+    fetch();
+  }, []);
+
+  const visible = useMemo(() => {
+    if (category === 'all') return products;
+    return products.filter(
+      (p) => p?.category?.toString?.() === category
+    );
+  }, [products, category]);
+
+  const addToCart = async (product: ProductType) => {
+    if (!session?.user?.email) return;
+    const cart = await cartService.getCart(session?.user.email);
+    let updatedItems = cart?.items || [];
+    updatedItems.push({
+      productId: new (require('bson').ObjectId)(product._id!),
+      quantity: 1
+    })
+  
+    await cartService.saveCart(
+      {
+        "email": session?.user?.email,
+        ...cart,
+      }
+    );
+  };
+
+
+/*************  ✨ Windsurf Command ⭐  *************/
+/**
+ * Generates a category button with a given active state.
+ * @param {boolean} active
+ * @returns {string}
+ */
+/*******  b9a95be1-efb0-493c-9e1f-dc6ca791cac9  *******/  const catBtn = (active: boolean) =>
+    [
+      'px-4 py-1.5 rounded-full text-sm font-medium transition cursor-pointer',
+      active
+        ? 'bg-[#139f8b] text-white'
+        : 'bg-white/10 text-white hover:bg-[#139f8b]'
+    ].join(' ');
 
   return (
     <div className="min-h-screen bg-[#0c0e11] text-white">
@@ -63,12 +100,22 @@ export default function ShopPageComponent() {
 
           {/* kategoriler */}
           <div className="flex flex-wrap gap-2 mt-6">
-            {categories.map((cat, i) => (
+            {/* Tüm ürünler */}
+            <button
+              key="all"
+              onClick={() => setCategory('all')}
+              className={catBtn(category === 'all')}
+            >
+              {text('store.all-products')}
+            </button>
+
+            {categories.map((cat) => (
               <button
-                key={i}
-                className="px-4 py-1.5 rounded-full text-sm font-medium bg-white/10 text-white hover:bg-[#139f8b] transition cursor-pointer"
+                key={cat._id.toString()}
+                onClick={() => setCategory(cat._id.toString())}
+                className={catBtn(category === cat._id.toString())}
               >
-                {cat}
+                {cat?.name?.[language] ?? ''}
               </button>
             ))}
           </div>
@@ -78,58 +125,78 @@ export default function ShopPageComponent() {
       {/* ÜRÜNLER */}
       <section className="py-10 md:py-14 -mt-12">
         <div className="max-w-6xl mx-auto px-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((p) => (
-            <div
-              key={p.id}
-              className="w-full max-w-[420px] mx-auto text-white relative cursor-pointer hover:opacity-90 transition"
-            >
-              {/* Görsel */}
-              <div className="relative w-full aspect-square overflow-hidden rounded-xl bg-black/20">
-                <Image
-                  src={p.image}
-                  alt={p.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover"
-                />
-              </div>
+          {visible.map((p) => {
+            const hasDiscount = !!p.discountPrice && p.discountPrice < p.price;
+            const topLine = hasDiscount ? p.price : null; 
+            const mainPrice = hasDiscount ? p.discountPrice! : p.price;
 
-              {/* Başlık */}
-              <h3 className="mt-4 text-[18px] font-semibold leading-tight">
-                {p.name}
-              </h3>
-
-              {/* Açıklama */}
-              <p className="mt-1 text-sm text-white/70 line-clamp-3">{p.desc}</p>
-
-              {/* Fiyat + Buton */}
-              <div className="mt-4 flex items-end justify-between">
-                <div className="flex flex-col">
-                  <span className="text-xs text-white/55 line-through">
-                    {fmt(p.oldPrice)}
-                  </span>
-                  <span className="text-2xl font-extrabold">{fmt(p.price)}</span>
+            return (
+              <div
+                key={p._id.toString()}
+                className="w-full max-w-[420px] mx-auto text-white relative cursor-pointer hover:opacity-90 transition"
+              >
+                {/* Görsel */}
+                <div className="relative w-full aspect-square overflow-hidden rounded-xl bg-black/20">
+                  <Image
+                    src={p.imageUrl}
+                    alt={p.name?.[language] ?? ''}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover"
+                  />
                 </div>
 
-                {/* GRADIENT SWEEP HOVER — normalde tek renk, hover'da soldan sağa kayan gradient */}
-                <button
-                  className="
-                    relative h-10 px-5 rounded-full text-sm font-semibold text-white
-                    bg-[#139f8b] overflow-hidden cursor-pointer
-                    transition-colors duration-300 ease-out
-                    before:content-[''] before:absolute before:inset-0
-                    before:bg-gradient-to-r before:from-[#25d170] before:to-[#139f8b]
-                    before:rounded-full before:pointer-events-none
-                    before:translate-x-[-100%] hover:before:translate-x-0
-                    before:transition-transform before:duration-200 before:ease-in
-                    before:will-change-transform
-                  "
-                >
-                  <span className="relative z-[1]">Add to cart</span>
-                </button>
+                {/* Başlık */}
+                <h3 className="mt-4 text-[18px] font-semibold leading-tight">
+                  {p.name?.[language] ?? ''}
+                </h3>
+
+                {/* Açıklama */}
+                <p className="mt-1 text-sm text-white/70 line-clamp-3">
+                  {p.description?.[language] || ''}
+                </p>
+
+                {/* Fiyat + Buton */}
+                <div className="mt-4 flex items-end justify-between">
+                  <div className="flex flex-col">
+                    {topLine !== null && (
+                      <span className="text-xs text-white/55 line-through">
+                        {fmt(topLine)}
+                      </span>
+                    )}
+                    <span className="text-2xl font-extrabold">
+                      {fmt(mainPrice)}
+                    </span>
+                  </div>
+                  {/* Sepete ekle butonu */}
+                  <button
+                    className="
+                      relative h-10 px-5 rounded-full text-sm font-semibold text-white
+                      bg-[#139f8b] overflow-hidden cursor-pointer
+                      transition-colors duration-300 ease-out
+                      before:content-[''] before:absolute before:inset-0
+                      before:bg-gradient-to-r before:from-[#25d170] before:to-[#139f8b]
+                      before:rounded-full before:pointer-events-none
+                      before:translate-x-[-100%] hover:before:translate-x-0
+                      before:transition-transform before:duration-500 before:ease-out
+                      before:will-change-transform
+                    "
+                  >
+                    <span onClick={() => {
+                      addToCart(p);
+                    }} className="relative z-[1]">Add to cart</span>
+                  </button>
+                </div>
               </div>
+            );
+          })}
+
+          {/* Boş durum */}
+          {visible.length === 0 && (
+            <div className="col-span-full text-center text-white/70 py-16">
+              {text('store.no-products') || 'Ürün bulunamadı.'}
             </div>
-          ))}
+          )}
         </div>
       </section>
     </div>

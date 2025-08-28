@@ -40,9 +40,6 @@ export default function DashboardPageComponent() {
       .join(' ');
   };
 
-
-  const licenses = ['Minecraft Market Eklentisi', 'Discord Destek Botu', 'Web Lisans Sistemi'];
-
   useEffect(() => {
     const onEsc = (e: KeyboardEvent) => e.key === 'Escape' && null;
     window.addEventListener('keydown', onEsc);
@@ -51,7 +48,7 @@ export default function DashboardPageComponent() {
 
   useEffect(() => {
     if (!session && status === 'unauthenticated') {
-      window.location.href = '/login';
+      window.location.href = '/';
       return;
     }
     

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   UserIcon,
   ShoppingCartIcon,
@@ -18,12 +18,12 @@ const languages = [
 
 export default function Header() {
   const { text, setLanguage, language } = useLanguage();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { toggle } = useCartStore();
   const [selectedLang, setSelectedLang] = useState(languages[0]);
   const [isOpen, setIsOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  
   const handleSelect = (lang: (typeof languages)[0]) => {
     setSelectedLang(lang);
     setIsOpen(false);
@@ -81,15 +81,21 @@ export default function Header() {
               </span>
               <span className="absolute inset-0 rounded-[20px] bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
             </a>
-            <a
-              onClick={async () => await signIn('discord', { callbackUrl: '/dash' })}
-              className="relative p-2 transition-all duration-300 overflow-hidden group"
+            <button
+              disabled={status === "loading"}
+              onClick={async () => {
+                if (status === "loading") return; 
+                if (status === "unauthenticated") await signIn("discord", { callbackUrl: "/dash" });
+                else window.location.href = "/dash";
+              }}
+              className="relative p-2 transition-all duration-300 overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span className="relative z-10">
                 <UserIcon className="w-5 h-5" />
               </span>
               <span className="absolute inset-0 rounded-[20px] bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
-            </a>
+            </button>
+
           </div>
 
           {/* Dil Seçici - Sadece Masaüstü */}

@@ -203,6 +203,7 @@ export class CartService {
         const response = await api.post('/api/cart', data);
         return response.data.cart as CartType;
     }
+
 }
 
 export class UserLoginLogService {
@@ -218,7 +219,8 @@ export class UserLoginLogService {
 
 export class LicenseService {
     async getLicenses(id: string, email: string) {
-        const tokenResponse = await axios.get(`${process.env.NEXT_PUBLIC_LISENCE_SERVER_BASE_URI}/api/v1/public/token/${id}/${email}`);
+        try {
+                    const tokenResponse = await axios.get(`${process.env.NEXT_PUBLIC_LISENCE_SERVER_BASE_URI}/api/v1/public/token/${id}/${email}`);
         const token = tokenResponse.data.token;
         const response = await axios.post(`${process.env.NEXT_PUBLIC_LISENCE_SERVER_BASE_URI}/api/v1/public/get`,
             {
@@ -233,5 +235,9 @@ export class LicenseService {
             }
         );
         return response.data as LicenseType[];
+        }catch (error) {
+            console.error("Error fetching licenses:", error);
+            return [] as LicenseType[];
+        }
     }
 }

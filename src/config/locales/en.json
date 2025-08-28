@@ -12,10 +12,8 @@
     "categories": "Categories",
     "looking for something?": "Looking for something specific?",
     "looking for something?-2": "Find what you need with our filters.",
-    "categories-1": "All",
-    "categories-2": "Plugins",
-    "categories-3": "Plugin Bundles",
-    "categories-4": "Discord Bots"
+    "all-products": "All",
+    "no-products": "No products found in this category."
   },
   "product": {
     "no_description": "No description available for this product!",
