@@ -1,146 +1,136 @@
 'use client';
 
-import CategoryComponent from '@/src/components/category/category.component';
-import ProductComponent from '@/src/components/product/product.component';
+import Image from 'next/image';
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
-import { CategoryType } from '@/src/models/category.model';
-import { ProductType } from '@/src/models/product.model';
-import { cartService, categoryService, commentService, productService } from '@/src/lib/services';
-import { Suspense, useEffect, useState } from 'react';
-import { CommentType } from '@/src/models/comment.model';
-import mongoose from 'mongoose';
-import Notification from '../notification/notification.component';
-import { useSession } from 'next-auth/react';
 
 export default function ShopPageComponent() {
   const { text } = useLanguage();
-  const [products, setProducts] = useState<ProductType[]>([]);
-  const [filteredProducts, setFiltredProducts] = useState<ProductType[]>([]);
-  const [categories, setCategories] = useState<CategoryType[]>([]);
-  const [comments, setComments] = useState<CommentType[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string>("Tüm Ürünler");
-  const [message, setMessage] = useState<string | null>(null);
-  const [type, setType] = useState<"error" | "success">("error");
-  const { data: session } = useSession();
-  const [currentIndex, setCurrentIndex] = useState(0);
 
+  const categories = ['Tümü', 'Discord Botları', 'Eklentiler', 'Eklenti Paketleri'];
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      const categories = await categoryService.getCategories();
-      setCategories(categories);
-      const products = await productService.getProducts();
-      setProducts(products);
-    };
-    fetchCategories();
-  }, []);
+  const products = [
+    {
+      id: 'p1',
+      name: 'Phoenix Crates',
+      desc: 'Phoenix Crates is one of the most exclusive and unique crate plugin you can find on the market. With a super customized animation system that allows more than 120...',
+      image: '/products/crates.png',
+      price: 15.99,
+      oldPrice: 19.99,
+    },
+    {
+      id: 'p2',
+      name: 'Phoenix Lobby',
+      desc: 'Phoenix Lobby is one of the most comprehensive and user-friendly Minecraft lobby plugins available. This plugin combines the best features from multiple lobby plugins...',
+      image: '/products/lobby.png',
+      price: 15.99,
+      oldPrice: 19.99,
+    },
+  ];
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) =>
-        prevIndex === comments.length - 1 ? 0 : prevIndex + 1
-      );
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, [comments.length]);
-
-  const handleBuy = async (id: string) => {
-    if (!session?.user) {
-        setMessage("Lütfen giriş yapınız");
-        setType("error");
-        setTimeout(() => {
-            setMessage(null);
-        }, 3000);
-        return;
-    }
-  
-      const oldCart = await cartService.getCart(session?.user?.email as string);
-      if(oldCart.items.some(item => item.productId === id)){
-        setMessage("Ürün zaten sepetinizde var");
-        setType("error");
-        return;
-      }
-      const data = {
-        email: session?.user?.email,
-        items: [
-          {
-            productId: id,
-            quantity: 1
-          }
-        ]
-      }
-      const response = await cartService.saveCart({...oldCart, ...data});
-      if(response){
-        setMessage("Ürün sepete eklendi");
-        setType("success");
-        setTimeout(() => {
-            setMessage(null);
-        }, 3000);
-      }
-}
+  const fmt = (v: number) =>
+    new Intl.NumberFormat('de-DE', {
+      style: 'currency',
+      currency: 'TRY',
+      maximumFractionDigits: 2,
+    }).format(v);
 
   return (
-    <div className="min-h-screen bg-[#0f0f10] text-white flex flex-col items-center">
-      <Notification
-        message={message}
-        onClose={() => setMessage(null)}
-        type={type}
-      />
-      {/* Hero Section */}
-      <section
-        className="w-full py-22 bg-cover bg-center relative"
-        style={{ backgroundImage: "url('/storewall.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-        <div className="relative z-10 max-w-screen-xl mx-auto px-4 flex flex-col items-start">
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-[#25d170] text-left">
-            {text("store.hero-title")}
+    <div className="min-h-screen bg-[#0c0e11] text-white">
+      {/* HERO */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(80%_60%_at_20%_-10%,#1a4636_0%,#0c0e11_45%)] opacity-70 pointer-events-none" />
+        <div className="absolute inset-x-0 -top-24 h-48 blur-3xl bg-gradient-to-r from-[#25d17044] via-transparent to-[#139f8b44]" />
+
+        <div className="relative max-w-6xl mx-auto px-5 pt-14 pb-10 md:pt-20 md:pb-16">
+          {/* breadcrumb */}
+          <div className="inline-flex items-center gap-2 text-xs text-[#9fe9c9]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#25d170]" />
+            Anasayfa
+          </div>
+
+          {/* başlık */}
+          <h1 className="mt-2 text-3xl md:text-5xl font-bold tracking-tight">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#25d170] to-[#139f8b]">
+              {text('store.hero-title')}
+            </span>
           </h1>
+
+          {/* açıklama */}
+          <p className="mt-3 text-white/70 max-w-2xl">
+            {text('store.looking for something?')}{' '}
+            {text('store.looking for something?-2')}
+          </p>
+
+          {/* kategoriler */}
+          <div className="flex flex-wrap gap-2 mt-6">
+            {categories.map((cat, i) => (
+              <button
+                key={i}
+                className="px-4 py-1.5 rounded-full text-sm font-medium bg-white/10 text-white hover:bg-[#139f8b] transition cursor-pointer"
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Ürünler Bölümü */}
-      <section id="products" className="w-full max-w-screen-xl px-4 py-12">
-        <h2 className="text-3xl md:text-3xl font-bold text-left mb-12">{text("store.categories")}</h2>
-        
-        <p className="text-left text-sm mb-12 text-white">
-            <strong>{text("store.looking for something?")}</strong> {text("store.looking for something?-2")}
-        </p>
+      {/* ÜRÜNLER */}
+      <section className="py-10 md:py-14 -mt-12">
+        <div className="max-w-6xl mx-auto px-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {products.map((p) => (
+            <div
+              key={p.id}
+              className="w-full max-w-[420px] mx-auto text-white relative cursor-pointer hover:opacity-90 transition"
+            >
+              {/* Görsel */}
+              <div className="relative w-full aspect-square overflow-hidden rounded-xl bg-black/20">
+                <Image
+                  src={p.image}
+                  alt={p.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover"
+                />
+              </div>
 
-        <div className="flex flex-wrap gap-4 mb-14">
-          {/* Default all category component */}
-          <CategoryComponent
-            name={{ "en": "All Products", "tr": "Tüm Ürünler" }}
-            href="#products"
-            clickHandler={() => {
-              setActiveCategory("Tüm Ürünler");
-              setFiltredProducts([]);
-            }}
-          />
-          {categories.map((category, index) => (
-            <CategoryComponent
-              key={index}
-              name={category.name}
-              href="#products"
-              clickHandler={() => {
-                setActiveCategory(category._id.toString());
-                const filtered = products.filter(product => product.category === category._id);
-                setFiltredProducts(filtered);
-              }}
-            />
+              {/* Başlık */}
+              <h3 className="mt-4 text-[18px] font-semibold leading-tight">
+                {p.name}
+              </h3>
+
+              {/* Açıklama */}
+              <p className="mt-1 text-sm text-white/70 line-clamp-3">{p.desc}</p>
+
+              {/* Fiyat + Buton */}
+              <div className="mt-4 flex items-end justify-between">
+                <div className="flex flex-col">
+                  <span className="text-xs text-white/55 line-through">
+                    {fmt(p.oldPrice)}
+                  </span>
+                  <span className="text-2xl font-extrabold">{fmt(p.price)}</span>
+                </div>
+
+                {/* GRADIENT SWEEP HOVER — normalde tek renk, hover'da soldan sağa kayan gradient */}
+                <button
+                  className="
+                    relative h-10 px-5 rounded-full text-sm font-semibold text-white
+                    bg-[#139f8b] overflow-hidden cursor-pointer
+                    transition-colors duration-300 ease-out
+                    before:content-[''] before:absolute before:inset-0
+                    before:bg-gradient-to-r before:from-[#25d170] before:to-[#139f8b]
+                    before:rounded-full before:pointer-events-none
+                    before:translate-x-[-100%] hover:before:translate-x-0
+                    before:transition-transform before:duration-200 before:ease-in
+                    before:will-change-transform
+                  "
+                >
+                  <span className="relative z-[1]">Add to cart</span>
+                </button>
+              </div>
+            </div>
           ))}
         </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {(activeCategory === "Tüm Ürünler" ? products : filteredProducts).map((product, index) => (
-              <ProductComponent
-                key={index}
-                product={product}
-                handleBuy={handleBuy}
-              />
-            ))}
-          </div>
       </section>
     </div>
   );

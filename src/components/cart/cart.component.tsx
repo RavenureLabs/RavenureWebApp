@@ -7,24 +7,23 @@ import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CardProductComponent from './cartproduct.component';
 import { ProductType } from '@/src/models/product.model';
-import ForYouComponent from './foryou.component';
 import { FiArrowRight } from 'react-icons/fi';
 
 export default function CartComponent() {
   const { isOpen, toggle } = useCartStore();
-  const { data: session, status } = useSession();
-
-  const [animate, setAnimate] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [cart, setCart] = useState<CartType | null>(null);
-  const [total, setTotal] = useState(0);
-  const [mostSold, setMostSold] = useState<ProductType[]>([]);
-
   // For horizontal drag (ForYou section)
   const scrollRef = useRef<HTMLDivElement>(null);
+
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+
+  const [animate, setAnimate] = useState(false);
+  const [cart, setCart] = useState<CartType | null>(null);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const { data: session, status } = useSession();
+  const [mostSold, setMostSold] = useState<ProductType[]>([]); // şu an kullanılmıyor ama bıraktım
 
   const formatTRY = (n: number) =>
     new Intl.NumberFormat('tr-TR', {
@@ -37,7 +36,10 @@ export default function CartComponent() {
     if (!items?.length) return 0;
     const prices = await Promise.all(
       items.map(async (item) => {
-        const product = await productService.getProduct(item.productId.toString());
+        const productId = typeof item.productId === 'object' && '_id' in item.productId
+          ? (item.productId as any)._id?.toString?.() ?? item.productId.toString()
+          : item.productId.toString();
+        const product = await productService.getProduct(productId);
         return (product?.price || 0) * item.quantity;
       }),
     );
@@ -68,7 +70,6 @@ export default function CartComponent() {
     fetchCart();
   }, [fetchCart]);
 
-  // Open/close animation + body scroll lock
   useEffect(() => {
     if (isOpen) {
       setAnimate(true);
@@ -82,7 +83,6 @@ export default function CartComponent() {
     };
   }, [isOpen]);
 
-  // ESC to close
   useEffect(() => {
     if (!isOpen) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && handleClose();
@@ -94,8 +94,6 @@ export default function CartComponent() {
     setAnimate(false);
     setTimeout(() => toggle(), 300);
   };
-
-  // Horizontal drag handlers for ForYou scroller
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
     setStartX(e.pageX - (scrollRef.current?.offsetLeft || 0));
@@ -131,6 +129,7 @@ export default function CartComponent() {
       // rollback on error
       setCart(prevCart);
       setTotal(await calcTotal(prevCart.items));
+      refresh();
     }
   };
 
@@ -195,6 +194,23 @@ export default function CartComponent() {
           </button>
         </div>
 
+        {/* İçerik */}
+        <div
+          ref={scrollRef}
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeave}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          className="flex-1 overflow-y-auto px-6 py-4 text-white space-y-6 divide-y divide-white/10"
+        >
+          <div className="space-y-6 pb-6">
+            {loading && (
+              <div className="space-y-3">
+                <div className="h-20 rounded-xl bg-white/5 animate-pulse" />
+                <div className="h-20 rounded-xl bg-white/5 animate-pulse" />
+              </div>
+            )}
+
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-4 text-white space-y-6">
           {/* Loading skeletons */}
@@ -235,6 +251,10 @@ export default function CartComponent() {
         </div>
 
         {/* Footer / Summary */}
+          </div>
+        </div>
+
+        {/* Alt Bilgi */}
         <div className="bg-white/10 border-t border-white/10 px-6 py-4 text-white">
           <div className="flex justify-between mt-2 text-sm">
             <span className="text-gray-200 font-semibold">Ara toplam</span>
@@ -253,6 +273,7 @@ export default function CartComponent() {
           </button>
         </div>
       </aside>
-    </div>
+      </div>
+    
   );
 }

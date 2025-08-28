@@ -1,57 +1,62 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  FiCheck,
-  FiChevronRight,
-  FiClock,
-  FiCode,
-  FiMessageCircle,
-  FiServer,
-  FiShield,
-  FiSmile,
-  FiStar,
-  FiUsers,
-  FiZap,
+import React, { useState } from 'react';
+import { 
+  FiZap, 
+  FiShield, 
+  FiServer, 
+  FiCode, 
+  FiClock, 
+  FiSmile 
 } from 'react-icons/fi';
+
+/* ===================== SAYFA ===================== */
 
 export default function HomePageComponent() {
   return (
-    <div className="relative min-h-screen bg-[radial-gradient(60%_80%_at_20%_0%,#0f1f1a_0%,#0a0a0b_35%,#09080a_100%)] text-white">
-      {/* HERO — arka plan beyaz, SVG koyu */}
-      <section className="relative overflow-hidden bg-white
-  before:content-[''] before:absolute before:inset-0
-  before:bg-[url('/hyperdrive.svg')] before:bg-no-repeat before:bg-center before:bg-contain
-  sm:before:bg-[length:2100px_480px]
-  before:opacity-40 before:brightness-10 before:contrast-150 before:z-0">
-  <div className="relative z-10 max-w-3xl mx-auto text-center px-4 sm:px-6 lg:px-8 py-10 md:py-24">
-    <div className="inline-block bg-gradient-to-tl from-[#25d170] via-transparent to-[#139f8b] p-px rounded-xl mb-3">
-      <div className="bg-white rounded-xl py-1.5 px-3 text-3xl font-bold md:text-4xl lg:text-5xl lg:leading-tight">
-        <span className="bg-clip-text bg-gradient-to-tl from-[#25d170] to-[#139f8b] text-transparent">
-          RAVENURE LABS
-        </span>
-      </div>
-    </div>
+    <div className="relative min-h-screen bg-[radial-gradient(60%_80%_at_20%_0%,#0e1115_0%,#090a0b_40%,#08090a_100%)] text-white">
+      {/* HERO */}
+      <section
+        className="relative overflow-hidden bg-white
+        before:content-[''] before:absolute before:inset-0
+        before:bg-[url('/hyperdrive.svg')] before:bg-no-repeat before:bg-center before:bg-contain
+        sm:before:bg-[length:2100px_480px]
+        before:opacity-40 before:brightness-10 before:contrast-150 before:z-0"
+      >
+        <div className="relative z-10 max-w-3xl mx-auto text-center px-4 sm:px-6 lg:px-8 py-10 md:py-24">
+          <div className="inline-block bg-gradient-to-tl from-[#25d170] via-transparent to-[#139f8b] p-px rounded-xl mb-3">
+            <div className="bg-white rounded-xl py-1.5 px-3 text-3xl font-bold md:text-4xl lg:text-5xl lg:leading-tight">
+              <span className="bg-clip-text bg-gradient-to-tl from-[#25d170] to-[#139f8b] text-transparent">
+                RAVENURE LABS
+              </span>
+            </div>
+          </div>
 
-    <h1 className="text-3xl font-bold md:text-4xl lg:text-5xl lg:leading-tight text-neutral-900">
-      Starter Pages &amp; Examples
-    </h1>
+          <h1 className="text-3xl font-bold md:text-4xl lg:text-5xl lg:leading-tight text-neutral-900">
+            Starter Pages &amp; Examples
+          </h1>
 
-    <p className="mt-4 md:text-lg text-gray-600">
-      Free Tailwind CSS resources as building blocks for websites and web applications. Browse pre-built sections, forms, modals, and more.
-    </p>
+          <p className="mt-4 md:text-lg text-gray-600">
+            Free Tailwind CSS resources as building blocks for websites and web applications. Browse pre-built sections,
+            forms, modals, and more.
+          </p>
 
-    <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-      <a href="#features" className="px-6 py-3 bg-gradient-to-r from-[#25d170] to-[#139f8b] text-white font-semibold rounded-lg shadow-lg hover:opacity-90 transition">
-        Projene Başla
-      </a>
-      <a href="#features" className="px-6 py-3 border-2 border-[#139f8b] text-[#139f8b] font-semibold rounded-lg hover:bg-[#139f8b]/10 transition">
-        Daha Fazla Bilgi
-      </a>
-    </div>
-  </div>
-</section>
-
+          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="#features"
+              className="px-6 py-3 bg-gradient-to-r from-[#25d170] to-[#139f8b] text-white font-semibold rounded-lg shadow-lg hover:opacity-90 transition"
+            >
+              Projene Başla
+            </a>
+            <a
+              href="#features"
+              className="px-6 py-3 border-2 border-[#139f8b] text-[#139f8b] font-semibold rounded-lg hover:bg-[#139f8b]/10 transition"
+            >
+              Daha Fazla Bilgi
+            </a>
+          </div>
+        </div>
+      </section>
 
       {/* FEATURES */}
       <FeaturesSection />
@@ -59,16 +64,16 @@ export default function HomePageComponent() {
       {/* WHY */}
       <WhySection />
 
-      {/* TESTIMONIALS – otomatik kayan + noktalar */}
-      <TestimonialsCarousel />
+      {/* TESTIMONIALS */}
+      <TestimonialsRotatingColors />
 
-      {/* FAQ – baloncuk + yumuşak animasyon */}
+      {/* FAQ */}
       <FAQSection />
     </div>
   );
 }
 
-/* ============ Sections ============ */
+/* ===================== FEATURES ===================== */
 
 function FeaturesSection() {
   return (
@@ -91,6 +96,7 @@ function FeaturesSection() {
     </section>
   );
 }
+/* ===================== WHY ===================== */
 
 function WhySection() {
   return (
@@ -103,24 +109,26 @@ function WhySection() {
             subtitle="Altyapımız indie geliştiriciden kurumsal ekiplere kadar herkes için tasarlandı."
           />
           <ul className="mt-6 space-y-3 text-white/80">
-            {[
-              'Tek panelden ürün-anahtar yönetimi',
-              'Risk azaltan akıllı doğrulamalar',
-              'Esnek fiyatlandırma ve kampanya kurguları',
-            ].map(t => (
-              <li key={t} className="flex items-start gap-3">
-                <span className="mt-0.5 text-[#25d170]"><FiCheck /></span>
-                <span>{t}</span>
-              </li>
-            ))}
+            <li className="flex items-start gap-3">
+              <span className="mt-0.5 text-[#25d170]">•</span>
+              <span>Tek panelden ürün-anahtar yönetimi</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="mt-0.5 text-[#25d170]">•</span>
+              <span>Risk azaltan akıllı doğrulamalar</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="mt-0.5 text-[#25d170]">•</span>
+              <span>Esnek fiyatlandırma ve kampanya kurguları</span>
+            </li>
           </ul>
         </div>
+
         <div className="relative">
           <div className="absolute -inset-4 bg-gradient-to-tr from-[#25d170]/15 to-transparent blur-2xl rounded-3xl pointer-events-none" />
           <div className="relative rounded-3xl border border-white/10 bg-white/[0.04] p-5">
             <div className="text-sm text-white/70 mb-2">Örnek Yanıt</div>
-            <pre className="rounded-2xl bg-black/60 border border-white/10 p-4 overflow-auto text-xs leading-relaxed">
-{`POST /api/v1/licenses/verify
+            <pre className="rounded-2xl bg-black/60 border border-white/10 p-4 overflow-auto text-xs leading-relaxed">{`POST /api/v1/licenses/verify
 {
   "key": "RVNR-1A2B-3C4D-5E6F",
   "deviceId": "PC-0xA42",
@@ -132,8 +140,7 @@ function WhySection() {
   "status": "valid",
   "product": "Pro Eklenti",
   "expiresAt": "2026-01-31T23:59:59Z"
-}`}
-            </pre>
+}`}</pre>
             <div className="mt-4 grid grid-cols-3 gap-3 text-center text-sm">
               <Metric k="İade Oranı" v="%0.4" />
               <Metric k="Ortalama Yanıt" v="42ms" />
@@ -146,146 +153,164 @@ function WhySection() {
   );
 }
 
-/* ---------- Testimonials Carousel ---------- */
+/* ===================== TESTIMONIALS – 6 KART + BAŞLIK ===================== */
 
-function TestimonialsCarousel() {
-  /* 25+ yorumu garanti etmek için base + otomatik üretim */
-  const base: Testimonial[] = [
-    { name: 'Eren K.', role: 'Sunucu Sahibi', avatar: '/avatars/avatar-1.png', stars: 5, text: '5 dakikada kurduk, lisans dağıtımı otomatik ve sorunsuz.' },
-    { name: 'İrem A.', role: 'SaaS Geliştiricisi', avatar: '/avatars/avatar-2.png', stars: 5, text: 'Webhook ve cihaz limitleri tam ihtiyacımız olan şeydi.' },
-    { name: 'Mert D.', role: 'Oyun Mod Yapımcısı', avatar: '/avatars/avatar-3.png', stars: 5, text: 'Dashboard akıcı, destek ekibi hızlı ve ilgili.' },
-    { name: 'Selin Y.', role: 'PM', avatar: '/avatars/avatar-4.png', stars: 5, text: 'Entegrasyon süresi rekor kırdı. Loglar çok net.' },
-    { name: 'Onur T.', role: 'Full-Stack', avatar: '/avatars/avatar-5.png', stars: 5, text: 'Önceki çözüme göre %40 daha düşük gecikme.' },
-  ];
-  const autos: Testimonial[] = Array.from({ length: 25 }, (_, i) => ({
-    name: `Kullanıcı ${i + 1}`,
-    role: 'Topluluk Üyesi',
-    avatar: `/avatars/avatar-${(i % 6) + 1}.png`,
-    stars: 5,
-    text: ['Kurulum çok hızlıydı.', 'Destek inanılmaz ilgili.', 'Lisans yönetimi tertemiz.', 'Raporlama çok işimize yaradı.'][i % 4],
-  }));
-  const items = useMemo(() => [...base, ...autos], []);
-
-  const [idx, setIdx] = useState(0);
-  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
-  const total = items.length;
-
-  const start = () => {
-    if (timer.current) return;
-    timer.current = setInterval(() => setIdx(i => (i + 1) % total), 3500);
-  };
-  const stop = () => {
-    if (!timer.current) return;
-    clearInterval(timer.current);
-    timer.current = null;
-  };
-
-  useEffect(() => {
-    start();
-    return stop;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [total]);
-
+function TestimonialsRotatingColors() {
   return (
-    <section id="testimonials" className="py-14 md:py-20 border-y border-white/10 bg-white/[0.02]">
+    <section className="py-14 md:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionTitle eyebrow="Müşteri Yorumları" title="Topluluğun görüşleri" subtitle="25+ gerçek yorum otomatik olarak gösterilir." />
-        <div
-          className="mt-8 relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04]"
-          onMouseEnter={stop}
-          onMouseLeave={start}
-        >
-          {/* Track */}
-          <div
-            className="whitespace-nowrap transition-transform duration-700 ease-out"
-            style={{ transform: `translateX(-${idx * 100}%)` }}
-          >
-            {items.map((t, i) => (
-              <div key={t.name + i} className="inline-block align-top w-full">
-                <TestimonialCard t={t} />
-              </div>
-            ))}
-          </div>
+        {/* ---- Başlık Bloğu ---- */}
+        <div className="text-center mb-10 md:mb-12">
+          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight">
+            Ravenure'yi müşterilerinin ağzından dinleyin
+          </h2>
+          <div className="h-0.5 w-16 md:w-20 bg-[#25d1b0] mx-auto rounded-full mt-3" />
+          <p className="mt-4 text-white/70">
+            Müşterilerimizin Ravenure hakkındaki düşünceleri.
+          </p>
+        </div>
 
-          {/* Dots */}
-          <div className="absolute inset-x-0 bottom-3 flex items-center justify-center gap-1.5">
-            {items.map((_, i) => {
-              const active = i === idx;
-              return (
-                <button
-                  key={i}
-                  aria-label={`Yorum ${i + 1}`}
-                  aria-current={active}
-                  onClick={() => setIdx(i)}
-                  className={`h-2 rounded-full transition-all ${active ? 'w-5 bg-[#25d170]' : 'w-2 bg-white/40 hover:bg-white/70'}`}
-                />
-              );
-            })}
-          </div>
+        <div className="grid md:grid-cols-3 gap-8 ">
+          {/* ÜST SATIR */}
+          <NeutralCard
+            avatar="/avatars/avatar-1.png"
+            handle="@Baso"
+            sub="Youtube.com/@Baso"
+            text="I worked with Aenux for my server, BasoNetwork. Everything you're looking for is in this guy!"
+            size="large"
+            colors={['#7d97fc', '#d07dfc', '#7d97fc']}
+          />
+          <NeutralCard
+            avatar="/avatars/avatar-2.png"
+            handle="@You"
+            sub="Lucky Person"
+            text="Ready to be the next lucky one? Place your order now and experience the difference in quality!"
+            size="normal"
+            colors={['#ffcc70', '#ff6f61', '#ffcc70']}
+          />
+          <NeutralCard
+            avatar="/avatars/avatar-3.png"
+            handle="@Adal"
+            sub="Youtube.com/@DogukanAdalLive"
+            text="I worked with Aenux for my server, Adalances. Thanks to the announcement designs, my server became even more pleasant!"
+            size="large"
+            colors={['#7dfccf', '#25d170', '#7dfccf']}
+          />
+
+          {/* ALT SATIR */}
+          <NeutralCard
+            avatar="/avatars/avatar-4.png"
+            handle="@Raven"
+            sub="Github.com/ravenure"
+            text="Another testimonial in left bottom."
+            size="large"
+            colors={['#ff8efc', '#b87dff', '#ff8efc']}
+          />
+          <NeutralCard
+            avatar="/avatars/avatar-5.png"
+            handle="@Maya"
+            sub="Discord Partner"
+            text="This is the middle bottom card, closer to the top middle oneasdasdasdadadadadada dadssadasdadsads asdadsasddasdadsasddasdadsasdd."
+            size="normal"
+            className="-mt-6"
+            colors={['#7dfcff', '#7dcefc', '#7dfcff']}
+          />
+          <NeutralCard
+            avatar="/avatars/avatar-6.png"
+            handle="@Zen"
+            sub="Freelancer"
+            text="Another testimonial in right bottom."
+            size="large"
+            colors={['#fc7d7d', '#fcbd7d', '#fc7d7d']}
+          />
         </div>
       </div>
     </section>
   );
 }
 
-type Testimonial = { name: string; role: string; avatar: string; stars: number; text: string };
+/* ==== TEK KART ==== */
 
-function TestimonialCard({ t }: { t: Testimonial }) {
+type CardProps = {
+  avatar: string;
+  handle: string;
+  sub?: string;
+  text: string;
+  size?: 'normal' | 'large';
+  className?: string;
+  colors?: [string, string, string];
+};
+
+function NeutralCard({ avatar, handle, sub, text, size = 'normal', className = '', colors }: CardProps) {
   return (
-    <blockquote className="p-6 sm:p-8">
-      <div className="flex items-center gap-3">
-        <img src={t.avatar} alt={t.name} className="w-10 h-10 rounded-full object-cover bg-white/10 ring-1 ring-white/10" />
-        <div>
-          <div className="font-medium">{t.name}</div>
-          <div className="text-xs text-white/60">{t.role}</div>
+    <div className={`relative ${size === 'large' ? 'h-60' : 'h-52'} ${className}`}>
+      <blockquote
+        className="relative rounded-3xl border border-white/10
+                   bg-[linear-gradient(180deg,rgba(12,14,16,0.86),rgba(9,11,13,0.86))]
+                   backdrop-blur-md shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_30px_80px_rgba(0,0,0,0.45)]
+                   p-6 md:p-7 text-white h-full flex flex-col"
+      >
+        <div className="flex items-center gap-3">
+          <img src={avatar} alt={handle} className="h-10 w-10 rounded-full object-cover ring-2 ring-white/10" />
+          <div className="min-w-0">
+            <AnimatedHandle text={handle} c1={colors?.[0]} c2={colors?.[1]} c3={colors?.[2]} />
+            {sub && <div className="mt-1 text-xs text-white/70 truncate">{sub}</div>}
+          </div>
         </div>
-      </div>
-      <div className="mt-3 flex items-center gap-1 text-[#ffd66b]">
-        {Array.from({ length: t.stars }).map((_, i) => <FiStar key={i} />)}
-      </div>
-      <p className="mt-3 text-white/80 text-sm leading-relaxed">{t.text}</p>
-    </blockquote>
+
+        <p className="mt-4 text-[13.5px] leading-6 text-white/90 line-clamp-3">{text}</p>
+      </blockquote>
+    </div>
   );
 }
 
-/* ---------- FAQ (baloncuk + yumuşak animasyon) ---------- */
+/* ==== HANDLE ==== */
+
+function AnimatedHandle({
+  text,
+  c1 = '#ffffff',
+  c2 = '#ff2a2a',
+  c3 = '#ffffff',
+  speed = '2s',
+  period = 120,
+}: {
+  text: string;
+  c1?: string;
+  c2?: string;
+  c3?: string;
+  speed?: string;
+  period?: number;
+}) {
+  const styleVars = {
+    ['--c1' as any]: c1,
+    ['--c2' as any]: c2,
+    ['--c3' as any]: c3,
+    ['--speed' as any]: speed,
+    ['--period' as any]: `${period}px`,
+  } as React.CSSProperties;
+
+  return (
+    <span className="handle-flow font-semibold leading-none " style={styleVars}>
+      {text}
+    </span>
+  );
+}
+
+/* ===================== FAQ ===================== */
 
 function FAQSection() {
-  const faqs = [
-    { id: 'kurulum', q: 'Kurulum ne kadar sürüyor?', a: 'Genellikle 5–10 dakika içinde SDK veya REST API ile ilk doğrulamanızı yapabilirsiniz.' },
-    { id: 'odeme',   q: 'Ödeme altyapısı entegre mi?', a: 'PayTR ve kredi kartı akışlarını destekliyoruz. Webhook ile sürecinize bağlayabilirsiniz.' },
-    { id: 'cihaz',   q: 'Cihaz limiti nasıl çalışır?', a: 'Ürün bazında limit belirleyin; aşıldığında otomatik engelleme uygulanır.' },
-    { id: 'destek',  q: 'Destek nasıl işliyor?', a: '7/24 Discord ve e-posta üzerinden destek sağlıyoruz. Pro planlarda öncelik bulunur.' },
-  ];
-
-  const [openId, setOpenId] = useState<string | null>(null);
-
+  const [open, setOpen] = useState<string | null>(null);
   return (
     <section id="faq" className="py-14 md:py-20 border-t border-white/10 bg-white/[0.02] ">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Sol: başlık */}
           <div className="lg:col-span-1">
-            <SectionTitle
-              eyebrow="Sık Sorulan Sorular"
-              title="Hızlı yanıtlar"
-              subtitle="Daha fazlası için bize Discord’dan ulaşın."
-            />
+            <SectionTitle eyebrow="Sık Sorulan Sorular" title="Hızlı yanıtlar" subtitle="Daha fazlası için bize Discord’dan ulaşın." />
           </div>
-
-          {/* Sağ: sorular alt alta tek sütun */}
-          <div className="lg:col-span-2">
-            <div className="space-y-3">
-              {faqs.map(f => (
-                <FAQItem
-                  key={f.id}
-                  q={f.q}
-                  a={f.a}
-                  open={openId === f.id}
-                  onToggle={() => setOpenId(prev => (prev === f.id ? null : f.id))}
-                />
-              ))}
-            </div>
+          <div className="lg:col-span-2 space-y-3">
+            <FAQItem q="Kurulum ne kadar sürüyor?" a="Genellikle 5–10 dakika içinde SDK veya REST API ile ilk doğrulamanızı yapabilirsiniz." open={open==='1'} onToggle={()=>setOpen(open==='1'?null:'1')} />
+            <FAQItem q="Ödeme altyapısı entegre mi?" a="PayTR ve kredi kartı akışlarını destekliyoruz. Webhook ile sürecinize bağlayabilirsiniz." open={open==='2'} onToggle={()=>setOpen(open==='2'?null:'2')} />
+            <FAQItem q="Cihaz limiti nasıl çalışır?" a="Ürün bazında limit belirleyin; aşıldığında otomatik engelleme uygulanır." open={open==='3'} onToggle={()=>setOpen(open==='3'?null:'3')} />
           </div>
         </div>
       </div>
@@ -293,30 +318,24 @@ function FAQSection() {
   );
 }
 
-type FAQItemProps = { q: string; a: string; open: boolean; onToggle: () => void };
-
-function FAQItem({ q, a, open, onToggle }: FAQItemProps) {
+function FAQItem({ q, a, open, onToggle }: { q: string; a: string; open: boolean; onToggle: ()=>void }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 ">
+    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
       <button
         onClick={onToggle}
         className="w-full text-left flex items-start justify-between gap-3 cursor-pointer"
         aria-expanded={open}
       >
         <span className="font-medium">{q}</span>
-        <span className={`mt-0.5 text-white/60 ${open ? 'rotate-180' : ''}`}>
-          <FiChevronRight />
-        </span>
+        <span className={`mt-0.5 text-white/60 transition-transform ${open ? 'rotate-180' : ''}`}>›</span>
       </button>
-
-      {/* Animasyonsuz, tek açık öğe */}
       {open && <div className="mt-3 text-sm text-white/80">{a}</div>}
     </div>
   );
 }
 
+/* ===================== SMALL BLOCKS ===================== */
 
-/* ============ Small Blocks ============ */
 
 function SectionTitle({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle?: string }) {
   return (
@@ -351,4 +370,50 @@ function Metric({ k, v }: { k: string; v: string }) {
   );
 }
 
+/* ===================== EXTRA STYLES ===================== */
 
+const extraCSS = `
+@keyframes handle-scroll-x {
+  0%   { background-position: 0 0; }
+  100% { background-position: var(--period) 0; }
+}
+.handle-flow {
+  background-image: repeating-linear-gradient(
+    90deg,
+      var(--c1) 0px,
+      var(--c1) calc(var(--period) * 0.20),
+      var(--c2) calc(var(--period) * 0.50),
+      var(--c3) calc(var(--period) * 0.80),
+      var(--c3) var(--period)
+  );
+  background-size: var(--period) 100%;
+  background-repeat: repeat;
+  background-position: 0 0;
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  animation: handle-scroll-x var(--speed) linear infinite;
+
+  filter:
+    drop-shadow(0 0 4px rgba(255,255,255,0.18))
+    drop-shadow(0 0 8px rgba(255, 42, 42, 0.18));
+}
+.line-clamp-3{
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+`;
+
+if (typeof document !== 'undefined') {
+  const tagId = 'extra-handle-flow-styles';
+  if (!document.getElementById(tagId)) {
+    const styleTag = document.createElement('style');
+    styleTag.id = tagId;
+    styleTag.innerHTML = extraCSS;
+    document.head.appendChild(styleTag);
+  }
+}
