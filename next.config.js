@@ -1,6 +1,5 @@
 const withFlowbiteReact = require("flowbite-react/plugin/nextjs");
 
-// next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {

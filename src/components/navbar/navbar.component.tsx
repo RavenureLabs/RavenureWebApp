@@ -1,13 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import {
-  UserIcon,
-  ShoppingCartIcon,
-} from '@heroicons/react/24/outline';
+import { useEffect, useRef, useState } from 'react';
+import { UserIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
 import { config } from '@/src/config/config';
-import { signIn, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useCartStore } from '@/src/stores/cart.store';
 import { FaChevronDown } from 'react-icons/fa';
 
@@ -18,17 +15,34 @@ const languages = [
 
 export default function Header() {
   const { text, setLanguage, language } = useLanguage();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const { toggle } = useCartStore();
 
   const [isOpen, setIsOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const handleSelect = (lang: (typeof languages)[0]) => {
-    setSelectedLang(lang);
-    setIsOpen(false);
-    setLanguage(lang.code);
-  };
+  // Scroll -> açık tema
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Header yüksekliği -> spacer
+  const headerRef = useRef<HTMLElement>(null);
+  const [headerH, setHeaderH] = useState(0);
+  useEffect(() => {
+    const update = () => setHeaderH(headerRef.current?.offsetHeight || 0);
+    update();
+    window.addEventListener('resize', update);
+    window.addEventListener('scroll', update, { passive: true });
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('scroll', update);
+    };
+  }, [scrolled, isOpen, mobileMenuOpen]);
 
   const navLinks = [
     { href: '/', key: 'navbar.home' },
@@ -100,29 +114,40 @@ export default function Header() {
             </nav>
           </div>
 
-        {/* Sağ taraf: Butonlar */}
-        <div className="flex items-center gap-4">
-          {/* Sepet & Kullanıcı */}
-          <div className="flex items-center gap-2">
-            <a
-              onClick={toggle}
-              className="relative p-2 transition-all duration-300 overflow-hidden group cursor-pointer"
-            >
-              <span className="relative z-10">
-                <ShoppingCartIcon className="w-5 h-5" />
-              </span>
-              <span className="absolute inset-0 rounded-[20px] bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
-            </a>
-            <a
-              href={session?.user ? '/dash' : '/login'}
-              className="relative p-2 transition-all duration-300 overflow-hidden group"
-            >
-              <span className="relative z-10">
-                <UserIcon className="w-5 h-5" />
-              </span>
-              <span className="absolute inset-0 rounded-[20px] bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
-            </a>
-          </div>
+          {/* Sağ: Butonlar */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggle}
+                className="relative p-2 transition-all duration-300 overflow-hidden group"
+                aria-label="Cart"
+              >
+                <span className={['relative z-10', scrolled ? 'text-neutral-900' : 'text-white'].join(' ')}>
+                  <ShoppingCartIcon className="w-5 h-5" />
+                </span>
+                <span
+                  className={[
+                    'absolute inset-0 rounded-[20px] opacity-0 group-hover:opacity-100 transition-all duration-300',
+                    scrolled ? 'bg-black/[0.06]' : 'bg-gradient-to-r from-white/10 to-transparent',
+                  ].join(' ')}
+                />
+              </button>
+
+              <a
+                href={session?.user ? '/dash' : '/login'}
+                className="relative p-2 transition-all duration-300 overflow-hidden group"
+              >
+                <span className={['relative z-10', scrolled ? 'text-neutral-900' : 'text-white'].join(' ')}>
+                  <UserIcon className="w-5 h-5" />
+                </span>
+                <span
+                  className={[
+                    'absolute inset-0 rounded-[20px] opacity-0 group-hover:opacity-100 transition-all duration-300',
+                    scrolled ? 'bg-black/[0.06]' : 'bg-gradient-to-r from-white/10 to-transparent',
+                  ].join(' ')}
+                />
+              </a>
+            </div>
 
             {/* Dil seçici */}
             <div className="relative text-sm select-none hidden lg:block">

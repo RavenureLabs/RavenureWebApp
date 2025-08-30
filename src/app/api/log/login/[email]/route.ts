@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { email: string } }
+  { params }: { params: Promise<{ email: string }> }
 ) {
   const { email } = await params;
   if (!email) {
