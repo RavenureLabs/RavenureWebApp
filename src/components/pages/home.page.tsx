@@ -1,14 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  FiZap, 
-  FiShield, 
-  FiServer, 
-  FiCode, 
-  FiClock, 
-  FiSmile 
+import {
+  FiZap,
+  FiShield,
+  FiServer,
+  FiCode,
+  FiClock,
+  FiSmile
 } from 'react-icons/fi';
+import { FaDiscord } from 'react-icons/fa';
 
 /* ===================== SAYFA ===================== */
 
@@ -16,6 +17,7 @@ export default function HomePageComponent() {
   return (
     <div className="relative min-h-screen bg-[radial-gradient(60%_80%_at_20%_0%,#0e1115_0%,#090a0b_40%,#08090a_100%)] text-white">
       {/* HERO */}
+            {/* HERO */}
       <section
         className="relative overflow-hidden bg-white
         before:content-[''] before:absolute before:inset-0
@@ -58,6 +60,7 @@ export default function HomePageComponent() {
         </div>
       </section>
 
+
       {/* FEATURES */}
       <FeaturesSection />
 
@@ -69,6 +72,9 @@ export default function HomePageComponent() {
 
       {/* FAQ */}
       <FAQSection />
+
+      {/* DISCORD CTA */}
+      <JoinDiscordSection />
     </div>
   );
 }
@@ -77,7 +83,7 @@ export default function HomePageComponent() {
 
 function FeaturesSection() {
   return (
-    <section id="features" className="py-14 md:py-20 border-t border-white/10 bg-white/[0.02]">
+    <section id="features" className="section-dark py-14 md:py-20 border-t border-white/10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionTitle
           eyebrow="Özellikler"
@@ -96,11 +102,12 @@ function FeaturesSection() {
     </section>
   );
 }
+
 /* ===================== WHY ===================== */
 
 function WhySection() {
   return (
-    <section id="why" className="py-14 md:py-20">
+    <section id="why" className="section-dark py-14 md:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 grid lg:grid-cols-2 gap-10 items-center">
         <div>
           <SectionTitle
@@ -155,9 +162,11 @@ function WhySection() {
 
 /* ===================== TESTIMONIALS – 6 KART + BAŞLIK ===================== */
 
+/* ===================== TESTIMONIALS – ALTTA BÖLÜM FADESİ ===================== */
+
 function TestimonialsRotatingColors() {
   return (
-    <section className="py-14 md:py-20">
+    <section className="section-dark relative overflow-hidden py-14 md:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         {/* ---- Başlık Bloğu ---- */}
         <div className="text-center mb-10 md:mb-12">
@@ -170,6 +179,7 @@ function TestimonialsRotatingColors() {
           </p>
         </div>
 
+        {/* Kartlar */}
         <div className="grid md:grid-cols-3 gap-8 ">
           {/* ÜST SATIR */}
           <NeutralCard
@@ -225,9 +235,14 @@ function TestimonialsRotatingColors() {
           />
         </div>
       </div>
+
+      {/* ALT FADE KATMANI — bölümü yumuşak şekilde karanlığa taşı */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-60 md:h-82 bg-gradient-to-b from-transparent to-[#08090a]/95" />
+
     </section>
   );
 }
+
 
 /* ==== TEK KART ==== */
 
@@ -296,46 +311,205 @@ function AnimatedHandle({
   );
 }
 
-/* ===================== FAQ ===================== */
+/* ===================== FAQ (STATİK) ===================== */
 
 function FAQSection() {
-  const [open, setOpen] = useState<string | null>(null);
   return (
-    <section id="faq" className="py-14 md:py-20 border-t border-white/10 bg-white/[0.02] ">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1">
-            <SectionTitle eyebrow="Sık Sorulan Sorular" title="Hızlı yanıtlar" subtitle="Daha fazlası için bize Discord’dan ulaşın." />
+    <section id="faq" className="section-dark py-14 md:py-20 border-t border-white/10">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6">
+        {/* Başlık */}
+        <div className="text-center">
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">Sıkça Sorulan Sorular</h2>
+          <div className="h-0.5 w-16 md:w-20 bg-[#25d1b0] mx-auto rounded-full mt-3" />
+          <p className="mt-4 text-white/70">
+            Ravenure hakkındaki sorularınızın cevabı belki buradadır.
+          </p>
+        </div>
+
+        {/* İçerik bloğu */}
+        <div className="mt-6 rounded-3xl p-6 md:p-8">
+          {/* 1 */}
+          <div className="py-4">
+            <h3 className="text-[17px] md:text-lg font-semibold">Ravenure Website yazılımı nedir?</h3>
+            <p className="mt-2 text-sm md:text-[15px] leading-6 text-white/75">
+              Ravenure, oyun sunucuları için özel olarak hazırlanmış bir website yazılımıdır. Bu yazılım, sunucu
+              yönetimini ve web sitesi üzerinden çeşitli işlemleri kolayca gerçekleştirmenizi sağlayarak oyun
+              deneyimini daha etkili hale getirir.
+            </p>
+            <p className="mt-3 text-sm md:text-[15px] leading-6 text-white/75">
+              Ravenure, sunucunuzun web sayfasını yönetmenin yanı sıra, bir dizi hazır modül ile birlikte gelir. Bu
+              modüller; satın alımlar, destek talepleri, formlar gibi önemli süreçleri yönetmenize olanak tanır.
+              Websiteniz üzerinden ürün satışları gerçekleştirebilir, elde ettiğiniz gelir banka hesabınıza
+              aktarabilir ve oyunculara satın aldıkları ürünleri otomatik olarak oyundan teslim edebilirsiniz.
+            </p>
           </div>
-          <div className="lg:col-span-2 space-y-3">
-            <FAQItem q="Kurulum ne kadar sürüyor?" a="Genellikle 5–10 dakika içinde SDK veya REST API ile ilk doğrulamanızı yapabilirsiniz." open={open==='1'} onToggle={()=>setOpen(open==='1'?null:'1')} />
-            <FAQItem q="Ödeme altyapısı entegre mi?" a="PayTR ve kredi kartı akışlarını destekliyoruz. Webhook ile sürecinize bağlayabilirsiniz." open={open==='2'} onToggle={()=>setOpen(open==='2'?null:'2')} />
-            <FAQItem q="Cihaz limiti nasıl çalışır?" a="Ürün bazında limit belirleyin; aşıldığında otomatik engelleme uygulanır." open={open==='3'} onToggle={()=>setOpen(open==='3'?null:'3')} />
+          <div className="h-px bg-white/10 my-2" />
+
+          {/* 2 */}
+          <div className="py-4">
+            <h3 className="text-[17px] md:text-lg font-semibold">Yardıma ihtiyacım olduğunda ne yapabilirim?</h3>
+            <p className="mt-2 text-sm md:text-[15px] leading-6 text-white/75">
+              Bize Ulaşın bölümündeki Discord kanalımızdan bize ulaşabilirsiniz. Aklınıza takılan her türlü soruyu
+              Discord Destek Odasından destek talebi oluşturarak ekibimiz tarafından teknik destek veya satış öncesi
+              destek alabilirsiniz.
+            </p>
+          </div>
+          <div className="h-px bg-white/10 my-2" />
+
+          {/* 3 */}
+          <div className="py-4">
+            <h3 className="text-[17px] md:text-lg font-semibold">
+              İlk defa sunucu açıyorum bilgim yok bu sistemi kullanabilir miyim?
+            </h3>
+            <p className="mt-2 text-sm md:text-[15px] leading-6 text-white/75">
+              Bu ürün her müşterinin kullanabileceği düzeydedir. Panelde anlamadığınız yerler olursa bize sorabilir
+              veya Yardım Merkezindeki makaleleri okuyarak veya videoları izleyerek aklınızdaki soru işaretlerini
+              kaldırabilirsiniz.
+            </p>
+          </div>
+          <div className="h-px bg-white/10 my-2" />
+
+          {/* 4 */}
+          <div className="py-4">
+            <h3 className="text-[17px] md:text-lg font-semibold">Paket yükseltebilir miyim?</h3>
+            <p className="mt-2 text-sm md:text-[15px] leading-6 text-white/75">
+              Evet, aradaki farkı ödeyerek paketinizi dilediğiniz zaman yükseltebilirsiniz.
+            </p>
+          </div>
+          <div className="h-px bg-white/10 my-2" />
+
+          {/* 5 */}
+          <div className="py-4">
+            <h3 className="text-[17px] md:text-lg font-semibold">Alan adımı değiştirebilir miyim?</h3>
+            <p className="mt-2 text-sm md:text-[15px] leading-6 text-white/75">
+              Evet, 6 ayda bir ücretsiz olarak lisansınızın alan adını değiştirebilir ve taşıyabilirsiniz. 6 ay
+              içerisinde birden fazla değişim için ek ücret talep edilir.
+            </p>
+          </div>
+          <div className="h-px bg-white/10 my-2" />
+
+          {/* 6 */}
+          <div className="py-4">
+            <h3 className="text-[17px] md:text-lg font-semibold">Yıllık yenilemeli kullanım nedir?</h3>
+            <p className="mt-2 text-sm md:text-[15px] leading-6 text-white/75">
+              Yıllık yenilemeli kullanım, paketinizi satın aldığınızda 1 yıl boyunca kullanabileceğiniz anlamına gelir.
+              1 yıl sonunda paketinizi yenilemek isterseniz yıllık yenileme ücreti ödemeniz gerekmektedir. 1 yıl
+              sonunda ödeme yapmazsanız lisansınız silinmez, sadece askıya alınır ve ödeme yaptığınızda geri aktif hale
+              gelir.
+            </p>
           </div>
         </div>
+
+        <p className="mt-5 text-center text-xs text-white/50">
+          Ravenure ile ilgili tüm dokümanlara <span className="text-[#9fe9c9]">Yardım Merkezi</span> sayfamızdan ulaşabilirsiniz.
+        </p>
       </div>
     </section>
   );
 }
 
-function FAQItem({ q, a, open, onToggle }: { q: string; a: string; open: boolean; onToggle: ()=>void }) {
+/* ===================== DISCORD KATILIM – CTA ===================== */
+
+function JoinDiscordSection() {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-      <button
-        onClick={onToggle}
-        className="w-full text-left flex items-start justify-between gap-3 cursor-pointer"
-        aria-expanded={open}
-      >
-        <span className="font-medium">{q}</span>
-        <span className={`mt-0.5 text-white/60 transition-transform ${open ? 'rotate-180' : ''}`}>›</span>
-      </button>
-      {open && <div className="mt-3 text-sm text-white/80">{a}</div>}
-    </div>
+    <section className="section-dark py-14 md:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04]">
+          {/* Yumuşak glow */}
+          <div className="pointer-events-none absolute -inset-1 bg-gradient-to-tr from-[#25d170]/25 via-transparent to-[#139f8b]/25 blur-2xl" />
+
+          <div className="relative grid gap-10 lg:grid-cols-[1.1fr_.9fr] p-7 md:p-10">
+            {/* Sol içerik */}
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs text-white/70">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#25d170]" />
+                Topluluğa Katıl
+              </div>
+
+              <h2 className="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight">
+                Discord’umuza gel, <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#25d170] to-[#139f8b]">gerçek zamanlı</span> destek al
+              </h2>
+
+              <p className="mt-3 text-white/70 md:text-[15px] leading-7">
+                Geliştiriciler ve kullanıcılarla aynı sunucuda buluş. Sorularını sor, güncellemeleri ilk sen öğren,
+                erken erişim ve duyurulardan yararlan.
+              </p>
+
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <a
+                  href="https://discord.gg/your-invite"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold
+                             bg-gradient-to-r from-[#25d170] to-[#139f8b] text-white shadow-lg hover:opacity-90 transition"
+                >
+                  <FaDiscord className="text-xl" />
+                  Sunucuya Katıl
+                </a>
+              </div>
+
+              {/* Küçük maddeler */}
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
+                  <div className="text-sm font-semibold">Anlık Destek</div>
+                  <div className="mt-1 text-xs text-white/70">Teknik & satış öncesi yardım</div>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
+                  <div className="text-sm font-semibold">Duyurular</div>
+                  <div className="mt-1 text-xs text-white/70">Güncellemeleri ilk sen öğren</div>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/40 p-4">
+                  <div className="text-sm font-semibold">Topluluk</div>
+                  <div className="mt-1 text-xs text-white/70">Deneyim paylaşımı ve öneriler</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sağ görsel blok */}
+            <div className="relative">
+              <div className="absolute -inset-6 bg-gradient-to-tr from-[#25d170]/25 to-transparent blur-3xl rounded-3xl" />
+              <div className="relative h-full rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                <div className="flex items-center gap-3">
+                  <div className="grid h-12 w-12 place-items-center rounded-xl bg-[#25d170]/20 border border-white/10">
+                    <FaDiscord className="text-2xl text-[#9fe9c9]" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-white/70">Discord • Ravenure</div>
+                    <div className="text-lg font-semibold">#destek • #duyurular • #genel</div>
+                  </div>
+                </div>
+
+                <div className="mt-5 space-y-3 text-sm">
+                  <div className="rounded-xl border border-white/10 bg-black/40 p-3">
+                    <div className="text-white/80">Yeni sürüm yayında!</div>
+                    <div className="text-white/60 mt-1">Webhook geliştirmeleri ve panel performans iyileştirmeleri.</div>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-black/40 p-3">
+                    <div className="text-white/80">Canlı yardım saati</div>
+                    <div className="text-white/60 mt-1">Her akşam 20:00–22:00 arasında ekip çevrimiçi.</div>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-black/40 p-3">
+                    <div className="text-white/80">Topluluk rehberleri</div>
+                    <div className="text-white/60 mt-1">Kurulum, lisans ve cihaz yönetimi örnekleri.</div>
+                  </div>
+                </div>
+
+                <div className="mt-6 text-xs text-white/50">
+                  Sunucuya katılım ücretsizdir. Kurallara uymak zorunludur.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Alt mini satır */}
+        <p className="mt-6 text-center text-xs text-white/50">
+          Sorun mu var? <span className="text-[#9fe9c9]">Bize Ulaşın</span> kanalından yazabilirsin.
+        </p>
+      </div>
+    </section>
   );
 }
 
 /* ===================== SMALL BLOCKS ===================== */
-
 
 function SectionTitle({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle?: string }) {
   return (
@@ -373,6 +547,20 @@ function Metric({ k, v }: { k: string; v: string }) {
 /* ===================== EXTRA STYLES ===================== */
 
 const extraCSS = `
+/* Ortak koyu zemin */
+.section-dark{
+  background: linear-gradient(180deg, rgba(12,14,16,0.72), rgba(8,9,10,0.72));
+}
+
+/* Alt üç referansa fade */
+.card-fade::after{
+  content:'';
+  position:absolute; inset:0;
+  border-radius: 1.5rem;
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%);
+  pointer-events:none;
+}
+
 @keyframes handle-scroll-x {
   0%   { background-position: 0 0; }
   100% { background-position: var(--period) 0; }
