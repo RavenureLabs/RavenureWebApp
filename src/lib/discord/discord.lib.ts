@@ -34,6 +34,7 @@ static async getClient(): Promise<Client> {
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent, 
+        GatewayIntentBits.GuildMembers
       ],
     });
 

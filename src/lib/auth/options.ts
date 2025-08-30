@@ -1,143 +1,158 @@
 // lib/auth/options.ts
-import { NextAuthOptions, Profile } from "next-auth";
+import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import DiscordProvider from "next-auth/providers/discord";
 import { userService } from "../services";
-import { api } from "../api";
-import { error } from "console";
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "email", type: "text" },
-        password: { label: "password", type: "password" },
+        email: { label: "Email" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const { password, email } = credentials || {};
-
+        const { email, password } = credentials || {};
         const res = await fetch(`${process.env.NEXTAUTH_URL}/api/auth/login`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                data: {
-                    email,
-                    password,
-                }
-            }),
-        })
-        const user = await res.json();
-        if (user.user !== undefined) {
-          if(user.user.discordId !== null){
-            return null;
-          }
-          return user.user;
-        } else {
-          return null;
-        }
-      }
-    }),
-    DiscordProvider({
-      clientId: process.env.DISCORD_CLIENT_ID as string,
-      clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
-      async profile(profile) {
-        if (!profile?.email || !profile?.username) {
-          console.error("Missing required Discord profile fields:", profile);
-          throw new Error("Discord hesabınızdan e-posta ve kullanıcı adı alınamadı.");
-        }
-
-        const res = await fetch(`${process.env.NEXTAUTH_URL}/api/user/discord/${profile.id}`, {
-          method: "GET",
-          headers: {
-            "Content-type": "application/json",
-            "x-auth-id": profile.id
-          }
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: { email, password } }),
         });
 
-        if (res.status === 404) {
-          const result = await userService.register({
-            name: profile.username || "DiscordUser",
-            email: profile.email,
-            password: undefined,
+        const out = await res.json().catch(() => null);
+        if (!out?.user) return null;
+
+        const u = out.user;
+        return {
+          // Credentials akışında NextAuth bir id ister -> DB id verilebilir
+          id: String(u._id),
+          dbId: String(u._id),
+          name: u.name,
+          email: u.email,
+          image: u.profilePictureUrl ?? null,
+          discordId: u.discordId ?? null,
+          role: u.role,
+          accountType: u.accountType,
+          isActive: u.isActive,
+          isVerified: u.isVerified,
+          lastLogin: u.lastLogin ?? null,
+          phoneNumber: u.phoneNumber ?? null,
+        };
+      },
+    }),
+
+    DiscordProvider({
+      clientId: process.env.DISCORD_CLIENT_ID!,
+      clientSecret: process.env.DISCORD_CLIENT_SECRET!,
+      authorization: { params: { scope: "identify email" } },
+      async profile(profile) {
+        // 1) Kullanıcıyı Discord ID ile ara
+        const res = await fetch(
+          `${process.env.NEXTAUTH_URL}/api/user/discord/${profile.id}`,
+          { cache: "no-store" }
+        ).catch(() => null);
+
+        let fetchedJson: any = null;
+        if (res) {
+          try {
+            fetchedJson = await res.json();
+          } catch {
+            fetchedJson = null;
+          }
+        }
+
+        // 2) Yanıtı normalize et: { user: {...} } veya direkt {...}
+        let userDoc =
+          (fetchedJson && (fetchedJson.user ?? fetchedJson)) || null;
+
+        // 3) Bulunamadıysa kaydet ve yine normalize et
+        if (!res || res.status === 404 || !userDoc) {
+          const created = await userService.register({
+            name: profile.global_name ?? profile.username ?? "Discord User",
+            email: profile.email ?? null, // email her zaman gelmeyebilir
             accountType: "discord",
             discordId: profile.id,
-            profilePictureUrl: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`,
-            role: "admin",
+            profilePictureUrl: profile.avatar
+              ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`
+              : `https://cdn.discordapp.com/embed/avatars/0.png`,
+            role: "member",
             createdAt: new Date().toISOString(),
             products: [],
             isVerified: true,
           });
-          return {
-            id: result.user.discordId,
-            name: result.user.name,
-            email: result.user.email,
-            image: result.user.profilePictureUrl,
-            role: result.user.role,
-            phoneNumber: result.user.phoneNumber,
-            accountType: result.user.accountType,
-            isActive: result.user.isActive,
-            isVerified: result.user.isVerified,
-            lastLogin: result.user.lastLogin,
-          };
+
+          // register dönüşünü de normalize et
+          userDoc = created?.user ?? created ?? null;
         }
 
-        const user = await res.json();
+        const dbId =
+          (userDoc && (userDoc._id ?? userDoc.id)) ? String(userDoc._id ?? userDoc.id) : null;
+
         return {
-          id: user.user.discordId,
-          name: user.user.name,
-          email: user.user.email,
-          image: user.user.profilePictureUrl,
-          role: user.user.role,
-          phoneNumber: user.user.phoneNumber,
-          accountType: user.user.accountType,
-          isActive: user.user.isActive,
-          isVerified: user.user.isVerified,
-          lastLogin: user.user.lastLogin,
+          // ZORUNLU: OAuth kimliği = Discord kullanıcı ID
+          id: profile.id,
+
+          // DB kimliği ayrı alan
+          dbId,
+
+          // Görsel ve kimlik bilgileri
+          name:
+            userDoc?.name ??
+            profile.global_name ??
+            profile.username ??
+            "Discord User",
+          email: userDoc?.email ?? profile.email ?? null,
+          image:
+            userDoc?.profilePictureUrl ??
+            (profile.avatar
+              ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`
+              : `https://cdn.discordapp.com/embed/avatars/0.png`),
+
+          // Ek alanlar
+          discordId: userDoc?.discordId ?? profile.id,
+          role: userDoc?.role ?? "member",
+          accountType: userDoc?.accountType ?? "discord",
+          isActive: userDoc?.isActive ?? true,
+          isVerified: userDoc?.isVerified ?? true,
+          lastLogin: userDoc?.lastLogin ?? null,
+          phoneNumber: userDoc?.phoneNumber ?? null,
+        };
+      },
+    }),
+  ],
+
+  pages: { signIn: "/login" },
+  session: { strategy: "jwt" },
+
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.user = {
+          ...(token.user || {}),
+          // Discord’da 'id' = discordId, Credentials’ta 'id' = dbId; fark etmez, hepsini taşıyoruz
+          id: (user as any).id,
+          dbId: (user as any).dbId ?? (user as any).id ?? null,
+          name: user.name!!,
+          email: user.email!!,
+          image: (user as any).image ?? (user as any).profilePictureUrl ?? null,
+          discordId: (user as any).discordId ?? null,
+          role: (user as any).role ?? "member",
+          accountType: (user as any).accountType ?? "discord",
+          isActive: (user as any).isActive ?? true,
+          isVerified: (user as any).isVerified ?? true,
+          lastLogin: (user as any).lastLogin ?? null,
+          phoneNumber: (user as any).phoneNumber ?? null,
         };
       }
-    })
-  ],
-  pages: {
-    signIn: "/login",
-  },
-  session: {
-    strategy: "jwt",
-  },
-    callbacks: {
-        async jwt({ token, user, account, profile  }) {
-            if (user) {
-              if (account?.provider === "discord") {
-                let isRegistered = await userService.isRegistered(profile?.email);
-                if (!isRegistered) {
-                  await userService.register({
-                    // @ts-ignore
-                    name: profile?.username as string,
-                    email: profile?.email as string,
-                    password: undefined,
-                    accountType: "discord",
-                    // @ts-ignore
-                    discordId: profile?.id as string,
-                    phoneNumber: "",
-                    // @ts-ignore
-                    profilePictureUrl: `https://cdn.discordapp.com/avatars/${profile.id}/${profile?.avatar}.png`,
-                    role: "admin",
-                    createdAt: new Date().toISOString(),
-                    products: [],
-                    isVerified: true,
-                  });
-                }
-              }
-              token.user = user; 
-            }
-            return token;
-            },
-        async session({ session, token }) {
-          session.user = token.user as typeof session.user;
-          return session;
-        },
+      return token;
     },
+
+    async session({ session, token }) {
+      session.user = token.user as any;
+      return session;
+    },
+  },
+
   secret: process.env.NEXTAUTH_SECRET,
 };

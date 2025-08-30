@@ -2,7 +2,8 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "../lib/database";
 import User, { UserType } from "../models/user.model";
-import { comparePassword } from "../lib/bcrypt";
+import { comparePassword, hashPassword } from "../lib/bcrypt";
+import userLogModel from "../models/userLog.model";
 
 export async function createUser(data: any) {
     await connectToDatabase();
@@ -205,6 +206,24 @@ export async function register(data: UserType) {
     console.error("Error registering user:", error);
     return NextResponse.json({ message: "Error registering user", error }, { status: 500 });
   }
+}
+
+export async function resetPassword(data: any){
+    const {email, newPassword} = data;
+
+    await connectToDatabase();
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return NextResponse.json({ message: "User not found" }, { status: 404 });
+        }
+        user.password = hashPassword(newPassword);
+        await user.save();
+        return NextResponse.json({ message: "Password reset successfully" }, { status: 200 });
+    } catch (error) {
+        console.error("Error resetting password:", error);
+        return NextResponse.json({ message: "Error resetting password", error }, { status: 500 });
+    }
 }
 
 

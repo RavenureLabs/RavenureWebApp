@@ -1,7 +1,12 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
-import React, { useEffect, useMemo, useState } from 'react';
+import { api } from '@/src/lib/api';
+import { licenseService, orderService, productService, userLogService, userService } from '@/src/lib/services';
+import { OrderType } from '@/src/models/order.model';
+import { UserLoginLogType } from '@/src/models/userLog.model';
+import { LicenseType } from '@/src/types/global';
+import { signOut, useSession } from 'next-auth/react';
+import React, { JSX, useEffect, useMemo, useState } from 'react';
 import {
   FiHome, FiKey, FiCreditCard, FiClock, FiShield, FiSettings, FiBell, FiChevronRight, FiLogOut,
   FiCopy, FiSearch, FiAlertTriangle, FiEye, FiEyeOff, FiDownload
@@ -9,10 +14,22 @@ import {
 
 /* ---------------- PAGE ---------------- */
 
-export default function DashboardPageComponent() {
+export default function DashboardPageComponent() { 
   const { data: session, status } = useSession();
   const [active, setActive] = useState<'overview'|'licenses'|'purchases'|'logins'|'admin'|'settings'>('overview');
+  const [displayName, setDisplayName] = useState<string>('');
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
 
+  useEffect(() => {
+    if (session?.user) {
+      const fetch = async () => {
+        const res = await api.get('/api/discord/user');
+        setDisplayName(res.data.username || '');
+        setAvatarUrl(res.data.avatar || '');
+      }
+      fetch();
+    }
+  }, [session, status]);
   const capitalizeWords = (str?: string | null) => {
     if (!str) return '';
     return str
@@ -23,32 +40,22 @@ export default function DashboardPageComponent() {
       .join(' ');
   };
 
-  const displayName = capitalizeWords(session?.user?.name) || 'Kullanıcı';
-  const avatarUrl = session?.user?.image || '/default-avatar.png';
-
-  // Overview sağ kart için örnek
-  const licenses = ['Minecraft Market Eklentisi', 'Discord Destek Botu', 'Web Lisans Sistemi'];
-
   useEffect(() => {
     const onEsc = (e: KeyboardEvent) => e.key === 'Escape' && null;
     window.addEventListener('keydown', onEsc);
     return () => window.removeEventListener('keydown', onEsc);
   }, []);
 
-  // ✅ İlk kez panel açılınca giriş event'i gönder (email yoksa name, yoksa 'anon')
-  const userKey = session?.user?.email || session?.user?.name || 'anon';
   useEffect(() => {
-    if (status !== 'authenticated') return;
-    const onceKey = `login_event_sent:${userKey}`;
-    if (sessionStorage.getItem(onceKey)) return;
-    sessionStorage.setItem(onceKey, '1');
+    if (!session && status === 'unauthenticated') {
+      window.location.href = '/';
+      return;
+    }
+    
+  }, [session, status]);
 
-    fetch('/api/login-events', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify({ email: userKey, name: session?.user?.name ?? '' })
-    }).catch(() => {});
-  }, [status, userKey, session?.user?.name]);
+  const userKey = session?.user?.email || 'Unknown';
+
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-[radial-gradient(60%_80%_at_20%_0%,#1e1b4b_0%,#0a0a0b_40%,#09080a_100%)] text-white">
@@ -70,12 +77,16 @@ export default function DashboardPageComponent() {
           <RailItem title="Giriş Kayıtları" icon={<FiClock />}      active={active==='logins'}    onClick={() => setActive('logins')}
                     iconColor="#94a3b8"    activeIconColor="#d946ef" />
           <div className="my-2 border-t border-white/10" />
-          <RailItem title="Yönetim"        icon={<FiShield />}      active={active==='admin'}     onClick={() => setActive('admin')}
+          {
+            (session?.user as any)?.role === 'admin' && (
+                <RailItem title="Yönetim"        icon={<FiShield />}      active={active==='admin'}     onClick={() => window.location.href = '/admin-dashboard'}
                     iconColor="#94a3b8"    activeIconColor="#16a34a" />
+            )
+          }
           <RailItem title="Ayarlar"        icon={<FiSettings />}    active={active==='settings'}  onClick={() => setActive('settings')}
                     iconColor="#94a3b8"    activeIconColor="#F6D703" />
           <div className="mt-6"></div>
-          <RailItem title="Çıkış Yap"      icon={<FiLogOut />}      danger onClick={() => alert('Çıkış işlemi')}
+          <RailItem title="Çıkış Yap"      icon={<FiLogOut />}      danger onClick={() => signOut()}
                     iconColor="#D0234A"    activeIconColor="#dc2626" />
         </nav>
       </aside>
@@ -132,7 +143,6 @@ export default function DashboardPageComponent() {
         </div>
       </header>
 
-      {/* --- CONTENT --- */}
       <main className="pt-16 md:pt-0 md:pl-[84px]">
         <div className="mx-auto max-w-7xl w-full px-3 sm:px-4 lg:px-6 py-6 sm:py-8 grid gap-6 sm:gap-8">
 
@@ -140,8 +150,8 @@ export default function DashboardPageComponent() {
             <Overview
               displayName={displayName}
               avatarUrl={avatarUrl}
-              licenses={licenses}
-              email={session?.user?.email || '—'}
+              email={userKey}
+              setActive={setActive}
             />
           )}
 
@@ -149,11 +159,10 @@ export default function DashboardPageComponent() {
 
           {active === 'purchases' && <PurchasesSection />}
 
-          {/* ✅ Gerçek loglar API’dan geliyor; e-posta yoksa name/anon ile listeler */}
           {active === 'logins' && <LoginsSection userKey={userKey} />}
 
-          {active === 'admin' && (
-            <AdminSection
+          {active === 'settings' && (
+            <SettingsSection
               name={displayName}
               email={session?.user?.email || '—'}
             />
@@ -166,14 +175,55 @@ export default function DashboardPageComponent() {
 
 /* ---------------- SMALL SECTIONS ---------------- */
 
-function Overview({ displayName, avatarUrl, licenses, email }:{
-  displayName:string; avatarUrl:string; licenses:string[]; email:string;
+function Overview({ displayName, avatarUrl, email, setActive }:{
+  displayName:string; avatarUrl:string; email:string, setActive:Function;
 }) {
+  const { data: session, status } = useSession();
+  const [totalExpenditure, setTotalExpenditure] = useState('');
+  const [lastPurchasesExpenditure, setLastPurchasesExpenditure] = useState('');
+  const [loginLog, setLoginLog] = useState<UserLoginLogType[]>([]);
+  const [lastPurchases, setLastPurchases] = useState<OrderType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [licenses, setLicenses] = useState<LicenseType[]>([]);
+  const [TodayLicenseCount, setTodayLicenseCount] = useState(0);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const totalExpenditure = await orderService.getTotalExpenditure();
+      setTotalExpenditure(totalExpenditure.toString());
+
+      const lastPurchasesExpenditure = await orderService.getLastPurchasesExpenditure();
+      setLastPurchasesExpenditure(lastPurchasesExpenditure.toString());
+
+      const loginLog = await userLogService.getAllUserLogs(session?.user?.email || '');
+      setLoginLog(loginLog);
+
+      const lastPurchases = await orderService.getOrders();
+      setLastPurchases(lastPurchases.slice(0, 4));
+
+      const licenses = await licenseService.getLicenses(session?.user.id!, session?.user.email!);
+      setLicenses(licenses);
+      
+      setTodayLicenseCount(licenses.filter((license) => new Date(license.createdAt).toDateString() === new Date().toDateString()).length)
+      setLoading(false);
+    }
+    fetch();
+  }, [session, status]);
+
+  if (loading) 
+    return (
+        <div className="flex flex-col items-center justify-center h-full">
+          <svg className="animate-spin -ml-1 mr-3 h-12 w-12 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </div>
+      )
   return (
     <>
       <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-        <StatCard title="Lisanslar" value={`${licenses.length}`} hint="Bugün +1" />
-        <StatCard title="Toplam Harcama" value="₺1.250" hint="30 günde ₺350" />
+        <StatCard title="Lisanslar" value={`${licenses.length}`} hint={`Bugün +${TodayLicenseCount}`} />
+        <StatCard title="Toplam Harcama" value={totalExpenditure} hint={`30 günde ₺${lastPurchasesExpenditure}`} />
         <StatCard title="Destek Talepleri" value="5" hint="2 açık" />
       </section>
 
@@ -192,20 +242,19 @@ function Overview({ displayName, avatarUrl, licenses, email }:{
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/10">
-                  <tr>
-                    <td className="py-3 pr-3 whitespace-nowrap">10.08.2025</td>
-                    <td className="py-3 pr-3 min-w-0"><span className="block truncate max-w-[220px] sm:max-w-none">Minecraft Market Eklentisi</span></td>
-                    <td className="py-3 pr-3 whitespace-nowrap">PayTR</td>
-                    <td className="py-3 pr-3 whitespace-nowrap">₺350</td>
-                    <td className="py-3 pr-3 whitespace-nowrap"><Badge cls="bg-emerald-500/15 text-emerald-300 border-emerald-600/20" text="Başarılı" /></td>
-                  </tr>
-                  <tr>
-                    <td className="py-3 pr-3 whitespace-nowrap">22.07.2025</td>
-                    <td className="py-3 pr-3 min-w-0"><span className="block truncate max-w-[220px] sm:max-w-none">Discord Destek Botu</span></td>
-                    <td className="py-3 pr-3 whitespace-nowrap">Kredi Kartı</td>
-                    <td className="py-3 pr-3 whitespace-nowrap">₺199</td>
-                    <td className="py-3 pr-3 whitespace-nowrap"><Badge cls="bg-emerald-500/15 text-emerald-300 border-emerald-600/20" text="Başarılı" /></td>
-                  </tr>
+                 {
+                  lastPurchases.map(purchase => (
+                    purchase.productId.map(p => (
+                      <tr key={p.toString()}>
+                       <td className="py-3 pr-3 whitespace-nowrap">{new Date(purchase.createdAt).toLocaleDateString('tr-TR')}</td>
+                        <td className="py-3 pr-3 min-w-0"><span className="block truncate max-w-[220px] sm:max-w-none">{p.toString()}</span></td>
+                        <td className="py-3 pr-3 whitespace-nowrap">"PayWee"</td>
+                        <td className="py-3 pr-3 whitespace-nowrap">{purchase.price}</td>
+                       <td className="py-3 pr-3 whitespace-nowrap"><Badge cls="bg-emerald-500/15 text-emerald-300 border-emerald-600/20" text="Başarılı" /></td>
+                      </tr>
+                    ))
+                  ))
+                 }
                 </tbody>
               </table>
             </div>
@@ -213,8 +262,11 @@ function Overview({ displayName, avatarUrl, licenses, email }:{
 
           <GlassCard title="Giriş Kayıtları">
             <ul className="text-sm divide-y divide-white/10">
-              <LogItem dot="bg-emerald-500" text="10.08.2025 • 01:12 • İstanbul • Chrome / Windows" right="Başarılı" />
-              <LogItem dot="bg-rose-500" text="08.08.2025 • 23:02 • Ankara • iOS" right="Hatalı Şifre" />
+            {
+              loginLog.map((l, i) => {
+                return <LogItem key={i} dot={(l.status === 'failed' ? 'bg-rose-500' : 'bg-emerald-500')} text={`${new Date(l.loginTime).toLocaleString()} • ${l.city} • ${l.ipAddress} • ${l.device}`} right={l.status  === 'Invalid password' ? 'Hatalı Şifre' : 'Başarılı'} />
+              })
+            }
             </ul>
           </GlassCard>
         </div>
@@ -235,7 +287,7 @@ function Overview({ displayName, avatarUrl, licenses, email }:{
           <GlassCard title="Lisanslarım">
             <div className="text-xs text-white/60 mb-3">Toplam {licenses.length} lisans</div>
             <ul className="grid gap-2">
-              {licenses.map((name) => (<LicenseItem key={name} name={name} />))}
+              {licenses.map((name) => (<LicenseItem setActive={setActive} name={name.Product} key={name.Product} />))}
             </ul>
           </GlassCard>
         </div>
@@ -262,25 +314,78 @@ function WarnTooltip({ message, accent = '#f97316' }:{ message:string; accent?:s
 }
 
 function LicensesSection() {
-  type Row = { id:string; product:string; key:string; status:"Aktif"; created:string; devices:number; maxDevices:number; };
-
-  const rows: Row[] = [
-    { id:'L-001', product:'Minecraft Market Eklentisi', key:'MCME-1A2B-3C4D-5E6F', status:'Aktif', created:'10.01.2025', devices:4, maxDevices:3 },
-    { id:'L-002', product:'Discord Destek Botu',        key:'DDBO-AAAA-BBBB-CCCC', status:'Aktif', created:'22.07.2025', devices:0, maxDevices:2 },
-    { id:'L-003', product:'Web Lisans Sistemi',         key:'WLSY-ZZZZ-YYYY-XXXX', status:'Aktif', created:'05.06.2024', devices:0, maxDevices:1 },
-  ];
-
-  const [q, setQ] = useState('');
-  const [copied, setCopied] = useState<string|null>(null);
-
-  const filtered = useMemo(() => rows.filter(r => (r.product + ' ' + r.key).toLowerCase().includes(q.toLowerCase())), [q]);
-
-  const copy = async (text: string, id: string) => {
-    try { await navigator.clipboard.writeText(text); } finally { setCopied(id); setTimeout(() => setCopied(null), 1200); }
+  type Row = {
+    id: string;
+    product: string;
+    key: string;
+    status: "Aktif";
+    created: string;
+    devices: number;
+    maxDevices: number;
   };
 
-  const maskKey = (key: string) => key.replace(/.(?=.{4})/g, '•');
-  const StatusBadge = () => (<Badge text="Aktif" cls="bg-emerald-500/15 text-emerald-300 border-emerald-600/20" />);
+  const { data: session, status } = useSession();
+  const [rows, setRows] = useState<Row[]>([]);
+  const [q, setQ] = useState("");
+  const [copied, setCopied] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const filtered = useMemo(
+    () => rows.filter((r) => (r.product + " " + r.key).toLowerCase().includes(q.toLowerCase())),
+    [q, rows]
+  );
+
+  useEffect(() => {
+    if (status !== "authenticated" || !session?.user) return;
+
+    const load = async () => {
+      try {
+        setLoading(true);
+
+        const discordId = (session.user as any).discordId ?? session.user.id; 
+        const email = session.user.email ?? ""; 
+
+        const response: LicenseType[] = await licenseService.getLicenses(discordId, email);
+
+        setRows(
+          response.map((l) => ({
+            id: String(l._id),
+            product: l.Product,
+            key: l.LicenseKey,
+            status: "Aktif",
+            created: new Date(l.createdAt).toLocaleString(),
+            devices: Array.isArray(l.IPs) ? l.IPs.length : 0,
+            maxDevices: Number(l.MaxIPs ?? 0),
+          }))
+        );
+      } catch (err) {
+        console.error("licenses load error:", err);
+        setRows([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [status, session?.user]); 
+
+  if (loading) return (
+    <div className="flex items-center justify-center">
+      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900" />
+    </div>
+  );
+
+  const copy = async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } finally {
+      setCopied(id);
+      setTimeout(() => setCopied(null), 1200);
+    }
+  };
+
+  const maskKey = (key: string) => key.replace(/.(?=.{4})/g, "•");
+  const StatusBadge = () => <Badge text="Aktif" cls="bg-emerald-500/15 text-emerald-300 border-emerald-600/20" />;
 
   return (
     <section className="grid gap-6">
@@ -289,7 +394,12 @@ function LicensesSection() {
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
           <div className="flex items-center gap-2.5 bg-white/[0.04] border border-white/10 rounded-xl px-3 h-10 w-full sm:w-96">
             <FiSearch className="text-white/60 shrink-0" />
-            <input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="Lisans veya anahtar ara…" className="bg-transparent outline-none text-sm placeholder:text-white/50 w-full" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Lisans veya anahtar ara…"
+              className="bg-transparent outline-none text-sm placeholder:text-white/50 w-full"
+            />
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs px-3 py-2 rounded-lg border bg-white/[0.08] border-white/20">Tümü</span>
@@ -310,13 +420,13 @@ function LicensesSection() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/10">
-              {filtered.map(r => {
+              {filtered.map((r) => {
                 const overLimit = r.devices > r.maxDevices;
                 const critical43 = r.devices === 4 && r.maxDevices === 3;
                 const showWarn = overLimit || critical43;
                 const warnMsg = critical43
-                  ? 'Cihaz sayısı 4/3 olduğu için lisansınız çalışmayacaktır.'
-                  : 'Cihaz sayısı limitini aştığınız için lisansınız çalışmayacaktır.';
+                  ? "Cihaz sayısı 4/3 olduğu için lisansınız çalışmayacaktır."
+                  : "Cihaz sayısı limitini aştığınız için lisansınız çalışmayacaktır.";
 
                 return (
                   <tr key={r.id}>
@@ -328,15 +438,21 @@ function LicensesSection() {
                         <span className="font-medium text-white/90">{r.product}</span>
                       </div>
                     </td>
-                    <td className="py-3 pr-3 whitespace-nowrap"><span className="font-mono tracking-wider">{maskKey(r.key)}</span></td>
+                    <td className="py-3 pr-3 whitespace-nowrap">
+                      <span className="font-mono tracking-wider">{maskKey(r.key)}</span>
+                    </td>
                     <td className="py-3 pr-3 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
-                        <span className={showWarn ? 'text-rose-400 font-medium' : undefined}>{r.devices}/{r.maxDevices}</span>
+                        <span className={showWarn ? "text-rose-400 font-medium" : undefined}>
+                          {r.devices}/{r.maxDevices}
+                        </span>
                         {showWarn && <WarnTooltip message={warnMsg} />}
                       </div>
                     </td>
                     <td className="py-3 pr-3 whitespace-nowrap">{r.created}</td>
-                    <td className="py-3 pr-3 whitespace-nowrap"><StatusBadge /></td>
+                    <td className="py-3 pr-3 whitespace-nowrap">
+                      <StatusBadge />
+                    </td>
                     <td className="py-3 pr-3">
                       <div className="flex items-center gap-2 justify-end">
                         <button
@@ -345,24 +461,27 @@ function LicensesSection() {
                           title="Anahtarı kopyala"
                         >
                           <FiCopy className="opacity-80" />
-                          <span className="hidden lg:inline text-xs">{copied===r.id ? 'Kopyalandı' : 'Kopyala'}</span>
+                          <span className="hidden lg:inline text-xs">{copied === r.id ? "Kopyalandı" : "Kopyala"}</span>
                         </button>
 
                         <button
-                      type="button"
-                      className="h-9 px-3 rounded-lg border border-white/10 hover:bg-white/[0.06] inline-flex items-center gap-2 cursor-pointer"
-                    >
-                      <FiDownload className="opacity-80" />
-                      <span className="text-xs">İndir</span>
-                    </button>
-
+                          type="button"
+                          className="h-9 px-3 rounded-lg border border-white/10 hover:bg-white/[0.06] inline-flex items-center gap-2 cursor-pointer"
+                        >
+                          <FiDownload className="opacity-80" />
+                          <span className="text-xs">İndir</span>
+                        </button>
                       </div>
                     </td>
                   </tr>
                 );
               })}
               {filtered.length === 0 && (
-                <tr><td colSpan={6} className="py-8 text-center text-white/60">Sonuç bulunamadı.</td></tr>
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-white/60">
+                    Sonuç bulunamadı.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
@@ -370,13 +489,13 @@ function LicensesSection() {
 
         {/* Mobil kartlar */}
         <div className="md:hidden grid gap-3">
-          {filtered.map(r => {
+          {filtered.map((r) => {
             const overLimit = r.devices > r.maxDevices;
             const critical43 = r.devices === 4 && r.maxDevices === 3;
             const showWarn = overLimit || critical43;
             const warnMsg = critical43
-              ? 'Cihaz sayısı 4/3 olduğu için lisansınız çalışmayacaktır.'
-              : 'Cihaz sayısı limitini aştığınız için lisansınız çalışmayacaktır.';
+              ? "Cihaz sayısı 4/3 olduğu için lisansınız çalışmayacaktır."
+              : "Cihaz sayısı limitini aştığınız için lisansınız çalışmayacaktır.";
 
             return (
               <div key={r.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
@@ -391,9 +510,14 @@ function LicensesSection() {
                     <div className="mt-2 text-xs text-white/60">Anahtar</div>
                     <div className="font-mono text-sm">{maskKey(r.key)}</div>
                     <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-white/70 items-center">
-                      <div>Oluşturulma: <span className="text-white/90">{r.created}</span></div>
+                      <div>
+                        Oluşturulma: <span className="text-white/90">{r.created}</span>
+                      </div>
                       <div className="flex items-center gap-1.5">
-                        Cihazlar: <span className={`text-white/90 ${showWarn ? 'text-rose-400 font-medium' : ''}`}>{r.devices}/{r.maxDevices}</span>
+                        Cihazlar:{" "}
+                        <span className={`text-white/90 ${showWarn ? "text-rose-400 font-medium" : ""}`}>
+                          {r.devices}/{r.maxDevices}
+                        </span>
                         {showWarn && <WarnTooltip message={warnMsg} />}
                       </div>
                     </div>
@@ -408,10 +532,8 @@ function LicensesSection() {
                     <FiCopy className="opacity-80" />
                     <span className="text-xs">Kopyala</span>
                   </button>
- 
-                  <button
-                    className="h-9 px-3 rounded-lg border border-white/10 inline-flex items-center gap-2 opacity-50 cursor-pointer"
-                  >
+
+                  <button className="h-9 px-3 rounded-lg border border-white/10 inline-flex items-center gap-2 opacity-50 cursor-pointer">
                     <FiDownload className="opacity-80" />
                     <span className="text-xs">İndir</span>
                   </button>
@@ -420,7 +542,9 @@ function LicensesSection() {
             );
           })}
           {filtered.length === 0 && (
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center text-white/60">Sonuç bulunamadı.</div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center text-white/60">
+              Sonuç bulunamadı.
+            </div>
           )}
         </div>
       </GlassCard>
@@ -428,21 +552,75 @@ function LicensesSection() {
   );
 }
 
+
 /* ---------------- SATIN ALIMLAR (Sadece görüntüleme) ---------------- */
 
-function PurchasesSection() {
-  type Row = { id:string; date:string; product:string; pay:'PayTR'|'Kredi Kartı'|'Havale/EFT'; amount:string; status:'Başarılı' };
-  const rows: Row[] = [
-    { id:'S-1021', date:'12.08.2025', product:'Minecraft Market Eklentisi', pay:'PayTR',      amount:'₺350', status:'Başarılı' },
-    { id:'S-1018', date:'28.07.2025', product:'Discord Destek Botu',        pay:'Kredi Kartı', amount:'₺199', status:'Başarılı' },
-    { id:'S-1009', date:'05.06.2025', product:'Web Lisans Sistemi',         pay:'Havale/EFT',  amount:'₺699', status:'Başarılı' },
-    { id:'S-1001', date:'19.05.2025', product:'Ekstra Tema Paketi',         pay:'Kredi Kartı', amount:'₺149', status:'Başarılı' },
-  ];
-  const [q, setQ] = useState('');
-  const filtered = useMemo(() => {
-    const t = q.toLowerCase();
-    return rows.filter(r => (r.product + ' ' + r.pay + ' ' + r.date + ' ' + r.amount + ' ' + r.id).toLowerCase().includes(t));
-  }, [q]);
+function PurchasesSection(): JSX.Element {    
+  type Row = {
+  id: string;
+  date: string;
+  product: string[];
+  pay: 'PayTR' | 'Kredi Kartı' | 'Havale/EFT';
+  amount: number;
+  status: 'Başarılı';
+};
+
+const [rows, setRows] = useState<Row[]>([]);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  const fetchOrders = async () => {
+    try {
+      const orders = await orderService.getOrders();
+
+      const rows: Row[] = await Promise.all(
+        orders.map(async (order) => {
+          const products = await Promise.all(
+            order.productId.map((pid) =>
+              productService.getProduct(pid.toString())
+            )
+          );
+
+          return {
+            id: order._id.toString(),
+            date: new Date(order.createdAt).toLocaleDateString(),
+            product: products.map((p) => p.name['tr']),
+            pay: 'Kredi Kartı',
+            amount: order.price,
+            status: 'Başarılı',
+          };
+        })
+      );
+
+      setRows(rows);
+    } catch (err) {
+      console.error('Siparişler alınırken hata oluştu:', err);
+    } finally {
+      setLoading(false); 
+    }
+  };
+
+  fetchOrders();
+}, []); 
+
+const [q, setQ] = useState('');
+const filtered = useMemo(() => {
+  const t = q.toLowerCase();
+  return rows.filter((r) =>
+    (r.product.join(' ') +
+      ' ' +
+      r.pay +
+      ' ' +
+      r.date +
+      ' ' +
+      r.amount +
+      ' ' +
+      r.id)
+      .toLowerCase()
+      .includes(t)
+  );
+}, [q, rows]);
+
   const statusBadge = () => <Badge text="Başarılı" cls="bg-emerald-500/15 text-emerald-300 border-emerald-600/20" />;
 
   return (
@@ -469,6 +647,14 @@ function PurchasesSection() {
                 <th className="py-3 pr-3 font-medium whitespace-nowrap">Durum</th>
               </tr>
             </thead>
+            {
+              loading && 
+              <tbody className="divide-y divide-white/10">
+                <tr>
+                  <td colSpan={5} className="py-3 pr-3 whitespace-nowrap text-center ">Siparişler yüklüyor...</td>
+                </tr>
+              </tbody>
+            }
             <tbody className="divide-y divide-white/10">
               {filtered.map(r => (
                 <tr key={r.id}>
@@ -486,7 +672,7 @@ function PurchasesSection() {
                   <td className="py-3 pr-3 whitespace-nowrap">{statusBadge()}</td>
                 </tr>
               ))}
-              {filtered.length === 0 && (
+              {filtered.length === 0 && !loading && (
                 <tr><td colSpan={5} className="py-8 text-center text-white/60">Sonuç bulunamadı.</td></tr>
               )}
             </tbody>
@@ -515,7 +701,7 @@ function PurchasesSection() {
               </div>
             </div>
           ))}
-          {filtered.length === 0 && (
+          {filtered.length === 0 && !loading && (
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center text-white/60">Sonuç bulunamadı.</div>
           )}
         </div>
@@ -533,10 +719,20 @@ function LoginsSection({ userKey }:{ userKey: string }) {
 
   useEffect(() => {
     if (!userKey) return;
-    fetch(`/api/login-events?email=${encodeURIComponent(userKey)}`, { cache: 'no-store' })
-      .then(r => r.json())
-      .then(data => setRows(data.items ?? []))
-      .catch(() => setRows([]));
+    const fetch = async () => {
+      
+    const logs: UserLoginLogType[] = await userLogService.getAllUserLogs(userKey);
+
+      setRows(logs.map(l => ({
+        id: l._id ? l._id.toString() : '',
+        ts: new Date(l.loginTime).toLocaleString(),
+        city: l.city,
+        ip: l.ipAddress,
+        ua: l.device,
+        result: "Başarılı",
+      })))
+    };
+    fetch();
   }, [userKey]);
 
   const filtered = useMemo(() => {
@@ -615,7 +811,7 @@ function LoginsSection({ userKey }:{ userKey: string }) {
 
 /* ---------------- YÖNETİM (şifre) ---------------- */
 
-function AdminSection({ name, email }:{ name:string; email:string }) {
+function SettingsSection({ name, email }:{ name:string; email:string }) {
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showNew2, setShowNew2] = useState(false);
@@ -625,15 +821,34 @@ function AdminSection({ name, email }:{ name:string; email:string }) {
   const [newPass2, setNewPass2] = useState('');
   const [msg, setMsg] = useState<{type:'ok'|'err'; text:string} | null>(null);
 
-  const submit = (e: React.FormEvent) => {
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    
+  }, [session]);
+  const submit = async  (e: React.FormEvent) => {
     e.preventDefault();
     setMsg(null);
     if (!oldPass || !newPass || !newPass2) return setMsg({ type:'err', text:'Lütfen tüm alanları doldurun.' });
     if (newPass.length < 8 || !/[A-ZÇĞİÖŞÜ]/.test(newPass) || !/[a-zçğıöşü]/.test(newPass) || !/[0-9]/.test(newPass))
       return setMsg({ type:'err', text:'Yeni şifre en az 8 karakter olmalı ve büyük/küçük harf ile rakam içermelidir.' });
     if (newPass !== newPass2) return setMsg({ type:'err', text:'Yeni şifreler birbiriyle eşleşmiyor.' });
-    setMsg({ type:'ok', text:'Şifreniz başarıyla güncellendi.' });
+
     setOldPass(''); setNewPass(''); setNewPass2('');
+    setShowOld(false); setShowNew(false); setShowNew2(false);
+    setTimeout(() => setMsg(null), 3000);
+    try {
+      const res = await userService.resetPassword({
+        email: email,
+        newPassword: newPass
+      })
+  
+      if(res.status === 200){
+        setMsg({ type:'ok', text:'Şifre başarıyla değiştirildi.' });
+      }
+    }catch(e){
+      setMsg({ type:'err', text:'Bir hata oluştu. Lütfen daha sonra tekrar deneyiniz.' });
+    }
   };
 
   const readonlyInput = "bg-white/[0.04] border border-white/10 rounded-xl px-3 h-10 w-full text-sm text-white/80 cursor-not-allowed";
@@ -648,7 +863,9 @@ function AdminSection({ name, email }:{ name:string; email:string }) {
         <div className="mt-3 text-xs text-white/50">Diğer bilgiler bu panelden değiştirilemez.</div>
       </GlassCard>
 
-      <GlassCard title="Şifre Değiştir">
+      {
+        (session?.user as any)?.accountType !== "discord" && (
+        <GlassCard title="Şifre Değiştir">
         <form onSubmit={submit} className="grid gap-3 max-w-xl">
           <div>
             <div className="text-xs text-white/60 mb-1">Mevcut Şifre</div>
@@ -687,6 +904,8 @@ function AdminSection({ name, email }:{ name:string; email:string }) {
           </div>
         </form>
       </GlassCard>
+        )
+      }
     </section>
   );
 }
@@ -738,7 +957,7 @@ function StatCard({ title, value, hint }:{ title: string; value: string; hint: s
 function GlassCard({ title, children }:{ title: string; children: React.ReactNode }) {
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-xl p-4 sm:py-5 sm:px-5">
-      <h2 className="text-base font-semibold mb-2 sm:mb-3">{title}</h2>
+      <h2 className="texPıt-base font-semibold mb-2 sm:mb-3">{title}</h2>
       {children}
     </section>
   );
@@ -760,7 +979,7 @@ function LogItem({ dot, text, right }:{ dot:string; text:string; right:string })
   );
 }
 
-function LicenseItem({ name }:{ name:string }) {
+function LicenseItem({ name, setActive }:{ name:string, setActive:Function }) {
   return (
     <li className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2.5 hover:bg-white/[0.06] transition-all duration-200">
       <div className="flex items-center gap-2.5 min-w-0">
@@ -769,7 +988,11 @@ function LicenseItem({ name }:{ name:string }) {
         </span>
         <span className="text-sm truncate">{name}</span>
       </div>
-      <button className="text-xs px-2.5 py-1 rounded-lg border border-white/10 hover:bg-white/5">Detay</button>
+      <button className="text-xs px-2.5 py-1 rounded-lg border border-white/10 hover:bg-white/5" onClick={
+        () => {
+          setActive("licenses");
+        }
+      }>Detay</button>
     </li>
   );
 }

@@ -13,6 +13,15 @@ export default function LoginPageComponent() {
   const [notificationMessage, setNotificationMessage] = useState<string | null>(null);
   const [notificationType, setNotificationType] = useState<'success' | 'error'>('error');
 
+useEffect(() => {
+  const fetch = async () => {
+    
+    await signIn('discord', { callbackUrl: '/dash' });
+  }
+
+  fetch();
+}, [])
+
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
       window.location.href = '/dash';
@@ -98,7 +107,7 @@ export default function LoginPageComponent() {
             <div className="flex-grow h-px bg-gradient-to-r from-gray-600 to-transparent" />
           </div>
 
-          {/* Form */}
+{/*
           <form onSubmit={handleSubmit} className="space-y-4">
             <label className="block text-base text-gray-300">{text('login.mail-and-password')}</label>
 
@@ -132,7 +141,6 @@ export default function LoginPageComponent() {
               </a>
             </div>
 
-            {/* Giriş Butonu */}
             <button
               type="submit"
               className="w-full group relative flex items-center justify-center gap-2 bg-white text-[#0f0f10] font-semibold py-4 rounded-xl hover:scale-105 transition overflow-hidden cursor-pointer"
@@ -148,7 +156,7 @@ export default function LoginPageComponent() {
               </span>
             </button>
           </form>
-
+*/}
           {/* Kayıt Linki */}
           <p className="text-sm text-center text-gray-400">
             {text('login.dont-have-account')}{' '}

@@ -12,7 +12,7 @@ export async function requireAuth(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const user = token.user as UserType;
+  const user = token.user;
   if (allowedRoles.length > 0 && (!user || !user.role || !allowedRoles.includes(user.role))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

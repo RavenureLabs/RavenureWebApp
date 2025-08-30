@@ -5,14 +5,13 @@ import { ProductType } from "@/src/models/product.model";
 import { useEffect, useState } from "react";
 import { FiTrash2 } from "react-icons/fi";
 
-export default function CardProductComponent({ productId, quantity, handleDelete }: { productId: string, quantity: number, handleDelete: () => void }) {
+export default function CardProductComponent({ productId, quantity, handleDelete }: { productId: ProductType, quantity: number, handleDelete: () => void }) {
     const [product, setProduct] = useState<ProductType | null>(null);
 
     useEffect(() => {
       const fetchProduct = async () => {
-        const product = await productService.getProduct(productId);
-        console.log(product);
-        setProduct(product);
+        const product: ProductType = productId;
+        setProduct(product!);
       };
       fetchProduct();
     }, [productId]);

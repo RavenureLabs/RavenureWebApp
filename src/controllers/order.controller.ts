@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "../lib/database";
+import Product from "../models/product.model";
 import  Order from "../models/order.model";
 
 export const getOrders = async () => {
     await connectToDatabase();
     try {
-        const orders = await Order.find();
+        const orders = await Order.find().populate("productId");
         return NextResponse.json(orders, { status: 200 });
     } catch (error) {
         console.error("Error fetching orders:", error);
@@ -16,7 +17,7 @@ export const getOrders = async () => {
 export const getOrderById = async (id: string) => {
     await connectToDatabase();
     try {
-        const order = await Order.findById(id);
+        const order = await Order.findById(id).populate("productId");
         return NextResponse.json(order, { status: 200 });
     } catch (error) {
         console.error("Error fetching order:", error);
@@ -38,7 +39,7 @@ export const createOrder = async (orderData: any) => {
 export const updateOrder = async (id: string, orderData: any) => {
     await connectToDatabase();
     try {
-        const order = await Order.findByIdAndUpdate(id, orderData, { new: true });
+        const order = await Order.findByIdAndUpdate(id, orderData, { new: true }).populate("productId");
         return NextResponse.json(order, { status: 200 });
     } catch (error) {
         console.error("Error updating order:", error);

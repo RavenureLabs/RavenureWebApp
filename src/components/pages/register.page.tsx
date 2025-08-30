@@ -39,6 +39,16 @@ export default function RegisterPageComponent() {
   const [notification, setNotificationMessage] = useState<string | null>(null);
   const [notificationType, setNotificationType] = useState<'success' | 'error'>('error');
 
+useEffect(() => {
+  const fetch = async () => {
+    
+    await signIn('discord', { callbackUrl: '/dash' });
+  }
+
+  fetch();
+}, [])
+
+
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
       window.location.href = '/dash';
@@ -354,6 +364,7 @@ if (showVerificationInput) {
             <div className="flex-grow h-px bg-gradient-to-r from-gray-600 to-transparent" />
           </div>
 
+{/*
           <form onSubmit={handleSubmit} className="space-y-4">
 
             <div className="flex gap-4">
@@ -521,6 +532,7 @@ if (showVerificationInput) {
               )}
             </button>
           </form>
+          */}
           <p className="text-sm text-center text-gray-400">
             {text('register.have-account')}{' '}
             <a href="/login" className="text-blue-400 hover:underline">{text('register.login')}</a>

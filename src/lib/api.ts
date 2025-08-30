@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { Axios } from "axios";
 import { CategoryType } from "../models/category.model";
 import { ProductType } from "../models/product.model";
 import { CommentType } from "../models/comment.model";
@@ -6,6 +6,9 @@ import { ReferanceType } from "../models/referance.model";
 import { UserType } from "../models/user.model";
 import { OrderType } from "../models/order.model";
 import { CartType } from "../models/cart.model";
+import { UserLoginLogType } from "../models/userLog.model";
+import { LicenseType } from "../types/global";
+require('dotenv').config();
 export const api = axios.create({
     baseURL: process.env.NEXTAUTH_URL
 });
@@ -142,6 +145,11 @@ export class UserService {
         return response.data.registeryStatus as boolean;
     }
 
+    async resetPassword(data: any) {
+        const response = await api.post('/api/user/reset-password', data);
+        return response.data;
+    }
+
 }
 
 export class EmbedService {
@@ -176,6 +184,14 @@ export class OrderService {
         const response = await api.get('/api/order/total-order-count');
         return response.data as number;
     }
+    async getTotalExpenditure(){
+        const response = await api.get('/api/order/total-expenditure');
+        return response.data as number;
+    }
+    async getLastPurchasesExpenditure(){
+        const response = await api.get('/api/order/last-purchases-expenditure');
+        return response.data as number;
+    }
 }
 
 export class CartService {
@@ -186,5 +202,42 @@ export class CartService {
     async saveCart(data: any){
         const response = await api.post('/api/cart', data);
         return response.data.cart as CartType;
+    }
+
+}
+
+export class UserLoginLogService {
+    async insertUserLog(data: any){
+        const response = await api.post('/api/log/login', data);
+        return response.data as UserLoginLogType;
+    }
+    async getAllUserLogs(id: string){
+        const response = await api.get(`/api/log/login/${id}`);
+        return response.data as UserLoginLogType[];
+    }
+}
+
+export class LicenseService {
+    async getLicenses(id: string, email: string) {
+        try {
+                    const tokenResponse = await axios.get(`${process.env.NEXT_PUBLIC_LISENCE_SERVER_BASE_URI}/api/v1/public/token/${id}/${email}`);
+        const token = tokenResponse.data.token;
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_LISENCE_SERVER_BASE_URI}/api/v1/public/get`,
+            {
+                "token": token,
+                "DiscordID": id,
+                "email": email
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+        return response.data as LicenseType[];
+        }catch (error) {
+            console.error("Error fetching licenses:", error);
+            return [] as LicenseType[];
+        }
     }
 }

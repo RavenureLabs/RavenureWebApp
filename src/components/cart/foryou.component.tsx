@@ -15,7 +15,7 @@ export default function ForYouComponent({product, refresh}: {product: ProductTyp
             email: session?.user?.email,
             items: [
                 {
-                    productId: product._id,
+                    productId: product._id.toString(),
                     quantity: 1
                 }
             ]

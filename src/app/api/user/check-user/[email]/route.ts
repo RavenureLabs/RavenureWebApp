@@ -1,7 +1,7 @@
 import { getUserByEmail } from "@/src/controllers/user.controller";
 import { NextRequest } from "next/server";
 
-export async function GET(request: NextRequest, { params }: { params: { email: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ email: string }> }) {
     const { email } = await params;
     if (!email) {
         return new Response(JSON.stringify({ error: "Email is required" }), { status: 404 });
