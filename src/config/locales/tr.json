@@ -23,8 +23,10 @@
         "preview": "İncele"
     },
     "referances":{
+        "page-title": "Referanslar",
         "title": "Bize Güvenen Oyun Sunucuları",
-        "sub-title": "Bizim kalitemize ve güvencemize güvenenler!"
+        "sub-title": "Bizim kalitemize ve güvencemize güvenenler!",
+        "empty": "Şu anda mevcut referans bulunmamaktadır."
     },
     "login": {
         "back-home": "Ana Sayfa'ya dön",
