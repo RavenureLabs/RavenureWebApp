@@ -62,6 +62,11 @@ const nextConfig = {
         protocol: "https",
         hostname: "placeholder.pics",
         pathname: "/svg/300",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/dq3c6lryh/**",
       }
     ]
   }

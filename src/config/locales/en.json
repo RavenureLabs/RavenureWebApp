@@ -23,8 +23,10 @@
     "preview": "Preview"
   },
   "referances": {
+    "page-title": "References",
     "title": "Game Servers That Trust Us",
-    "sub-title": "Those who trust our quality and assurance!"
+    "sub-title": "Those who trust our quality and assurance!",
+    "empty": "No references available at the moment."
   },
   "login": {
     "back-home": "Back to Home",
