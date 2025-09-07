@@ -23,7 +23,6 @@ const nextConfig = {
       ];
     }
 
-    // Client-side fallback'ler
     config.resolve.fallback = {
       ...config.resolve.fallback,
       net: false,
