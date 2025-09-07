@@ -1,24 +1,23 @@
 'use client';
 
+import { useLanguage } from '@/src/hooks/uselanguage.hooks';
+import { referanceService } from '@/src/lib/services';
+import { ReferanceType } from '@/src/models/referance.model';
 import { ArrowRight } from 'lucide-react';
-
-type RefItem = {
-  name: string;
-  domain: string;
-  logo: string;
-  url?: string;
-};
-
-const REFS: RefItem[] = [
-  { name: 'BasoNetwork',      domain: 'basonetwork.net',   logo: '/Ravenure-Logo.png',  url: 'https://basonetwork.net' },
-  { name: 'Oreadsis Studios', domain: 'oreadsis.com',      logo: '/refs/oreadsis.svg',  url: 'https://oreadsis.com' },
-  { name: 'Build a Bot',      domain: 'buildabot.dev',     logo: '/refs/buildabot.svg', url: 'https://buildabot.dev' },
-  { name: 'Uxplimia',         domain: 'uxplimia.com',      logo: '/refs/uxplimia.svg',  url: 'https://uxplimia.com' },
-  { name: 'Ravenure',         domain: 'ravenure.com',      logo: '/refs/ravenure.svg',  url: 'https://ravenure.com' },
-  { name: 'Adalances',        domain: 'adalances.com',     logo: '/refs/adalances.svg', url: 'https://adalances.com' },
-];
+import React from 'react';
 
 export default function ReferencesPageComponent() {
+  const [refs, setRefs] = React.useState<ReferanceType[]>([]);
+  const { text } = useLanguage();
+
+  React.useEffect(() => {
+    const fetch = async () => {
+      const res = await referanceService.getReferances();
+      setRefs(res);
+    }
+    fetch();
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#0c0e11] text-white">
       {/* HERO — store ile aynı düzen/duygu */}
@@ -27,15 +26,15 @@ export default function ReferencesPageComponent() {
         <div className="absolute inset-x-0 -top-24 h-48 blur-3xl bg-gradient-to-r from-[#25d17044] via-transparent to-[#139f8b44]" />
         <div className="relative max-w-6xl mx-auto px-5 pt-14 pb-10 md:pt-20 md:pb-16 text-left">
           <div className="inline-flex items-center gap-2 text-xs text-[#9fe9c9]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#25d170]" /> Anasayfa 
+            <span className="w-1.5 h-1.5 rounded-full bg-[#25d170]" /> {text('referances.page-title')} 
           </div>
           <h1 className="mt-2 text-3xl md:text-5xl font-bold tracking-tight">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#25d170] to-[#139f8b]">
-              Referanslarımız
+              {text('referances.title')}
             </span>
           </h1>
           <p className="mt-3 text-white/70 max-w-2xl text-left">
-            İşbirliği yaptığımız markalardan seçili örnekler.
+            {text('referances.sub-title')}
           </p>
         </div>
       </section>
@@ -43,9 +42,10 @@ export default function ReferencesPageComponent() {
       {/* GRID */}
       <section className="py-12 md:py-16">
         <div className="max-w-6xl mx-auto grid gap-8 sm:grid-cols-2 lg:grid-cols-3 px-5">
-          {REFS.map((r, i) => (
+          {refs.length > 0 && refs.map((r, i) => (
             <RefCard key={i} item={r} />
-          ))}
+          )) || <div className="text-white/70">{text('referances.empty')}</div>
+          }
         </div>
       </section>
     </div>
@@ -53,8 +53,8 @@ export default function ReferencesPageComponent() {
 }
 
 /* --------------- Card --------------- */
-function RefCard({ item }: { item: RefItem }) {
-  const { name, domain, logo, url } = item;
+function RefCard({ item }: { item: ReferanceType }) {
+  const { name, url, imageUrl } = item;
 
   return (
     <div
@@ -68,7 +68,7 @@ function RefCard({ item }: { item: RefItem }) {
       {/* Logo ortada */}
       <div className="h-28 w-28 rounded-2xl bg-white/5 border border-white/10 grid place-items-center overflow-hidden mb-8">
         <img
-          src={logo}
+          src={imageUrl}
           alt={name}
           className="h-16 w-16 object-contain opacity-90"
         />
@@ -77,10 +77,9 @@ function RefCard({ item }: { item: RefItem }) {
       {/* İsim & Domain */}
       <div className="text-center flex flex-col items-center gap-1 mb-10">
         <div className="text-xl font-semibold">{name}</div>
-        <div className="text-sm text-white/65">{domain}</div>
+        <div className="text-sm text-white/65">{url}</div>
       </div>
 
-      {/* Ok butonu — sadece burada hover, ok+border birlikte sağa kayar */}
       <div className="absolute bottom-6 right-6">
         <a
           href={url || '#'}

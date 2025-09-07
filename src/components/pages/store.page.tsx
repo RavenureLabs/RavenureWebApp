@@ -57,13 +57,7 @@ export default function ShopPageComponent() {
   };
 
 
-/*************  ✨ Windsurf Command ⭐  *************/
-/**
- * Generates a category button with a given active state.
- * @param {boolean} active
- * @returns {string}
- */
-/*******  b9a95be1-efb0-493c-9e1f-dc6ca791cac9  *******/  const catBtn = (active: boolean) =>
+const catBtn = (active: boolean) =>
     [
       'px-4 py-1.5 rounded-full text-sm font-medium transition cursor-pointer',
       active
@@ -82,7 +76,7 @@ export default function ShopPageComponent() {
           {/* breadcrumb */}
           <div className="inline-flex items-center gap-2 text-xs text-[#9fe9c9]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#25d170]" />
-            Anasayfa
+            {text('store.hero-title')}
           </div>
 
           {/* başlık */}
