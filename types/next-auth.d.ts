@@ -17,6 +17,7 @@ declare module "next-auth" {
       discordId?: string | null;
 
       role: "admin" | "member" | "user";
+      products: string[];
       accountType: "discord" | "email";
 
       isActive?: boolean;

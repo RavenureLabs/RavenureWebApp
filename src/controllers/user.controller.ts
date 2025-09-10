@@ -226,6 +226,22 @@ export async function resetPassword(data: any){
     }
 }
 
+export async function addProducts(email: string, productIds: string[]) {
+    await connectToDatabase();
+    try {
+        const user = await User.findById(email);
+        if (!user) {
+            return NextResponse.json({ message: "User not found" }, { status: 404 });
+        }
+        user.products = Array.from(new Set([...(user.products || []), ...productIds]));
+        await user.save();
+        return NextResponse.json({ message: "Products added successfully", user: convertToDto(user) }, { status: 200 });
+    } catch (error) {
+        console.error("Error adding products to user:", error);
+        return NextResponse.json({ message: "Error adding products to user", error }, { status: 500 });
+    }   
+
+}
 
 const convertToDto = (user: UserType) => {
     return {

@@ -46,6 +46,35 @@ export default function CartComponent() {
     return prices.reduce((acc, p) => acc + p, 0);
   };
 
+  const handleCheckout = async () => {
+    if (!cart || total <= 0 || !session?.user?.email) return;
+
+    try {
+      const response = await fetch('/api/payment/shopier/deposit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: session.user.email,
+          amount: total,
+          productName: 'Ravenure Bakiye Yükleme',
+          buyerName: session.user.name?.split(' ')[0],
+          buyerSurname: session.user.name?.split(' ').slice(1).join(' '),
+          buyerEmail: session.user.email,
+          buyerPhone: session.user.phoneNumber,
+        }),
+      });
+      const html = await response.text();
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.open();
+        newWindow.document.write(html);
+        newWindow.document.close();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const fetchCart = useCallback(async () => {
     if (!session?.user?.email || status !== 'authenticated') return;
     setLoading(true);
@@ -262,6 +291,7 @@ export default function CartComponent() {
           </div>
           <p className="text-xs text-gray-400 mb-4">Vergiler ödeme sırasında hesaplanır.</p>
           <button
+            onClick={handleCheckout}
             disabled={total <= 0}
             className={`w-full py-3 font-semibold rounded-lg transition ${
               total > 0

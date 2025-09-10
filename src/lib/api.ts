@@ -150,6 +150,11 @@ export class UserService {
         return response.data;
     }
 
+    async addProducts(email : string, data: any) {
+        const response = await api.post(`/api/user/add-products/${email}`, data);
+        return response.data as UserType;
+    }
+
 }
 
 export class EmbedService {
@@ -202,6 +207,10 @@ export class CartService {
     async saveCart(data: any){
         const response = await api.post('/api/cart', data);
         return response.data.cart as CartType;
+    }
+    async deleteCart(email: string){
+        const response = await api.delete(`/api/cart/${email}`);
+        return response.data;
     }
 
 }

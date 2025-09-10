@@ -42,6 +42,9 @@ export default function ShopPageComponent() {
   const addToCart = async (product: ProductType) => {
     if (!session?.user?.email) return;
     const cart = await cartService.getCart(session?.user.email);
+    if (cart && cart.items.find((i) => i.productId.toString() === product._id.toString()) || session.user.products.includes(product._id!.toString())) {
+      return;
+    }
     let updatedItems = cart?.items || [];
     updatedItems.push({
       productId: new (require('bson').ObjectId)(product._id!),
