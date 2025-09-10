@@ -34,10 +34,20 @@ export async function getUserCart(email: string) {
     }
 }
 
-export async function deleteCart(userId: string) { 
+export async function deleteCart(email: string) { 
     await connectToDatabase();
     try {
-        const cart = await Cart.findOneAndDelete({ userId });
+        if (!email) {
+            return NextResponse.json({ message: "Missing ID" }, { status: 400 });
+        }
+        const user = await User.findOne({ email });
+        if (!user) {
+            return NextResponse.json({ message: "User not found" }, { status: 404 });
+        }
+        const cart = await Cart.findOneAndDelete({ userId: user._id.toString() });
+        if (!cart) {
+            return NextResponse.json({ message: "Cart not found" }, { status: 404 });
+        }
         return NextResponse.json({ success: "Cart deleted successfully", cart }, { status: 200 }); 
     } catch (error) {
         console.error("Error deleting cart:", error);

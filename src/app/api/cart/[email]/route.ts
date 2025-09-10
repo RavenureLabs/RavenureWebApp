@@ -1,4 +1,4 @@
-import { getUserCart } from "@/src/controllers/cart.controller";
+import { deleteCart, getUserCart } from "@/src/controllers/cart.controller";
 import { getServerSession } from "next-auth";
 import type { NextRequest } from "next/server";
 
@@ -22,4 +22,12 @@ export async function GET(
   }
 
   return getUserCart(email);
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ email: string }> }
+) {
+  const { email } = await params;
+  return deleteCart(email);
 }
