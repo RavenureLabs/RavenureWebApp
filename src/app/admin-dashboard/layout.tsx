@@ -14,6 +14,10 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
             window.location.href = "/login";
             return;
         }
+        if(session && session.user.role !== "admin") {
+            window.location.href = "/";
+            return;
+        }
     }, [session]);
     return (
         <div>

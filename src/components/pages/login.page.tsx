@@ -3,8 +3,8 @@
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
 import { signIn, useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { FiLogIn, FiArrowRight, FiArrowLeft } from 'react-icons/fi';
-import { FaDiscord, FaEnvelope, FaLock } from 'react-icons/fa';
+import { FiArrowLeft } from 'react-icons/fi';
+import { FaDiscord, FaEnvelope } from 'react-icons/fa';
 import Notification from '../notification/notification.component';
 
 export default function LoginPageComponent() {
