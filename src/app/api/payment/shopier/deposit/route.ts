@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
         buyerEmail: string;
         buyerPhone: string;
     };
+    console.log(userId);
   const shopier = getShopier();
   try {
     const order = await Order.create({
