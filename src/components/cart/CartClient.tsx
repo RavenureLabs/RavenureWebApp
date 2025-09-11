@@ -125,17 +125,13 @@ useEffect(() => {
     if (!isLoggedIn || cart.total <= 0) return;
     try {
       const res = await api.post('/api/payment/shopier/deposit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user._id.toString(),
-          amount: cart.total,
-          buyerName: user.name.split(' ')[0] || 'FirstName',
-          buyerSurname: user.name.split(' ').slice(1).join(' ') || 'LastName',
-          productIds: cart.items.map(i => i.product._id.toString()),
-          buyerEmail: user.email,
-          buyerPhone: user.phoneNumber || '0000000000',
-        }),
+        userId: user._id.toString(),
+        amount: cart.total,
+        buyerName: user.name.split(' ')[0] || "FirstName",
+        buyerSurname: user.name.split(' ').slice(1).join(' ') || "LastName",
+        buyerEmail: user.email,
+        buyerPhone: user.phoneNumber || "0000000000",
+        productIds: cart.items.map(i => i.product._id.toString()),
       });
       const html = await res.data;
       const win = window.open('', '_blank');
