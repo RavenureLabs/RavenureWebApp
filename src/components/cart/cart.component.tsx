@@ -54,7 +54,7 @@ export default function CartComponent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: session.user.email,
+          userId: session.user.dbId,
           amount: total,
           productName: 'Ravenure Bakiye Yükleme',
           buyerName: session.user.name?.split(' ')[0],
