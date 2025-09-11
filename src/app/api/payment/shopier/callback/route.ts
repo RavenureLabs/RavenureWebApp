@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   console.log("Shopier Callback Result:", result);
   console.log("Full Request Body:",  data);
   if (result === false) {
-    return new NextResponse(JSON.stringify({result, data }), { status: 200 });
+    return new NextResponse(JSON.stringify( {result, data }), { status: 200 });
   }
 
   const orderId = result.order_id;
