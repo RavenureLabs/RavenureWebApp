@@ -1,6 +1,7 @@
 // components/cart/CartClient.tsx
 'use client';
 
+import { api } from '@/src/lib/api';
 import { CartDTO } from '@/src/lib/cart/getCart';
 import { cartService } from '@/src/lib/services';
 import { UserType } from '@/src/models/user.model';
@@ -123,7 +124,7 @@ useEffect(() => {
   const handleCheckout = async () => {
     if (!isLoggedIn || cart.total <= 0) return;
     try {
-      const res = await fetch('/api/payment/shopier/deposit', {
+      const res = await api.post('/api/payment/shopier/deposit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -136,7 +137,7 @@ useEffect(() => {
           buyerPhone: user.phoneNumber || '0000000000',
         }),
       });
-      const html = await res.text();
+      const html = await res.data;
       const win = window.open('', '_blank');
       if (win) {
         win.document.open();
