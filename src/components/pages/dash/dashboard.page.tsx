@@ -275,7 +275,7 @@ useEffect(() => {
                 <tbody className="divide-y divide-white/10">
                  {
                   lastPurchases.map(purchase => (
-                    purchase.productId.map(p => (
+                    purchase.productIds.map(p => (
                       <tr key={p.toString()}>
                        <td className="py-3 pr-3 whitespace-nowrap">{new Date(purchase.createdAt).toLocaleDateString('tr-TR')}</td>
                         <td className="py-3 pr-3 min-w-0"><span className="block truncate max-w-[220px] sm:max-w-none">{p.toString()}</span></td>
@@ -585,7 +585,7 @@ function PurchasesSection(): JSX.Element {
         const rows: Row[] = await Promise.all(
           orders.map(async (order) => {
             const products = await Promise.all(
-              order.productId.map((pid) => productService.getProduct(pid.toString()))
+              order.productIds.map((pid) => productService.getProduct(pid.toString()))
             );
             return {
               id: order._id.toString(),
