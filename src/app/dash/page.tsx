@@ -11,14 +11,7 @@ export const metadata = {
 };
 
 export default async function DashPage() {
-  const user = await currentUser({
-    name: 1,
-    email: 1,
-    role: 1,
-    profilePictureUrl: 1,
-    discordId: 1,
-    accountType: 1,
-  });
+  const user = await currentUser();
 
   if (!user) {
     redirect("/login");
