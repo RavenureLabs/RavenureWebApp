@@ -9,10 +9,11 @@ export const runtime = "nodejs";
 export async function POST(req: NextRequest) {
   const shopier = getShopier();
   const result = shopier.callback(await req.json()); 
+  const data = await req.json();
   console.log("Shopier Callback Result:", result);
-  console.log("Full Request Body:", await req.json());
+  console.log("Full Request Body:",  data);
   if (result === false) {
-    return new NextResponse("FAILED", { status: 200 });
+    return new NextResponse(JSON.stringify({result, data })), { status: 200 };
   }
 
   const orderId = result.order_id;
