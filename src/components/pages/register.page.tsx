@@ -23,7 +23,6 @@ import Notification from '../notification/notification.component';
 
 export default function RegisterPageComponent() {
   const { text } = useLanguage();
-  const { data: session, status } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -39,21 +38,9 @@ export default function RegisterPageComponent() {
   const [notification, setNotificationMessage] = useState<string | null>(null);
   const [notificationType, setNotificationType] = useState<'success' | 'error'>('error');
 
-useEffect(() => {
-  const fetch = async () => {
-    
-    await signIn('discord', { callbackUrl: '/dash' });
-  }
-
-  fetch();
-}, [])
-
-
   useEffect(() => {
-    if (status === 'authenticated' && session?.user) {
-      window.location.href = '/dash';
-    }
-  }, [status, session]);
+    router.prefetch('/login');
+  }, []);
 
   const formatPhone = (value: string) => {
     const digits = value.replace(/\D/g, '').substring(0, 10);

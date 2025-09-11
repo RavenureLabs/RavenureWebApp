@@ -7,26 +7,14 @@ import { FiArrowLeft } from 'react-icons/fi';
 import { FaDiscord, FaEnvelope } from 'react-icons/fa';
 import Notification from '../notification/notification.component';
 
-export default function LoginPageComponent() {
+type LoginPageProps = {
+  isLoggedIn: boolean;
+}
+export default function LoginPageComponent({isLoggedIn}: LoginPageProps)  {
   const { text } = useLanguage();
-  const { data: session, status } = useSession();
   const [notificationMessage, setNotificationMessage] = useState<string | null>(null);
   const [notificationType, setNotificationType] = useState<'success' | 'error'>('error');
 
-useEffect(() => {
-  const fetch = async () => {
-    
-    await signIn('discord', { callbackUrl: '/dash' });
-  }
-
-  fetch();
-}, [])
-
-  useEffect(() => {
-    if (status === 'authenticated' && session?.user) {
-      window.location.href = '/dash';
-    }
-  }, [status, session]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
