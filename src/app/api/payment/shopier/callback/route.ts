@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 
   const shopier = getShopier();
   const result = shopier.callback(body); 
-  if (!result) {
+  if (result === false) {
     return new NextResponse("FAILED", { status: 400 });
   }
 
