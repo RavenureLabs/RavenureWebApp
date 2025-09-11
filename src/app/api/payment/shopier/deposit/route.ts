@@ -1,10 +1,8 @@
 import { NextRequest } from 'next/server';
 import { getShopier } from '@/src/lib/shopier';
-import { createOrder } from '@/src/controllers/order.controller';
-import  Order, {OrderType } from '@/src/models/order.model';
+import  Order from '@/src/models/order.model';
 
 export async function POST(req: NextRequest) {
-
     const {
         userId,
         amount,
@@ -25,12 +23,12 @@ export async function POST(req: NextRequest) {
     };
   const shopier = getShopier();
   try {
-      const order = await Order.create({
-    userId,
-    productIds,
-    price: amount,
-    quantity: 1,
-    status: 'pending',
+    const order = await Order.create({
+      userId,
+      productIds,
+      price: amount,
+      quantity: 1,
+      status: 'pending',
   })
   shopier.setBuyer({
     buyer_id_nr: userId,
