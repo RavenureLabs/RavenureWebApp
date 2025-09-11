@@ -8,9 +8,11 @@ export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   const shopier = getShopier();
-  const result = shopier.callback(req.body); 
+  const result = shopier.callback(await req.json()); 
+  console.log("Shopier Callback Result:", result);
+  console.log("Full Request Body:", await req.json());
   if (result === false) {
-    return new NextResponse("FAILED", { status: 400 });
+    return new NextResponse("FAILED", { status: 200 });
   }
 
   const orderId = result.order_id;
