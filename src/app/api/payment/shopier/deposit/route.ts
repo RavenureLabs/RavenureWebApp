@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server';
 import { getShopier } from '@/src/lib/shopier';
+import { createOrder } from '@/src/controllers/order.controller';
+import { OrderType } from '@/src/models/order.model';
 
 export async function POST(req: NextRequest) {
 
@@ -8,6 +10,7 @@ export async function POST(req: NextRequest) {
         amount,
         buyerName,
         buyerSurname,
+        productIds,
         buyerEmail,
         buyerPhone,
     } = await req.json() as {
@@ -16,20 +19,29 @@ export async function POST(req: NextRequest) {
         productName: string;
         buyerName: string;
         buyerSurname: string;
+        productIds: string[];
         buyerEmail: string;
         buyerPhone: string;
     };
   const shopier = getShopier();
-
+  const orderRes = await createOrder({
+    userId,
+    productId: productIds,
+    price: amount,
+    quantity: 1,
+    status: 'pending',
+  });
+  const order: OrderType = await orderRes.json();
   shopier.setBuyer({
     buyer_id_nr: userId,
+    platform_order_id: order._id.toString(),
     product_name: "Ravenure Bakiye Yükleme",
     buyer_name: buyerName,
     buyer_surname: buyerSurname,
     buyer_email: buyerEmail,
     buyer_phone: buyerPhone,
   });
-
+  
   const html = shopier.generatePaymentHTML(amount);
 
   return new Response(html, {

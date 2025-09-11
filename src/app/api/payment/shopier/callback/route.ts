@@ -1,36 +1,36 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getShopier } from '@/src/lib/shopier';
-import { cartService, userService } from '@/src/lib/services';
-import {getServerSession} from "next-auth/next";
+// app/api/payment/shopier/callback/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { getShopier } from "@/src/lib/shopier";
+import {  userService, cartService } from "@/src/lib/services";
+import  Order  from "@/src/models/order.model";
 
-export const runtime = 'nodejs'; 
+export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   const form = await req.formData();
-  const body: Record<string, any> = {};
-  for (const [k, v] of form.entries()) body[k] = v;
+  const data: Record<string, string> = Object.fromEntries(form.entries() as any);
 
   const shopier = getShopier();
+  const result = shopier.callback(data); 
 
-  const result = shopier.callback(body); 
-
-  if (result && typeof result === 'object' && 'success' in result && result.success) {
-    const session = await getServerSession();
-    if (!session?.user?.email) {
-      return NextResponse.json({ ok: false, message: 'User not authenticated' });
-    }
-    const cart = await cartService.getCart(session.user.email);
-    if (!cart) {
-      return NextResponse.json({ ok: false, message: 'Cart not found' });
-    }
-    const user = await userService.getUser(session.user.email);
-    if (!user) {
-      return NextResponse.json({ ok: false, message: 'User not found' });
-    }
-    const productIds = cart.items.map(item => item.productId);
-    await userService.addProducts(session.user.email, { productIds });
-    await cartService.deleteCart(session.user.email);
-    return NextResponse.json({ ok: true });
+  if (!result || !("success" in result) || !result.success) {
+    return new NextResponse("FAILED", { status: 400 });
   }
-  return NextResponse.json({ ok: false });
+
+  const orderId = data["platform_order_id"] || data["order_id"] || data["merchant_oid"];
+  if (!orderId) return NextResponse.json({ ok: false, message: "Missing orderId" }, { status: 400 });
+
+  const payment = await Order.findById(orderId);
+  if (!payment) return NextResponse.json({ ok: false, message: "Order not found" }, { status: 404 });
+
+  if (payment.status === "paid") return new NextResponse("OK");
+    await userService.addProducts(payment.userEmail, { productIds: payment.productIds });
+    await cartService.deleteCart(payment.userEmail);
+    await payment.updateOne({ status: "closed" });
+
+  return new NextResponse("OK");
+}
+
+export async function GET(req: NextRequest) {
+  return NextResponse.redirect('/dash', 302);
 }
