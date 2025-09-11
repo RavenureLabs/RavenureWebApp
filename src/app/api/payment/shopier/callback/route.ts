@@ -7,10 +7,8 @@ import  Order  from "@/src/models/order.model";
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-
   const shopier = getShopier();
-  const result = shopier.callback(body); 
+  const result = shopier.callback(req.body); 
   if (result === false) {
     return new NextResponse("FAILED", { status: 400 });
   }
