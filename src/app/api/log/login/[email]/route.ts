@@ -1,8 +1,7 @@
 // app/api/log/login/[email]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/options"; 
 import { getAllUserLogs } from "@/src/controllers/userLog.controller";
+import { currentUser } from "@/src/lib/auth/currentUser";
 
 export const dynamic = "force-dynamic";
 
@@ -14,9 +13,9 @@ export async function GET(
   if (!email) {
     return NextResponse.json({ error: "Missing email" }, { status: 400 });
   }
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (session.user.email != email) {
+  const user = await currentUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (user.email != email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

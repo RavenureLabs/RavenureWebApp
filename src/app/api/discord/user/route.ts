@@ -3,14 +3,15 @@ import DiscordBot from "@/src/lib/discord/discord.lib";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/src/lib/auth/options";
+import { currentUser } from "@/src/lib/auth/currentUser";
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+  const user = await currentUser();
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const discordId = (session.user as any).discordId ?? session.user.id;
+  const discordId = user.discordId;
   if (!discordId) {
     return NextResponse.json({ error: "No Discord ID on session" }, { status: 400 });
   }

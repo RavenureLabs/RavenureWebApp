@@ -1,18 +1,17 @@
-import { getUserCart, updateOrCreate } from "@/src/controllers/cart.controller";
-import { getServerSession } from "next-auth";
+import {  updateOrCreate } from "@/src/controllers/cart.controller";
+import { currentUser } from "@/src/lib/auth/currentUser";
 import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
-    const session = await getServerSession();
-    if (!session) {
+    const user = await currentUser();
+    if (!user) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
-
     const body = await request.json();
 
-    if (!session.user || body.email !== session.user.email) {
+    if (body.userId !== user._id.toString()) {
         return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 });
     }
 
-    return updateOrCreate(body.email, body);
+    return updateOrCreate(body.userId, body);
 }

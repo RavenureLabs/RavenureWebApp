@@ -1,61 +1,47 @@
-'use client';
+"use client";
 
 import { api } from '@/src/lib/api';
 import { licenseService, orderService, productService, userLogService, userService } from '@/src/lib/services';
 import { OrderType } from '@/src/models/order.model';
 import { UserLoginLogType } from '@/src/models/userLog.model';
 import { LicenseType } from '@/src/types/global';
-import { signOut, useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 import React, { JSX, useEffect, useMemo, useState } from 'react';
 import {
   FiHome, FiKey, FiCreditCard, FiClock, FiShield, FiSettings, FiBell, FiChevronRight, FiLogOut,
   FiCopy, FiSearch, FiAlertTriangle, FiEye, FiEyeOff, FiDownload
 } from 'react-icons/fi';
 
-/* ---------------- PAGE ---------------- */
+type DashboardUser = {
+  name: string;
+  email: string;
+  role: string;
+  discordId: string;
+  accountType: "discord" | "email";
+  avatarUrl: string;
+};
 
-export default function DashboardPageComponent() { 
-  const { data: session, status } = useSession();
+export default function DashboardClient({ user }: { user: DashboardUser }) {
   const [active, setActive] = useState<'overview'|'licenses'|'purchases'|'logins'|'admin'|'settings'>('overview');
-  const [displayName, setDisplayName] = useState<string>('');
-  const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const [displayName, setDisplayName] = useState<string>(user.name);
+  const [avatarUrl, setAvatarUrl] = useState<string>(user.avatarUrl);
 
+  // Discord profilini ayrıca zenginleştirmek istiyorsan:
   useEffect(() => {
-    if (session?.user) {
-      const fetch = async () => {
-        const res = await api.get('/api/discord/user');
-        setDisplayName(res.data.username || '');
-        setAvatarUrl(res.data.avatar || '');
-      }
-      fetch();
-    }
-  }, [session, status]);
-  const capitalizeWords = (str?: string | null) => {
-    if (!str) return '';
-    return str
-      .toLocaleLowerCase('tr-TR')
-      .split(' ')
-      .filter(Boolean)
-      .map(w => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1))
-      .join(' ');
-  };
+    if (!user) return;
+    const run = async () => {
+      try {
+        const res = await api.get('/api/discord/user'); // opsiyonel
+        if (res?.data) {
+          setDisplayName(res.data.username || user.name);
+          setAvatarUrl(res.data.avatar || user.avatarUrl);
+        }
+      } catch { /* sessiz geç */ }
+    };
+    run();
+  }, [user]);
 
-  useEffect(() => {
-    const onEsc = (e: KeyboardEvent) => e.key === 'Escape' && null;
-    window.addEventListener('keydown', onEsc);
-    return () => window.removeEventListener('keydown', onEsc);
-  }, []);
-
-  useEffect(() => {
-    if (!session && status === 'unauthenticated') {
-      window.location.href = '/';
-      return;
-    }
-    
-  }, [session, status]);
-
-  const userKey = session?.user?.email || 'Unknown';
-
+  const userKey = user.email || 'Unknown';
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-[radial-gradient(60%_80%_at_20%_0%,#1e1b4b_0%,#0a0a0b_40%,#09080a_100%)] text-white">
@@ -77,17 +63,15 @@ export default function DashboardPageComponent() {
           <RailItem title="Giriş Kayıtları" icon={<FiClock />}      active={active==='logins'}    onClick={() => setActive('logins')}
                     iconColor="#94a3b8"    activeIconColor="#d946ef" />
           <div className="my-2 border-t border-white/10" />
-          {
-            (session?.user as any)?.role === 'admin' && (
-                <RailItem title="Yönetim"        icon={<FiShield />}      active={active==='admin'}     onClick={() => window.location.href = '/admin-dashboard'}
-                    iconColor="#94a3b8"    activeIconColor="#16a34a" />
-            )
-          }
-          <RailItem title="Ayarlar"        icon={<FiSettings />}    active={active==='settings'}  onClick={() => setActive('settings')}
-                    iconColor="#94a3b8"    activeIconColor="#F6D703" />
+          {user.role === 'admin' && (
+            <RailItem title="Yönetim" icon={<FiShield />} active={active==='admin'} onClick={() => (window.location.href = '/admin-dashboard')}
+                      iconColor="#94a3b8" activeIconColor="#16a34a" />
+          )}
+          <RailItem title="Ayarlar" icon={<FiSettings />} active={active==='settings'} onClick={() => setActive('settings')}
+                    iconColor="#94a3b8" activeIconColor="#F6D703" />
           <div className="mt-6"></div>
-          <RailItem title="Çıkış Yap"      icon={<FiLogOut />}      danger onClick={() => signOut()}
-                    iconColor="#D0234A"    activeIconColor="#dc2626" />
+          <RailItem title="Çıkış Yap" icon={<FiLogOut />} danger onClick={() => signOut()}
+                    iconColor="#D0234A" activeIconColor="#dc2626" />
         </nav>
       </aside>
 
@@ -145,26 +129,32 @@ export default function DashboardPageComponent() {
 
       <main className="pt-16 md:pt-0 md:pl-[84px]">
         <div className="mx-auto max-w-7xl w-full px-3 sm:px-4 lg:px-6 py-6 sm:py-8 grid gap-6 sm:gap-8">
-
           {active === 'overview' && (
             <Overview
               displayName={displayName}
               avatarUrl={avatarUrl}
-              email={userKey}
+              email={user.email}
+              discordId={user.discordId}
+              accountType={user.accountType}
               setActive={setActive}
             />
           )}
 
-          {active === 'licenses' && <LicensesSection />}
+          {active === 'licenses' && (
+            <LicensesSection
+              email={user.email}
+              discordId={user.discordId}
+            />
+          )}
 
           {active === 'purchases' && <PurchasesSection />}
 
-          {active === 'logins' && <LoginsSection userKey={userKey} />}
+          {active === 'logins' && <LoginsSection userKey={user.email} />}
 
           {active === 'settings' && (
             <SettingsSection
               name={displayName}
-              email={session?.user?.email || '—'}
+              email={user.email || '—'}
             />
           )}
         </div>
@@ -175,10 +165,11 @@ export default function DashboardPageComponent() {
 
 /* ---------------- SMALL SECTIONS ---------------- */
 
-function Overview({ displayName, avatarUrl, email, setActive }:{
-  displayName:string; avatarUrl:string; email:string, setActive:Function;
+function Overview({
+  displayName, avatarUrl, email, discordId, accountType, setActive
+}: {
+  displayName:string; avatarUrl:string; email:string; discordId:string; accountType:"discord"|"email"; setActive:Function;
 }) {
-  const { data: session, status } = useSession();
   const [totalExpenditure, setTotalExpenditure] = useState('');
   const [lastPurchasesExpenditure, setLastPurchasesExpenditure] = useState('');
   const [loginLog, setLoginLog] = useState<UserLoginLogType[]>([]);
@@ -187,28 +178,68 @@ function Overview({ displayName, avatarUrl, email, setActive }:{
   const [licenses, setLicenses] = useState<LicenseType[]>([]);
   const [TodayLicenseCount, setTodayLicenseCount] = useState(0);
 
-  useEffect(() => {
-    const fetch = async () => {
-      const totalExpenditure = await orderService.getTotalExpenditure();
-      setTotalExpenditure(totalExpenditure.toString());
+useEffect(() => {
+  if (!email) return;
 
-      const lastPurchasesExpenditure = await orderService.getLastPurchasesExpenditure();
-      setLastPurchasesExpenditure(lastPurchasesExpenditure.toString());
+  let cancelled = false;
 
-      const loginLog = await userLogService.getAllUserLogs(session?.user?.email || '');
-      setLoginLog(loginLog);
+  (async () => {
+    setLoading(true);
+    try {
+      const results = await Promise.allSettled([
+        orderService.getTotalExpenditure(),
+        orderService.getLastPurchasesExpenditure(),
+        userLogService.getAllUserLogs(email),
+        orderService.getOrders(),
+        licenseService.getLicenses(discordId, email),
+      ]);
 
-      const lastPurchases = await orderService.getOrders();
-      setLastPurchases(lastPurchases.slice(0, 4));
+      if (cancelled) return;
 
-      const licenses = await licenseService.getLicenses(session?.user.id!, session?.user.email!);
+      const [totalR, lastExR, logsR, ordersR, licensesR] = results;
+
+      const toVal = <T,>(r: PromiseSettledResult<T>, fallback: T) =>
+        r.status === "fulfilled" ? r.value : fallback;
+
+      const total = toVal(totalR, 0);
+      const lastEx = toVal(lastExR, 0);
+      const logs = toVal(logsR, []);
+      const orders = toVal(ordersR, []);
+      const licenses = toVal(licensesR, []);
+
+      setTotalExpenditure(String(total));
+      setLastPurchasesExpenditure(String(lastEx));
+      setLoginLog(logs);
+      setLastPurchases(orders.slice(0, 4));
       setLicenses(licenses);
-      
-      setTodayLicenseCount(licenses.filter((license) => new Date(license.createdAt).toDateString() === new Date().toDateString()).length)
-      setLoading(false);
+
+      const today = new Date().toDateString();
+      setTodayLicenseCount(
+        licenses.reduce(
+          (acc: number, l: any) => acc + (new Date(l.createdAt).toDateString() === today ? 1 : 0),
+          0
+        )
+      );
+    } finally {
+      if (!cancelled) setLoading(false);
     }
-    fetch();
-  }, [session, status]);
+  })();
+
+  return () => {
+    cancelled = true;
+  };
+}, [email, discordId]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <svg className="animate-spin -ml-1 mr-3 h-12 w-12 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+    );
+  }
 
   if (loading) 
     return (
@@ -313,18 +344,11 @@ function WarnTooltip({ message, accent = '#f97316' }:{ message:string; accent?:s
   );
 }
 
-function LicensesSection() {
+function LicensesSection({ email, discordId }:{ email: string; discordId: string }) {
   type Row = {
-    id: string;
-    product: string;
-    key: string;
-    status: "Aktif";
-    created: string;
-    devices: number;
-    maxDevices: number;
+    id: string; product: string; key: string; status: "Aktif"; created: string; devices: number; maxDevices: number;
   };
 
-  const { data: session, status } = useSession();
   const [rows, setRows] = useState<Row[]>([]);
   const [q, setQ] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
@@ -336,28 +360,20 @@ function LicensesSection() {
   );
 
   useEffect(() => {
-    if (status !== "authenticated" || !session?.user) return;
-
+    if (!email && !discordId) return;
     const load = async () => {
       try {
         setLoading(true);
-
-        const discordId = (session.user as any).discordId ?? session.user.id; 
-        const email = session.user.email ?? ""; 
-
         const response: LicenseType[] = await licenseService.getLicenses(discordId, email);
-
-        setRows(
-          response.map((l) => ({
-            id: String(l._id),
-            product: l.Product,
-            key: l.LicenseKey,
-            status: "Aktif",
-            created: new Date(l.createdAt).toLocaleString(),
-            devices: Array.isArray(l.IPs) ? l.IPs.length : 0,
-            maxDevices: Number(l.MaxIPs ?? 0),
-          }))
-        );
+        setRows(response.map((l) => ({
+          id: String(l._id),
+          product: l.Product,
+          key: l.LicenseKey,
+          status: "Aktif",
+          created: new Date(l.createdAt).toLocaleString(),
+          devices: Array.isArray(l.IPs) ? l.IPs.length : 0,
+          maxDevices: Number(l.MaxIPs ?? 0),
+        })));
       } catch (err) {
         console.error("licenses load error:", err);
         setRows([]);
@@ -365,9 +381,8 @@ function LicensesSection() {
         setLoading(false);
       }
     };
-
     load();
-  }, [status, session?.user]); 
+  }, [email, discordId]);
 
   if (loading) return (
     <div className="flex items-center justify-center">
@@ -555,53 +570,42 @@ function LicensesSection() {
 
 /* ---------------- SATIN ALIMLAR (Sadece görüntüleme) ---------------- */
 
-function PurchasesSection(): JSX.Element {    
+function PurchasesSection(): JSX.Element {
   type Row = {
-  id: string;
-  date: string;
-  product: string[];
-  pay: 'PayTR' | 'Kredi Kartı' | 'Havale/EFT';
-  amount: number;
-  status: 'Başarılı';
-};
-
-const [rows, setRows] = useState<Row[]>([]);
-const [loading, setLoading] = useState(true);
-
-useEffect(() => {
-  const fetchOrders = async () => {
-    try {
-      const orders = await orderService.getOrders();
-
-      const rows: Row[] = await Promise.all(
-        orders.map(async (order) => {
-          const products = await Promise.all(
-            order.productId.map((pid) =>
-              productService.getProduct(pid.toString())
-            )
-          );
-
-          return {
-            id: order._id.toString(),
-            date: new Date(order.createdAt).toLocaleDateString(),
-            product: products.map((p) => p.name['tr']),
-            pay: 'Kredi Kartı',
-            amount: order.price,
-            status: 'Başarılı',
-          };
-        })
-      );
-
-      setRows(rows);
-    } catch (err) {
-      console.error('Siparişler alınırken hata oluştu:', err);
-    } finally {
-      setLoading(false); 
-    }
+    id: string; date: string; product: string[]; pay: 'PayTR' | 'Kredi Kartı' | 'Havale/EFT'; amount: number; status: 'Başarılı';
   };
 
-  fetchOrders();
-}, []); 
+  const [rows, setRows] = useState<Row[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const orders = await orderService.getOrders();
+        const rows: Row[] = await Promise.all(
+          orders.map(async (order) => {
+            const products = await Promise.all(
+              order.productId.map((pid) => productService.getProduct(pid.toString()))
+            );
+            return {
+              id: order._id.toString(),
+              date: new Date(order.createdAt).toLocaleDateString('tr-TR'),
+              product: products.map((p) => p.name['tr']),
+              pay: 'Kredi Kartı',
+              amount: order.price,
+              status: 'Başarılı',
+            };
+          })
+        );
+        setRows(rows);
+      } catch (err) {
+        console.error('Siparişler alınırken hata oluştu:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrders();
+  }, []);
 
 const [q, setQ] = useState('');
 const filtered = useMemo(() => {
@@ -820,12 +824,7 @@ function SettingsSection({ name, email }:{ name:string; email:string }) {
   const [newPass, setNewPass] = useState('');
   const [newPass2, setNewPass2] = useState('');
   const [msg, setMsg] = useState<{type:'ok'|'err'; text:string} | null>(null);
-
-  const { data: session } = useSession();
-
-  useEffect(() => {
-    
-  }, [session]);
+  
   const submit = async  (e: React.FormEvent) => {
     e.preventDefault();
     setMsg(null);
@@ -864,7 +863,7 @@ function SettingsSection({ name, email }:{ name:string; email:string }) {
       </GlassCard>
 
       {
-        (session?.user as any)?.accountType !== "discord" && (
+/*        (session?.user as any)?.accountType !== "discord" && (
         <GlassCard title="Şifre Değiştir">
         <form onSubmit={submit} className="grid gap-3 max-w-xl">
           <div>
@@ -905,6 +904,7 @@ function SettingsSection({ name, email }:{ name:string; email:string }) {
         </form>
       </GlassCard>
         )
+        */
       }
     </section>
   );

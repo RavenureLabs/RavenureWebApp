@@ -1,11 +1,11 @@
 "use client";
+
 import { LanguageProvider } from "@/src/context/language/language.context";
 import { SessionProvider } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { useCartStore } from "@/src/stores/cart.store";
-import CartComponent from "../cart/cart.component";
 import { Suspense } from "react";
+import { useCartStore } from "@/src/stores/cart.store";
 
 const NavbarComponent = dynamic(() => import("../navbar/navbar.component"), { loading: () => <Loading /> });
 const FooterComponent = dynamic(() => import("../footer/footer.component"), { loading: () => <Loading /> });
@@ -47,24 +47,20 @@ export default function ClientLayout({
     return pathname === uri;
   });
 
-return (
-  <SessionProvider>
-    <LanguageProvider lang={lang}>
-      <Suspense fallback={<Loading />}>
-        {!hideNavbar && <NavbarComponent />}
-      </Suspense>
+  return (
+    <SessionProvider>
+      <LanguageProvider lang={lang}>
+        <Suspense fallback={<Loading />}>
+          {!hideNavbar && <NavbarComponent />}
+        </Suspense>
 
-      <Suspense fallback={<Loading />}>
-        {children}
-      </Suspense>
+        <Suspense fallback={<Loading />}>{children}</Suspense>
 
-      {isOpen && <CartComponent />}
 
-      <Suspense fallback={<Loading />}>
-        {!hideFooter && <FooterComponent />}
-      </Suspense>
-    </LanguageProvider>
-  </SessionProvider>
-);
+        <Suspense fallback={<Loading />}>
+          {!hideFooter && <FooterComponent />}
+        </Suspense>
+      </LanguageProvider>
+    </SessionProvider>
+  );
 }
-

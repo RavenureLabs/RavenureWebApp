@@ -1,22 +1,21 @@
-import {Poppins } from "next/font/google";
+// src/app/layout.tsx
+import { Poppins } from "next/font/google";
 import "./globals.css";
-import ClientLayout from "../components/layout/client.layout"; 
+import ClientLayout from "../components/layout/client.layout";
 import { headers } from "next/headers";
 import { SettingsProvider } from "../context/settings/settings.context";
+import CartServer from "@/src/components/cart/CartServer"; // ✅ SERVER import
 
 const poppins = Poppins({
   subsets: ['latin'],
-  weight: ['400', '600', '700'], 
+  weight: ['400', '600', '700'],
   display: 'swap',
 });
 
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const headersList = await headers();
   const lang = headersList.get('x-language') || 'en';
+
   return (
     <html lang="tr">
       <head>
@@ -32,6 +31,8 @@ export default async function RootLayout({
             {children}
           </SettingsProvider>
         </ClientLayout>
+
+        <CartServer />
       </body>
     </html>
   );

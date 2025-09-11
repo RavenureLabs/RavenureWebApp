@@ -1,7 +1,39 @@
-import DashBoardPageComponent from "@/src/components/pages/dash/dashboard.page";
+// app/dash/page.tsx
+import { redirect } from "next/navigation";
+import {currentUser} from "@/src/lib/auth/currentUser";
 
-export default function DashBoardPage(){
-    return(
-        <DashBoardPageComponent />
-    )
+// mevcut componentini buraya taşıyacağız:
+import DashboardClient from "@/src/components/pages/dash/dashboard.page";
+
+export const metadata = {
+  title: "Ravenure - Panel",
+  description: "Ravenure Kullanıcı Paneli",
+};
+
+export default async function DashPage() {
+  const user = await currentUser({
+    name: 1,
+    email: 1,
+    role: 1,
+    profilePictureUrl: 1,
+    discordId: 1,
+    accountType: 1,
+  });
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  return (
+    <DashboardClient
+      user={{
+        name: user.name ?? "",
+        email: user.email ?? "",
+        role: user.role ?? "member",
+        discordId: user.discordId ?? "",
+        accountType: user.accountType ?? "discord",
+        avatarUrl: user.profilePictureUrl ?? "/Ravenure-Logo.png",
+      }}
+    />
+  );
 }

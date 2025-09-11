@@ -1,76 +1,33 @@
 // lib/auth/options.ts
 import { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
 import DiscordProvider from "next-auth/providers/discord";
 import { userService } from "../services";
+import { UserType } from "@/src/models/user.model";
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        const { email, password } = credentials || {};
-        const res = await fetch(`${process.env.NEXTAUTH_URL}/api/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ data: { email, password } }),
-        });
-
-        const out = await res.json().catch(() => null);
-        if (!out?.user) return null;
-
-        const u = out.user;
-        return {
-          // Credentials akışında NextAuth bir id ister -> DB id verilebilir
-          id: String(u._id),
-          dbId: String(u._id),
-          name: u.name,
-          email: u.email,
-          image: u.profilePictureUrl ?? null,
-          discordId: u.discordId ?? null,
-          role: u.role,
-          accountType: u.accountType,
-          isActive: u.isActive,
-          isVerified: u.isVerified,
-          lastLogin: u.lastLogin ?? null,
-          phoneNumber: u.phoneNumber ?? null,
-        };
-      },
-    }),
-
     DiscordProvider({
       clientId: process.env.DISCORD_CLIENT_ID!,
       clientSecret: process.env.DISCORD_CLIENT_SECRET!,
       authorization: { params: { scope: "identify email" } },
       async profile(profile) {
-        // 1) Kullanıcıyı Discord ID ile ara
-        const res = await fetch(
-          `${process.env.NEXTAUTH_URL}/api/user/discord/${profile.id}`,
-          { cache: "no-store" }
-        ).catch(() => null);
-
-        let fetchedJson: any = null;
-        if (res) {
-          try {
-            fetchedJson = await res.json();
-          } catch {
-            fetchedJson = null;
+        let userDoc: UserType | null = null;
+        try {
+          const res = await fetch(
+            `${process.env.NEXTAUTH_URL}/api/user/discord/${profile.id}`,
+            { cache: "no-store" }
+          );
+          if (res.ok) {
+            const json = await res.json().catch(() => null);
+            userDoc = (json && (json.user ?? json)) || null;
           }
+        } catch {
         }
 
-        // 2) Yanıtı normalize et: { user: {...} } veya direkt {...}
-        let userDoc =
-          (fetchedJson && (fetchedJson.user ?? fetchedJson)) || null;
-
-        // 3) Bulunamadıysa kaydet ve yine normalize et
-        if (!res || res.status === 404 || !userDoc) {
+        if (!userDoc) {
           const created = await userService.register({
             name: profile.global_name ?? profile.username ?? "Discord User",
-            email: profile.email ?? null, // email her zaman gelmeyebilir
+            email: profile.email ?? null, 
             accountType: "discord",
             discordId: profile.id,
             profilePictureUrl: profile.avatar
@@ -82,21 +39,17 @@ export const authOptions: NextAuthOptions = {
             isVerified: true,
           });
 
-          // register dönüşünü de normalize et
-          userDoc = created?.user ?? created ?? null;
+          userDoc = created.user as UserType;
         }
 
         const dbId =
-          (userDoc && (userDoc._id ?? userDoc.id)) ? String(userDoc._id ?? userDoc.id) : null;
-
+          (userDoc as any)?._id
+            ? String((userDoc as any)._id)
+            : null;
         return {
-          // ZORUNLU: OAuth kimliği = Discord kullanıcı ID
           id: profile.id,
-
-          // DB kimliği ayrı alan
           dbId,
 
-          // Görsel ve kimlik bilgileri
           name:
             userDoc?.name ??
             profile.global_name ??
@@ -109,7 +62,6 @@ export const authOptions: NextAuthOptions = {
               ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`
               : `https://cdn.discordapp.com/embed/avatars/0.png`),
 
-          // Ek alanlar
           discordId: userDoc?.discordId ?? profile.id,
           role: userDoc?.role ?? "member",
           accountType: userDoc?.accountType ?? "discord",
@@ -117,39 +69,27 @@ export const authOptions: NextAuthOptions = {
           isVerified: userDoc?.isVerified ?? true,
           lastLogin: userDoc?.lastLogin ?? null,
           phoneNumber: userDoc?.phoneNumber ?? null,
-        };
+          products: (userDoc as any)?.products ?? [],
+        } as any;
       },
     }),
   ],
 
   pages: { signIn: "/login" },
   session: { strategy: "jwt" },
-
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.user = {
-          ...(token.user || {}),
-          // Discord’da 'id' = discordId, Credentials’ta 'id' = dbId; fark etmez, hepsini taşıyoruz
-          id: (user as any).id,
-          dbId: (user as any).dbId ?? (user as any).id ?? null,
-          name: user.name!!,
-          email: user.email!!,
-          image: (user as any).image ?? (user as any).profilePictureUrl ?? null,
-          discordId: (user as any).discordId ?? null,
-          role: (user as any).role ?? "member",
-          accountType: (user as any).accountType ?? "discord",
-          isActive: (user as any).isActive ?? true,
-          isVerified: (user as any).isVerified ?? true,
-          lastLogin: (user as any).lastLogin ?? null,
-          phoneNumber: (user as any).phoneNumber ?? null,
+          dbId: (user as any).dbId ?? null,
+          discordId: (user as any).discordId ?? (user as any).id ?? null,
         };
       }
       return token;
     },
-
     async session({ session, token }) {
-      session.user = token.user as any;
+      // İstemciye yalnızca kimlik gidiyor
+      session.user = token.user as any; // { dbId, discordId }
       return session;
     },
   },
