@@ -11,7 +11,7 @@ import { LicenseType } from "../types/global";
 import { CartDTO } from "./cart/getCart";
 require('dotenv').config();
 export const api = axios.create({
-    baseURL: process.env.NEXTAUTH_URL
+    baseURL: process.env.NEXT_PUBLIC_API_URL
 });
 
 export class ProductService {
