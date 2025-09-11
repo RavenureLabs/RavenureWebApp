@@ -1,10 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import cloudinary from "@/src/lib/cloudinary";
+import { requireAuth } from "@/src/lib/middleware/auth";
 
 export const runtime = "nodejs";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+     const auth = await requireAuth(req, ["admin"]);
+    if (auth instanceof NextResponse) {
+      return auth;
+    }
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     if (!file) {

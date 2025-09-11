@@ -77,33 +77,19 @@ export const authOptions: NextAuthOptions = {
 
   pages: { signIn: "/login" },
   session: { strategy: "jwt" },
-
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.user = {
-          ...(token.user || {}),
-          id: (user as any).id, 
           dbId: (user as any).dbId ?? null,
-
-          name: (user as any).name ?? null,
-          email: (user as any).email ?? null,
-          image: (user as any).image ?? (user as any).profilePictureUrl ?? null,
-
           discordId: (user as any).discordId ?? (user as any).id ?? null,
-          role: (user as any).role ?? "member",
-          accountType: (user as any).accountType ?? "discord",
-          isActive: (user as any).isActive ?? true,
-          isVerified: (user as any).isVerified ?? true,
-          lastLogin: (user as any).lastLogin ?? null,
-          phoneNumber: (user as any).phoneNumber ?? null
         };
       }
       return token;
     },
-
     async session({ session, token }) {
-      session.user = token.user as any;
+      // İstemciye yalnızca kimlik gidiyor
+      session.user = token.user as any; // { dbId, discordId }
       return session;
     },
   },

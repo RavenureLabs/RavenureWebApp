@@ -6,7 +6,6 @@ export const metadata: Metadata = {
   description: "Ravenure",
 };
 
-
 export default function Home() {
   return(
     <HomePageComponent />

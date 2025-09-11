@@ -1,4 +1,5 @@
 import mongoose, { ObjectId } from "mongoose";
+import { connectToDatabase } from "../lib/database";
 export type UserType = {
     _id: ObjectId;
     name: string;

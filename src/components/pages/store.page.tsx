@@ -2,17 +2,19 @@
 
 import Image from 'next/image';
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ProductType } from '@/src/models/product.model';
-import { cartService, categoryService, productService } from '@/src/lib/services';
 import { CategoryType } from '@/src/models/category.model';
-import { getSession, useSession } from 'next-auth/react';
+import { cartService } from '@/src/lib/services';
 
-export default function ShopPageComponent() {
+type Props = {
+  products: ProductType[];
+  categories: CategoryType[];
+  isLoggedIn: boolean;
+};
+
+export default function ShopPageComponent({ products, categories, isLoggedIn }: Props) {
   const { text, language } = useLanguage();
-    const {data: session} = useSession();
-  const [products, setProducts] = useState<ProductType[]>([]);
-  const [categories, setCategories] = useState<CategoryType[]>([]);
   const [category, setCategory] = useState<string>('all');
 
   const fmt = (v: number) =>
@@ -22,51 +24,25 @@ export default function ShopPageComponent() {
       maximumFractionDigits: 2,
     }).format(v);
 
-  useEffect(() => {
-    const fetch = async () => {
-      const products = await productService.getProducts();
-      setProducts(products || []);
-      const categories = await categoryService.getCategories();
-      setCategories(categories || []);
-    };
-    fetch();
-  }, []);
-
   const visible = useMemo(() => {
     if (category === 'all') return products;
-    return products.filter(
-      (p) => p?.category?.toString?.() === category
-    );
+    return products.filter((p) => p?.category?.toString?.() === category);
   }, [products, category]);
 
   const addToCart = async (product: ProductType) => {
-    if (!session?.user?.email) {
+    if (!isLoggedIn) {
       window.location.href = '/login';
       return;
     }
-    const cart = await cartService.getCart(session?.user.email);
-    const existingItem = cart.items?.find(i => i.productId === product._id);
-    if (existingItem) {
-      existingItem.quantity += 1;
-    } else {
-      cart.items?.push({ productId: product._id, quantity: 1 });
-    }
-  
-    await cartService.saveCart(
-      {
-        "email": session?.user?.email,
-        ...cart,
-      }
-    );
+    await cartService.addToCart(product._id.toString()); // service’ini buna göre ayarlarsın
   };
 
-
-const catBtn = (active: boolean) =>
+  const catBtn = (active: boolean) =>
     [
       'px-4 py-1.5 rounded-full text-sm font-medium transition cursor-pointer',
       active
         ? 'bg-[#139f8b] text-white'
-        : 'bg-white/10 text-white hover:bg-[#139f8b]'
+        : 'bg-white/10 text-white hover:bg-[#139f8b]',
     ].join(' ');
 
   return (
@@ -98,7 +74,6 @@ const catBtn = (active: boolean) =>
 
           {/* kategoriler */}
           <div className="flex flex-wrap gap-2 mt-6">
-            {/* Tüm ürünler */}
             <button
               key="all"
               onClick={() => setCategory('all')}
@@ -125,7 +100,7 @@ const catBtn = (active: boolean) =>
         <div className="max-w-6xl mx-auto px-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((p) => {
             const hasDiscount = !!p.discountPrice && p.discountPrice < p.price;
-            const topLine = hasDiscount ? p.price : null; 
+            const topLine = hasDiscount ? p.price : null;
             const mainPrice = hasDiscount ? p.discountPrice! : p.price;
 
             return (
@@ -166,30 +141,25 @@ const catBtn = (active: boolean) =>
                       {fmt(mainPrice)}
                     </span>
                   </div>
-                  {/* Sepete ekle butonu */}
                   <button
-                    className="
-                      relative h-10 px-5 rounded-full text-sm font-semibold text-white
-                      bg-[#139f8b] overflow-hidden cursor-pointer
-                      transition-colors duration-300 ease-out
-                      before:content-[''] before:absolute before:inset-0
-                      before:bg-gradient-to-r before:from-[#25d170] before:to-[#139f8b]
-                      before:rounded-full before:pointer-events-none
-                      before:translate-x-[-100%] hover:before:translate-x-0
-                      before:transition-transform before:duration-500 before:ease-out
-                      before:will-change-transform
-                    "
+                    onClick={() => addToCart(p)}
+                    className="relative h-10 px-5 rounded-full text-sm font-semibold text-white
+                               bg-[#139f8b] overflow-hidden cursor-pointer
+                               transition-colors duration-300 ease-out
+                               before:content-[''] before:absolute before:inset-0
+                               before:bg-gradient-to-r before:from-[#25d170] before:to-[#139f8b]
+                               before:rounded-full before:pointer-events-none
+                               before:translate-x-[-100%] hover:before:translate-x-0
+                               before:transition-transform before:duration-500 before:ease-out
+                               before:will-change-transform"
                   >
-                    <span onClick={() => {
-                      addToCart(p);
-                    }} className="relative z-[1]">Add to cart</span>
+                    <span className="relative z-[1]">Add to cart</span>
                   </button>
                 </div>
               </div>
             );
           })}
 
-          {/* Boş durum */}
           {visible.length === 0 && (
             <div className="col-span-full text-center text-white/70 py-16">
               {text('store.no-products') || 'Ürün bulunamadı.'}

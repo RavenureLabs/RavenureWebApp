@@ -1,32 +1,26 @@
 'use client';
 
 import { useLanguage } from '@/src/hooks/uselanguage.hooks';
-import { referanceService } from '@/src/lib/services';
 import { ReferanceType } from '@/src/models/referance.model';
 import { ArrowRight } from 'lucide-react';
-import React from 'react';
 
-export default function ReferencesPageComponent() {
-  const [refs, setRefs] = React.useState<ReferanceType[]>([]);
+type Props = {
+  refs: ReferanceType[];
+};
+
+export default function ReferencesPageComponent({ refs }: Props) {
   const { text } = useLanguage();
-
-  React.useEffect(() => {
-    const fetch = async () => {
-      const res = await referanceService.getReferances();
-      setRefs(res);
-    }
-    fetch();
-  }, []);
 
   return (
     <div className="min-h-screen bg-[#0c0e11] text-white">
-      {/* HERO — store ile aynı düzen/duygu */}
+      {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(80%_60%_at_20%_-10%,#1a4636_0%,#0c0e11_45%)] opacity-70 pointer-events-none" />
         <div className="absolute inset-x-0 -top-24 h-48 blur-3xl bg-gradient-to-r from-[#25d17044] via-transparent to-[#139f8b44]" />
         <div className="relative max-w-6xl mx-auto px-5 pt-14 pb-10 md:pt-20 md:pb-16 text-left">
           <div className="inline-flex items-center gap-2 text-xs text-[#9fe9c9]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#25d170]" /> {text('referances.page-title')} 
+            <span className="w-1.5 h-1.5 rounded-full bg-[#25d170]" />{' '}
+            {text('referances.page-title')}
           </div>
           <h1 className="mt-2 text-3xl md:text-5xl font-bold tracking-tight">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#25d170] to-[#139f8b]">
@@ -42,10 +36,11 @@ export default function ReferencesPageComponent() {
       {/* GRID */}
       <section className="py-12 md:py-16">
         <div className="max-w-6xl mx-auto grid gap-8 sm:grid-cols-2 lg:grid-cols-3 px-5">
-          {refs.length > 0 && refs.map((r, i) => (
-            <RefCard key={i} item={r} />
-          )) || <div className="text-white/70">{text('referances.empty')}</div>
-          }
+          {refs.length > 0 ? (
+            refs.map((r, i) => <RefCard key={i} item={r} />)
+          ) : (
+            <div className="text-white/70">{text('referances.empty')}</div>
+          )}
         </div>
       </section>
     </div>

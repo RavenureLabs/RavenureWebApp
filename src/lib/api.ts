@@ -8,6 +8,7 @@ import { OrderType } from "../models/order.model";
 import { CartType } from "../models/cart.model";
 import { UserLoginLogType } from "../models/userLog.model";
 import { LicenseType } from "../types/global";
+import { CartDTO } from "./cart/getCart";
 require('dotenv').config();
 export const api = axios.create({
     baseURL: process.env.NEXTAUTH_URL
@@ -202,7 +203,7 @@ export class OrderService {
 export class CartService {
     async getCart(email: string){
         const response = await api.get(`/api/cart/${email}`);
-        return response.data.cart as CartType;
+        return response.data.cart as CartDTO;
     }
     async saveCart(data: any){
         const response = await api.post('/api/cart', data);
@@ -212,7 +213,10 @@ export class CartService {
         const response = await api.delete(`/api/cart/${email}`);
         return response.data;
     }
-
+    async addToCart(productId: string){
+        const response = await api.post(`/api/cart/add-to-cart`, { productId });
+        return response.data.cart as CartType;
+    }
 }
 
 export class UserLoginLogService {

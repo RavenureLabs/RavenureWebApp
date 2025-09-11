@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { UserType } from "@/src/models/user.model";
+import { currentUser } from "../auth/currentUser";
 
 export async function requireAuth(
   req: NextRequest,
@@ -12,7 +12,7 @@ export async function requireAuth(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const user = token.user;
+  const user = await currentUser();
   if (allowedRoles.length > 0 && (!user || !user.role || !allowedRoles.includes(user.role))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

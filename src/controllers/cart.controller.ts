@@ -55,15 +55,14 @@ export async function deleteCart(email: string) {
     }
 }
 
-export async function updateOrCreate(email: string, cartData: any) {
+export async function updateOrCreate(userId: string, cartData: any) {
     await connectToDatabase();
     try {
-        const user = await User.findOne({ email });
         const allowedFields = {
             items: cartData.items,
         };
         const cart = await Cart.findOneAndUpdate(
-            {  userId: user._id.toString() },
+            {  userId: userId },
             { $set: allowedFields },
             { new: true, upsert: true }
         );
