@@ -24,7 +24,8 @@ export async function POST(req: NextRequest) {
         buyerPhone: string;
     };
   const shopier = getShopier();
-  const order = await Order.create({
+  try {
+      const order = await Order.create({
     userId,
     productIds,
     price: amount,
@@ -41,6 +42,10 @@ export async function POST(req: NextRequest) {
     buyer_phone: buyerPhone,
   });
   
+  }catch (error) {
+    console.error("Error creating order:", error);
+    return new Response("Error creating order", { status: 500 });
+  }
   const html = shopier.generatePaymentHTML(amount);
 
   return new Response(html, {
