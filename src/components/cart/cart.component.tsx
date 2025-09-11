@@ -59,6 +59,7 @@ export default function CartComponent() {
           productName: 'Ravenure Bakiye Yükleme',
           buyerName: session.user.name?.split(' ')[0],
           buyerSurname: session.user.name?.split(' ').slice(1).join(' '),
+          productIds: cart.items.map(i => i.productId.toString()),
           buyerEmail: session.user.email,
           buyerPhone: session.user.phoneNumber,
         }),

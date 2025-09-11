@@ -40,16 +40,17 @@ export default function ShopPageComponent() {
   }, [products, category]);
 
   const addToCart = async (product: ProductType) => {
-    if (!session?.user?.email) return;
-    const cart = await cartService.getCart(session?.user.email);
-    if (cart && cart.items.find((i) => i.productId.toString() === product._id.toString()) || session.user.products.includes(product._id!.toString())) {
+    if (!session?.user?.email) {
+      window.location.href = '/login';
       return;
     }
-    let updatedItems = cart?.items || [];
-    updatedItems.push({
-      productId: new (require('bson').ObjectId)(product._id!),
-      quantity: 1
-    })
+    const cart = await cartService.getCart(session?.user.email);
+    const existingItem = cart.items?.find(i => i.productId === product._id);
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      cart.items?.push({ productId: product._id, quantity: 1 });
+    }
   
     await cartService.saveCart(
       {

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "../lib/database";
 import Product, { ProductType } from "../models/product.model";
-import Category from "../models/category.model";
+import Category, { CategoryType } from "../models/category.model";
 import { translate } from "../utils/translate.utils";
 
 export async function getProducts() {
@@ -55,14 +55,6 @@ export async function createProduct(data: any) {
         const translatedDescription = await translate(description);
         data.description = translatedDescription;
         const product = await Product.create(data);
-        // add the procut to the category
-        if (data.category) {
-            const category = await Category.findById(data.category);
-            if (category) {
-                category.products.push(product._id);
-                await category.save();
-            }
-        }
         return NextResponse.json(convertToDto(product), { status: 200 });
     }
     catch (error) {
@@ -75,14 +67,6 @@ export async function updateProduct(data: any) {
     await connectToDatabase();
     try{
         const product = await Product.findByIdAndUpdate(data._id.toString(), data, { new: true });
-        // update the category if changed
-        if (data.category) {
-            const category = await Category.findById(data.category);
-            if (category) {
-                product.category = data.category;
-                await category.save();
-            }
-        }
         return NextResponse.json(convertToDto(product), { status: 200 });
     }
     catch (error) {

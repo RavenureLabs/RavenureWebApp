@@ -6,6 +6,7 @@ export type OrderType = {
     productId: mongoose.Types.ObjectId[];
     price: number;
     quantity: number;
+    status: string;
     createdAt: Date;
     updatedAt: Date;
 };
@@ -19,6 +20,7 @@ export const Order = new mongoose.Schema<OrderType>({
         }],
     price: { type: Number, required: true },
     quantity: { type: Number, required: true },
+    status: { type: String, required: true, default: 'pending' },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });

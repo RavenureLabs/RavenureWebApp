@@ -4,7 +4,7 @@ import { MultiLangText } from "../types/global";
 
 
 export type ProductType = {
-    _id: mongoose.Types.ObjectId;
+    _id: ObjectId;
     name: MultiLangText;
     description?: MultiLangText;
     price: number;
