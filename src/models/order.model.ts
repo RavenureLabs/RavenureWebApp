@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 export type OrderType = {
     _id: mongoose.Types.ObjectId;
     userId: mongoose.Types.ObjectId;
-    productId: mongoose.Types.ObjectId[];
+    productIds: mongoose.Types.ObjectId[];
     price: number;
     quantity: number;
     status: string;
@@ -13,7 +13,7 @@ export type OrderType = {
 
 export const Order = new mongoose.Schema<OrderType>({
     userId: { type: mongoose.Schema.Types.ObjectId, required: true },
-    productId: [{
+    productIds: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
         required: true,

@@ -13,6 +13,8 @@ export async function POST(req: NextRequest) {
   const shopier = getShopier();
   const result = shopier.callback(data); 
 
+  console.log("Shopier Callback Data:", data);
+  console.log("Shopier Callback Result:", result);
   if (!result || !("success" in result) || !result.success) {
     return new NextResponse("FAILED", { status: 400 });
   }
