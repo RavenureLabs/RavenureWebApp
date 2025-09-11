@@ -7,17 +7,16 @@ import  Order  from "@/src/models/order.model";
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
-  const form = await req.formData();
-  const data: Record<string, string> = Object.fromEntries(form.entries() as any);
-
   const shopier = getShopier();
-  const result = shopier.callback(data); 
-
-  if (!result || !("success" in result) || !result.success) {
-    return new NextResponse("FAILED", { status: 400 });
+  const result = shopier.callback(await req.json()); 
+  const data = await req.json();
+  console.log("Shopier Callback Result:", result);
+  console.log("Full Request Body:",  data);
+  if (result === false) {
+    return new NextResponse(JSON.stringify( {result, data }), { status: 200 });
   }
 
-  const orderId = data["platform_order_id"] || data["order_id"] || data["merchant_oid"];
+  const orderId = result.order_id;
   if (!orderId) return NextResponse.json({ ok: false, message: "Missing orderId" }, { status: 400 });
 
   const payment = await Order.findById(orderId);
