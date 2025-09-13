@@ -2,7 +2,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getShopier } from "@/src/lib/shopier";
 import { userService, cartService } from "@/src/lib/services";
-import Order from "@/src/models/order.model";
+import Order, { OrderType } from "@/src/models/order.model";
+import User, { UserType } from "@/src/models/user.model";
 
 export const runtime = "nodejs";
 
@@ -56,8 +57,13 @@ export async function POST(req: NextRequest) {
       return new NextResponse("OK"); 
     }
 
-    await userService.addProducts(payment.userEmail, { productIds: payment.productIds });
-    await cartService.deleteCart(payment.userEmail);
+    const user: UserType | null = await User.findById(payment.userId);
+    if (!user) {
+      return new NextResponse("FAILED", { status: 404 });
+    }
+
+    await userService.addProducts(user.email, { productIds: payment.productIds });
+    await cartService.deleteCart(user.email);
 
     await payment.updateOne({ status: "paid" });
 
