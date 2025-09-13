@@ -152,14 +152,18 @@ export class UserService {
         return response.data;
     }
 
-    async addProducts(email : string, data: any) {
-        const response = await api.post(`/api/user/add-products/${email}`, {
-            headers: {
-                'Content-Type': 'application/json',
-                "x-secret": process.env.API_SECRET_KEY
-            }
-        }, data);
-        return response.data as UserType;
+    async addProducts(email: string, data: any) {
+    const response = await api.post(
+        `/api/user/add-products/${email}`,
+        data, 
+        {
+        headers: {
+            "Content-Type": "application/json",
+            "x-secret": process.env.API_SECRET_KEY!,
+        },
+        }
+    );
+    return response.data as UserType;
     }
 
 }
