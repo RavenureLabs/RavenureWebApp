@@ -5,17 +5,36 @@ import { userService, cartService } from "@/src/lib/services";
 import Order from "@/src/models/order.model";
 
 export const runtime = "nodejs";
+// İsteğin cache'lenmemesi için (opsiyonel ama faydalı)
+export const dynamic = "force-dynamic";
+
+function toObjectFromUrlEncoded(raw: string): Record<string, string> {
+  return Object.fromEntries(new URLSearchParams(raw).entries());
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const form = await req.formData();
-    const data = Object.fromEntries(form.entries()) as Record<string, string>;
+    const contentType = req.headers.get("content-type") || "";
+    let data: Record<string, string>;
+
+    if (contentType.includes("application/json")) {
+      data = await req.json();
+    } else if (contentType.includes("application/x-www-form-urlencoded")) {
+      const raw = await req.text();   
+      data = toObjectFromUrlEncoded(raw);
+    } else if (contentType.includes("multipart/form-data")) {
+      const form = await req.formData();
+      data = Object.fromEntries(form.entries()) as Record<string, string>;
+    } else {
+      const raw = await req.text();
+      data = toObjectFromUrlEncoded(raw);
+    }
 
     const shopier = getShopier();
     const result = shopier.callback(data);
 
-    if (!result || !result.order_id) {
-      return NextResponse.json({ ok: false, message: "Invalid callback data" }, { status: 400 });
+    if (!result || (typeof result.order_id !== "undefined" && !result.order_id)) {
+      return new NextResponse("FAILED", { status: 400 });
     }
 
     const orderId =
@@ -25,16 +44,16 @@ export async function POST(req: NextRequest) {
       data["merchant_oid"];
 
     if (!orderId) {
-      return NextResponse.json({ ok: false, message: "Missing orderId" }, { status: 400 });
+      return new NextResponse("FAILED", { status: 400 });
     }
 
     const payment = await Order.findById(orderId);
     if (!payment) {
-      return NextResponse.json({ ok: false, message: "Order not found" }, { status: 404 });
+      return new NextResponse("FAILED", { status: 404 });
     }
 
-    if (payment.status === "paid" || payment.status === "closed" || payment.status === "completed") {
-      return new NextResponse("OK");
+    if (["paid", "closed", "completed"].includes(payment.status)) {
+      return new NextResponse("OK"); 
     }
 
     await userService.addProducts(payment.userEmail, { productIds: payment.productIds });
@@ -43,9 +62,9 @@ export async function POST(req: NextRequest) {
     await payment.updateOne({ status: "paid" });
 
     return new NextResponse("OK");
-  } catch (err) {
-    console.error("Shopier callback error:", err);
-    return NextResponse.json({ ok: false, message: "Server error" }, { status: 500 });
+  } catch (e) {
+    console.error("Shopier callback error:", e);
+    return new NextResponse("FAILED", { status: 500 });
   }
 }
 
