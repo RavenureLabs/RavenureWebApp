@@ -5,7 +5,7 @@ import { userService, cartService } from "@/src/lib/services";
 import Order from "@/src/models/order.model";
 
 export const runtime = "nodejs";
-// İsteğin cache'lenmemesi için (opsiyonel ama faydalı)
+
 export const dynamic = "force-dynamic";
 
 function toObjectFromUrlEncoded(raw: string): Record<string, string> {

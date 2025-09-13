@@ -1,8 +1,10 @@
+import { connectToDatabase } from "@/src/lib/database";
 import User from "@/src/models/user.model";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ email: string }> }) {
     try {
+        await connectToDatabase();
         const { email } = await params;
         const data = await req.json();
         if(req.headers.get("x-secret") !== process.env.API_SECRET_KEY) {
