@@ -66,8 +66,23 @@ export async function POST(req: NextRequest) {
     await cartService.deleteCart(user.email);
 
     await payment.updateOne({ status: "paid" });
-
-    return new NextResponse("OK");
+const html = `
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Yönlendiriliyor…</title>
+    <meta http-equiv="refresh" content="0;url=/dash" />
+    <script>window.location.replace('/dash');</script>
+    <noscript><a href="/dash">Devam etmek için tıklayın</a></noscript>
+  </head>
+  <body>OK</body>
+</html>
+`;
+return new NextResponse(html, {
+  status: 200,
+  headers: { "content-type": "text/html; charset=utf-8" }
+});
   } catch (e) {
     console.error("Shopier callback error:", e);
     return new NextResponse("FAILED", { status: 500 });
