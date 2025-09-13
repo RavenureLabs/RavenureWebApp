@@ -31,8 +31,8 @@ export async function GET(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ email: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { email } = await params;
-  return deleteCart(email);
+  const { id } = await params;
+  return deleteCart(id);
 }
