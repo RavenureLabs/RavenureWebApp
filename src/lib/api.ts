@@ -9,6 +9,7 @@ import { CartType } from "../models/cart.model";
 import { UserLoginLogType } from "../models/userLog.model";
 import { LicenseType } from "../types/global";
 import { CartDTO } from "./cart/getCart";
+import { headers } from "next/headers";
 require('dotenv').config();
 export const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL
@@ -152,7 +153,12 @@ export class UserService {
     }
 
     async addProducts(email : string, data: any) {
-        const response = await api.post(`/api/user/add-products/${email}`, data);
+        const response = await api.post(`/api/user/add-products/${email}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                "x-secret": process.env.API_SECRET_KEY
+            }
+        }, data);
         return response.data as UserType;
     }
 
